@@ -481,7 +481,7 @@ class Fighter():
         frame_index = int(self.frame_index)
         # print(frame_index+1, self.status)
 
-        # get hitbox attributes for this frame
+        # get hitbox attributes for the active frame
         hitbox_attrs = hit_boxes["Homusubi"][str(self.attack_type)]
         offset_x, offset_y, w, h = hitbox_attrs[1]
         
@@ -497,15 +497,15 @@ class Fighter():
         attack_rect = pg.Rect(x, y, w, h)
         # pg.draw.rect(pg.display.get_surface(), "green", attack_rect)
 
-        # detect collision for this specific frame and check if hitsparks are needed
+        # detect collision on the active frame
         if attack_rect.colliderect(target.hit_box) and not self.throwing_proj:
             target.hit = True
             target.hp -= self.move_damage[self.attack_status]
             self.hitspark(attack_rect, flip_hit_box)
-            self.show_damage_num(target)
+            self.animated_text = TextAnimation("", 60, 0, target.hit_box.topright, "blue",30,self.surface)
             self.animated_text.damage = self.move_damage[self.attack_status]
 
-            # knockback if starting an attack
+            # knockback
             if self.attacking:
                 if self.facing_right:
                     self.rect.x -= 30
@@ -541,9 +541,6 @@ class Fighter():
         self.particle.addParticles(target_x, target_y)
         self.particle.addParticles(target_x, target_y)
     
-    def show_damage_num(self, target):
-        self.animated_text = TextAnimation("", 60, 0, target.hit_box.topright, "blue",30,self.surface)
-
     def jump(self):
         self.dY += self.vel_y
 
