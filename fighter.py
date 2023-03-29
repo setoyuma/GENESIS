@@ -364,17 +364,18 @@ class Fighter():
                     if self.proj.type == "LFB":
                         target.hp -= 5
                         target.hit = True
-                        self.show_damage_num(target)
+                        self.animated_text = TextAnimation("", 60, 0, target.hit_box.topright, "blue",30,self.surface)
                         self.animated_text.damage = 5
                     if self.proj.type == "MFB":
                         target.hp -= 7
                         target.hit = True
-                        self.show_damage_num(target)
+                        self.animated_text = TextAnimation("", 60, 0, target.hit_box.topright, "blue",30,self.surface)
                         self.animated_text.damage = 7
                     if self.proj.type == "HFB":
-                        target.hp -= 14
+                        print("hit")
+                        self.hp -= 14
                         target.hit = True
-                        self.show_damage_num(target)
+                        self.animated_text = TextAnimation("", 60, 0, target.hit_box.topright, "blue",30,self.surface)
                         self.animated_text.damage = 14
                 self.proj = None
                 self.fireball = False
