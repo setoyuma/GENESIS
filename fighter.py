@@ -262,7 +262,6 @@ class Fighter():
             if self.attacking:
                 self.attacked = False
 
-
     def move(self, target):
         self.SPEED = 10
         self.dX = 0
@@ -413,7 +412,6 @@ class Fighter():
         self.rect.y += self.dY
         self.dashing = False
 
-
     def updateAnim(self, target):
         if self.hp <= 0:
            self.hp = 0
@@ -468,7 +466,6 @@ class Fighter():
                 self.attacked = True
                 self.attack(target)
 
-
     def update_action(self, new_status):
         #check if the new action is different to the previous one
         if new_status != self.status:
@@ -476,7 +473,6 @@ class Fighter():
             #update the animation settings
             self.frame_index = 0
             self.update_time = pg.time.get_ticks()
-
 
     def attack(self, target):
         frame_index = int(self.frame_index)
@@ -541,6 +537,7 @@ class Fighter():
         self.particle.addParticles(target_x, target_y)
         self.particle.addParticles(target_x, target_y)
         self.particle.addParticles(target_x, target_y)
+        self.particle.update()
     
     def jump(self):
         self.dY += self.vel_y

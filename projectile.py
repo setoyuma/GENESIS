@@ -17,6 +17,7 @@ class Projectile():
         if not facing_right:
             self.speed *= -1
             self.animation = [pg.transform.flip(image, True, False) for image in self.animation]
+    
     def import_assets(self):
         path = f'./assets/fireballs/{self.name}/'
         self.animation = []
