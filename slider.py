@@ -1,9 +1,9 @@
 import pygame as pg
 
 class Slider:
-    def __init__(self, x, y, w, h):
+    def __init__(self, x, y, w, h, volume):
         self.circle_x = x
-        self.volume = 0
+        self.volume = volume
         self.sliderRect = pg.Rect(x, y, w, h)
         self.active = False
 

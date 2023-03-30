@@ -28,7 +28,8 @@ class Game:
 		pg.mixer.init()
 		pg.mixer.music.load(songs['main'])
 		pg.mixer.music.play(-1)
-		pg.mixer.music.set_volume(0.0)
+		self.volume = 0.25
+		pg.mixer.music.set_volume(self.volume)
 		self.screen = pg.display.set_mode((screen_width, screen_height), )
 		self.bg_animations = { "bay-side-carnival": [], "ogre-gate": []}
 		pg.display.set_caption("Kami No Ken: GENESIS")
@@ -153,7 +154,8 @@ class Game:
 		particle1 = ParticlePrinciple()
 		PARTICLE_EVENT = pg.USEREVENT + 1
 		pg.time.set_timer(PARTICLE_EVENT,5)
-		slider = Slider(screen_width//2,screen_height//2,300,10)
+
+		slider = Slider(screen_width//2, screen_height//2, 300, 10, self.volume)
 
 		while True:
 			self.screen.fill('black')
@@ -169,6 +171,8 @@ class Game:
 			mouse_pos = pg.mouse.get_pos()
 			if slider.active:
 				slider.handle_event(self.screen, mouse_pos[0])
+				self.volume = slider.get_volume()
+				pg.mixer.music.set_volume(self.volume)
 
 			for event in pg.event.get():
 				if event.type == pg.QUIT:
@@ -190,6 +194,8 @@ class Game:
 					#slider.on_slider_hold(mouse_pos[0], mouse_pos[1])
 					slider.active = True
 					slider.handle_event(self.screen, mouse_pos[0])
+					self.volume = slider.get_volume()
+					pg.mixer.music.set_volume(self.volume)
 				elif event.type == pg.MOUSEBUTTONUP:
 					slider.active = False
 			
