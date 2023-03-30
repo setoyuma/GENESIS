@@ -363,22 +363,19 @@ class Fighter():
 
             # check projectile collision with opponent
             if self.proj.rect.collidepoint(target.rect.centerx, target.rect.centery-10):
-                if self.proj.name == "FSTECH":
-                    if self.proj.type == "LFB":
-                        target.hp -= 5
-                        target.hit = True
-                        self.animated_text = TextAnimation("", 60, 0, target.hit_box.topright, "white",30,self.surface)
-                        self.animated_text.damage = 5
-                    if self.proj.type == "MFB":
-                        target.hp -= 7
-                        target.hit = True
-                        self.animated_text = TextAnimation("", 60, 0, target.hit_box.topright, "white",30,self.surface)
-                        self.animated_text.damage = 7
-                    if self.proj.type == "HFB":
-                        target.hp -= 14
-                        target.hit = True
-                        self.animated_text = TextAnimation("", 60, 0, target.hit_box.topright, "white",30,self.surface)
-                        self.animated_text.damage = 14
+
+                if self.proj.type == "LFB":
+                    damage = 5
+                elif self.proj.type == "MFB":
+                    damage = 7
+                elif self.proj.type == "HFB":
+                    damage = 14
+
+                target.hp -= damage
+                target.hit = True
+                self.animated_text = TextAnimation("", 60, 0, target.hit_box.topright, "white",30,self.surface)
+                self.animated_text.damage = damage
+                self.super_meter += damage * 2
                 self.proj = None
                 self.fireball = False
                 self.throwing_proj = False

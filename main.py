@@ -14,6 +14,7 @@ from slider import Slider
 health_bar_colors = ColorGradient((0,255,0), (255,0,0)).generate_gradient()
 # br ~ tr ~ tl ~ bl  br=0                          # tr=3     # tl=4               # bl=6
 blast_points = [(179, 127), (195, 99), (225, 98), (225, 95), (30, 85), (6, 113), (28, 137), (53, 123), (92, 112), (173, 127)]
+right_blast_points = [(1421, 127), (1405, 99), (1375, 98), (1375, 95), (1570, 85), (1594, 113), (1572, 137), (1547, 123), (1508, 112), (1427, 127)]
 top_points = [(30, 85), (6, 113)]
 bottom_points = [(225, 95), (53, 123)]
 y_distances = [point[1] - top_points[i][1] for i, point in enumerate(bottom_points)]
@@ -99,9 +100,9 @@ class Game:
 			#super meter
 			pg.draw.polygon(self.screen, "blue", [(screen_width - 635, 148), (screen_width - 615, 110), (screen_width - 200, 93), (screen_width - 190, 113)])
 			# blast meter
-			#if self.player_2.super_meter >= 50: # and self.player_1.blast_cooldown == 0:
-			#	#adjusted_points = [(point[0], point[1] + (ratio * y_distances[top_points.index(point)])) if point in top_points else point for point in blast_points]
-			#	pg.draw.polygon(self.screen, "yellow", blast_points)
+			if self.player_2.super_meter >= 50: # and self.player_1.blast_cooldown == 0:
+				#adjusted_points = [(point[0], point[1] + (ratio * y_distances[top_points.index(point)])) if point in top_points else point for point in blast_points]
+				pg.draw.polygon(self.screen, "yellow", right_blast_points)
 
 	def draw_portrait(self, target):
 		portrait = self.scaled_portrait
