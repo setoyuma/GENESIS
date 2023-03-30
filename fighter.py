@@ -16,7 +16,7 @@ attacks = ['LP', 'MP', 'HP', 'LK', 'MK', 'HK', '2LP', '2MP', '2HP']
 class Fighter():
     def __init__(self, game, x, y, flip, surface, char, data, sprite_sheet, animation_steps, mode):
         self.game = game
-        self.player_num = 1
+        self.super_meter = 0
         self.character = char
         self.size = data[0]
         self.import_character_assets()
@@ -497,6 +497,7 @@ class Fighter():
         # detect collision on the active frame
         if attack_rect.colliderect(target.hit_box) and not self.throwing_proj:
             target.hit = True
+            self.super_meter += self.move_damage[self.attack_status] * 2
             target.hp -= self.move_damage[self.attack_status]
             self.hitspark(attack_rect, flip_hit_box)
             self.animated_text = TextAnimation("", 60, 0, target.hit_box.topright, "white",30,self.surface)
@@ -616,3 +617,6 @@ class Fighter():
             self.surface.blit(img,(self.rect.x - (self.offset[0] * self.image_scale), self.rect.y - (self.offset[1] * self.image_scale)))
         else:
             self.surface.blit(img,(self.rect.x - (self.offset[0] * self.image_scale), self.rect.y - (self.offset[1] * self.image_scale)))
+
+        if self.super_meter > 250:
+            self.super_meter = 250

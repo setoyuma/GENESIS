@@ -69,19 +69,25 @@ class Game:
 		# surf.blit(HUD, (400,0))
 		surf.blit(scaled_HUD, (0,-55))
 
-	def drawHealthBar(self, hp, x, y):
+	def drawHealthBar(self, target, x, y):
 		# player 1
-		ratio = self.player_1.hp / 200
+		ratio = target.hp / 200
+		super_meter_gain = (self.player_1.super_meter / 250) * .68
+		#under bar
 		pg.draw.polygon(self.screen, health_bar_colors["Red 1"], [(610, 112), (610, 40), (30, 65), (30, 85)])  # br, tr, tl, bl
+		#health meter
 		pg.draw.polygon(self.screen, health_bar_colors["Green 1"], [(30+(600*ratio), 85+(ratio*27)), (30+(600*ratio), 67-(ratio*27)), (30, 65), (30, 85)])
-		pg.draw.polygon(self.screen, "red", [(635, 148), (615, 110), (200, 93), (190, 113)])
+		#super meter
+		pg.draw.polygon(self.screen, "red", [(190 + (super_meter_gain * 635), 113 + (super_meter_gain * 54)), (200 + (super_meter_gain * 615), 93 + (super_meter_gain * 26)), (200 , 93), (190, 113)])
 
 		# player 2
-		ratio = self.player_2.hp / 200
 		left_x = screen_width - 610
 		right_x = screen_width - 33
+		#under bar
 		pg.draw.polygon(self.screen, health_bar_colors["Red 1"], [(left_x, 112), (left_x, 40), (right_x, 65), (right_x, 85)])  # bl, tl, tr, br
+		#health meter
 		pg.draw.polygon(self.screen, health_bar_colors["Green 1"], [(right_x-(600*ratio), 85+(ratio*27)), (right_x-(600*ratio), 67-(ratio*27)), (right_x, 65), (right_x, 85)])
+		#super meter
 		pg.draw.polygon(self.screen, "blue", [(screen_width - 635, 148), (screen_width - 615, 110), (screen_width - 200, 93), (screen_width - 190, 113)])
 
 	def draw_portrait(self, x, y, size, target, surf):
@@ -332,6 +338,10 @@ class Game:
 			self.player_2.draw()
 			self.player_1.draw()
 			
+
+			# print(self.player_2.hp)
+			print(self.player_1.super_meter)
+
 			if self.player_1.animated_text is not None:
 				if self.player_1.animated_text.update():
 					self.player_1.animated_text = None
@@ -340,7 +350,7 @@ class Game:
 					self.player_2.animated_text = None
 			
 			#show player stats
-			self.drawHealthBar(self.player_1.hp, 40, 48)
+			self.drawHealthBar(self.player_1, 40, 48)
 			self.draw_HUD(self.screen)
 			self.draw_portrait(50, 2, 80, self.player_1, self.screen)
 			self.draw_portrait(1460, 2, 80, self.player_2, self.screen)
