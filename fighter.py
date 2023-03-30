@@ -107,44 +107,44 @@ class Fighter():
                 if self.status == "idle":
                     self.frame_index = 0
 
-                if self.status == 'hit':
+                elif self.status == 'hit':
                     self.hit = False
 
-                if self.status == 'LP':
+                elif self.status == 'LP':
                     self.attacking = False
                     self.attack_cooldown = 3
-                if self.status == 'MP':
+                elif self.status == 'MP':
                     self.attacking = False
                     self.attack_cooldown = 3
-                if self.status == 'HP':
-                    self.attacking = False
-                    self.attack_cooldown = 3
-
-                if self.status == 'LK':
-                    self.attacking = False
-                    self.attack_cooldown = 3
-                if self.status == 'MK':
-                    self.attacking = False
-                    self.attack_cooldown = 3
-                if self.status == 'HK':
+                elif self.status == 'HP':
                     self.attacking = False
                     self.attack_cooldown = 3
 
-                if "2" not in self.status:
+                elif self.status == 'LK':
+                    self.attacking = False
+                    self.attack_cooldown = 3
+                elif self.status == 'MK':
+                    self.attacking = False
+                    self.attack_cooldown = 3
+                elif self.status == 'HK':
+                    self.attacking = False
+                    self.attack_cooldown = 3
+
+                elif "2" not in self.status:
                     self.status = "idle"
 
-                '''CROUCHING NORMALS'''
-                if self.status == '2LP':
+                    '''CROUCHING NORMALS'''
+                elif self.status == '2LP':
                     self.attacking = False
                     self.attack_cooldown = 3
                     self.update_action("crouch")
                     self.frame_index = 4
-                if self.status == '2MP':
+                elif self.status == '2MP':
                     self.attacking = False
                     self.attack_cooldown = 3
                     self.update_action("crouch")
                     self.frame_index = 4
-                if self.status == '2HP':
+                elif self.status == '2HP':
                     self.attacking = False
                     self.attack_cooldown = 3
                     self.update_action("crouch")
@@ -153,26 +153,26 @@ class Fighter():
 
         if self.status == 'LP':
             self.frame_index += 0.2
-        if self.status == 'MP':
+        elif self.status == 'MP':
             self.frame_index += 0.1
-        if self.status == 'HP':
+        elif self.status == 'HP':
             self.frame_index += 0.2
 
-        if self.status == 'LK':
+        elif self.status == 'LK':
             self.frame_index += 0.2
-        if self.status == 'MK':
+        elif self.status == 'MK':
             self.frame_index += 0.2
-        if self.status == 'HK':
+        elif self.status == 'HK':
             self.frame_index += 0.2
 
-        if self.status == '2LP':
+        elif self.status == '2LP':
             self.frame_index += 0.4
-        if self.status == '2MP':
+        elif self.status == '2MP':
             self.frame_index += 0.1
-        if self.status == '2HP':
+        elif self.status == '2HP':
             self.frame_index += 0.1
 
-        if self.status == 'crouch':
+        elif self.status == 'crouch':
             self.frame_index += self.animation_speed + 0.5
             for i in range(len(animation)):
                 if self.frame_index >= len(animation):
@@ -198,27 +198,30 @@ class Fighter():
         if not self.attacking and self.attack_cooldown == 0:
             '''ATTACKS'''
             # crouching normals
-            if self.crouching and event.key == LP:
-                self.attack_type = 7
-                self.attacking = True
-                
-            elif self.crouching and event.key == MP:
-                self.attack_type = 8
-                self.attacking = True
-            elif self.crouching and event.key == HP:
-                self.attacking = True
-                self.attack_type = 9
+            if self.crouching:
+                if event.key == LP:
+                    self.attack_status = '2LP'
+                    self.attack_type = 7
+                    self.attacking = True
+                elif event.key == MP:
+                    self.attack_status = '2MP'
+                    self.attack_type = 8
+                    self.attacking = True
+                elif event.key == HP:
+                    self.attack_status = '2HP'
+                    self.attacking = True
+                    self.attack_type = 9
             
             # punches
-            elif event.key == pg.K_i and self.on_ground:
+            elif event.key == LP and self.on_ground:
                 self.attack_status = 'LP'
                 self.attack_type = 1
                 self.attacking = True
-            elif event.key == pg.K_o and self.on_ground:
+            elif event.key == MP and self.on_ground:
                 self.attack_status = 'MP'
                 self.attack_type = 2
                 self.attacking = True
-            elif event.key == pg.K_p and self.on_ground:
+            elif event.key == HP and self.on_ground:
                 self.attack_status = 'HP'
                 self.attack_type = 3
                 self.attacking = True
