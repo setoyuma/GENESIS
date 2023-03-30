@@ -154,7 +154,6 @@ class Game:
 		particle1 = ParticlePrinciple()
 		PARTICLE_EVENT = pg.USEREVENT + 1
 		pg.time.set_timer(PARTICLE_EVENT,5)
-
 		slider = Slider(screen_width//2 - 95, 145, 200, 10, self.volume)
 
 		while True:
@@ -163,12 +162,10 @@ class Game:
 			volume_button = Button(screen_width//2, 40, 200, 100, "VOLUME", None, True)
 			back_button = Button(screen_width//2, 160, 200, 100, "BACK", self.Options, True)
 
-			
 			# slider = Slider(screen_width//2, screen_height//2, 300, 50, 40, "purple", "yellow", self.screen)
 			# slider.update()
 
 			slider.draw(self.screen)
-			
 
 			mouse_pos = pg.mouse.get_pos()
 			if slider.active:
@@ -298,7 +295,6 @@ class Game:
 			self.player_1.move(self.player_2)
 			# self.player_2.move(self.player_1)
 
-
 			#update fighters
 			self.player_1.updateAnim(self.player_2)
 			self.player_2.updateAnim(self.player_1)
@@ -306,8 +302,6 @@ class Game:
 			'''DRAW PLAYER'''
 			self.player_2.draw()
 			self.player_1.draw()
-
-			
 
 			self.player_1.framesWithoutCombo += 1
 			if self.player_1.framesWithoutCombo > 26 or len(self.player_1.moveCombo) > 9:
@@ -332,24 +326,17 @@ class Game:
 						pass
 					if event.key == pg.K_h:
 						pg.draw.rect(self.screen, "green", self.player_1.hit_box)
-					
-			
-			'''DISPLAY STATS'''
-			# #p1
-			#draw_text(self.screen, f"{self.player_1.hp}", (100, 100), 30, (255,0,0))
-			
-			# #p2
-			#draw_text(self.screen, f"{self.player_2.hp}", (1500, 40), 30, (255,0,0))
 
-			
 			#show player stats
 			self.drawHealthBar(self.player_1)
 			self.drawHealthBar(self.player_2)
 			self.draw_HUD(self.screen)
+			self.draw_portrait(self.player_1)
+			self.draw_portrait(self.player_2)
 
 			# show fps
 			fpsCounter = str(int(self.clock.get_fps()))
-			draw_text(self.screen, f"FPS: {fpsCounter}", (1000, 10))
+			draw_text(self.screen, f"FPS: {fpsCounter}", (HALF_SCREENW, 200))
 
 			pg.display.update()
 			self.clock.tick(FPS)
@@ -370,7 +357,6 @@ class Game:
 			self.drawBG()
 			self.animate()
 
-
 			'''PLAYER MVMNT'''
 			self.player_1.move(self.player_2)
 			#self.dummy.move(self.player_1)
@@ -378,7 +364,6 @@ class Game:
 			#update fighters
 			self.player_1.updateAnim(self.player_2)
 			self.player_2.updateAnim(self.player_1)
-
 
 			self.player_1.framesWithoutCombo += 1
 			if self.player_1.framesWithoutCombo > 26 or len(self.player_1.moveCombo) > 9:
@@ -403,14 +388,6 @@ class Game:
 						pass
 					if event.key == pg.K_h:
 						pg.draw.rect(self.screen, "green", self.player_1.hit_box)
-					
-			
-			'''DISPLAY STATS'''
-			# #p1
-			#draw_text(self.screen, f"{self.player_1.hp}", (100, 100), 30, (255,0,0))
-			
-			# #p2
-			#draw_text(self.screen, f"{self.player_2.hp}", (1500, 40), 30, (255,0,0))
 
 			'''DRAW PLAYER'''
 			self.player_2.draw()
