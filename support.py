@@ -1,6 +1,7 @@
 from csv import reader
 from os import walk, sep
 import pygame
+import sys
 import re
 
 def natural_key(string_):
@@ -44,6 +45,22 @@ def scale_images(images: list, size: tuple):
     for image in images:
         scaled_images.append(pygame.transform.scale(image, size))
     return scaled_images
+
+
+def check_for_quit(event):
+    quit = False
+
+    if event.type == pygame.QUIT:
+        quit = True
+
+    elif event.type == pygame.KEYDOWN:
+        if event.key == pygame.K_q:
+            quit = True
+    
+    if quit:
+        print('\nGame Closed\n')
+        pygame.quit()
+        sys.exit()
 
 
 _text_library = {}

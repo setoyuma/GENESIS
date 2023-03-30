@@ -3,7 +3,7 @@ from support import draw_text
 from settings import *
 
 class HitStunFrames:
-    def __init__(self, game, stun_frames=5):
+    def __init__(self, game, stun_frames=3):
         self.game = game
         self.frame = 0
         self.stun_frames = stun_frames

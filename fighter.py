@@ -1,51 +1,75 @@
 import pygame as pg
-from settings import *
 
 from text_animation import TextAnimation
 from hit_boxes import hit_boxes
-from support import *
-from inputs import *
 from projectile import Projectile
 from show_inputs import Arrow
-from animations import *
 from attack_damage import char_damage
 from particle import ParticlePrinciple
 from hit_stun import HitStunFrames
+from character_variables import *
+from animations import *
+from settings import *
+from support import *
+from inputs import *
 
 attacks = ['LP', 'MP', 'HP', 'LK', 'MK', 'HK', '2LP', '2MP', '2HP']
 
 class Fighter():
-    def __init__(self, game, x, y, flip, surface, char, data, sprite_sheet, animation_steps, mode):
+    def __init__(self, game, x, y, flip, char, mode="Play"):
         self.game = game
+        self.mode = mode
+
+        # stats
+        self.size = subi_data[0]
+        self.image_scale = subi_data[1]
+        self.offset = subi_data[2]
+        self.hp = subi_data[3]
         self.super_meter = 0
+
+        # animations
         self.character = char
-        self.size = data[0]
         self.import_character_assets()
         self.frame_index = 0
+        self.animation_speed = 0.22
         self.image = self.animations['idle'][self.frame_index]
-        self.rect = pg.Rect(x, y, 80, 180)
+        self.status = 'idle'
         self.flip = flip
-        self.mode = mode
-        self.image_scale = data[1]
-        self.offset = data[2]
-        self.vel_y = 0
-        self.walking = False
-        self.jumping = False
-        self.move_damage = char_damage[self.character]
+        self.rect = pg.Rect(x, y, 80, 180)
         self.particle = ParticlePrinciple()
-        self.proj = None
-        self.throwing_proj = False
-        self.animated_text = None
-        self.hit_stun = None
 
-        '''FIREBALLS'''
+        # attacks
         self.fireball = False
-        if self.character == "Homusubi":
-            pass
+        self.hit_stun = None
+        self.attack_status = 'LP'
+        self.attack_type = 0
+        self.attack_cooldown = 0
+        self.framesWithoutCombo = 0
+        self.inputIndex = 0
+        self.moveCombo = []
+        self.inputValues = []
+        self.inputs = {}
+        self.move_damage = char_damage[self.character]
 
+        # flags
         self.hit = False
         self.crouching = False
         self.on_ground = True
+        self.walking = False
+        self.jumping = False
+        self.proj = None
+        self.throwing_proj = False
+        self.animated_text = None
+        self.attacked = False
+        self.attacking = False
+        self.dashing = False
+        self.facing_right = True
+
+        # world
+        self.dashGravity = 0.5
+        self.dashLength = 40
+        self.vel_y = 0
+        self.GRAVITY = 2
         self.dir = "forward"
         self.arrow_locx = screen_width/2-50
         self.arrow_locy = 200
@@ -53,38 +77,10 @@ class Fighter():
         if self.mode == "Train":
             self.arrow = Arrow(self.dir, self.arrow_locx,
                                self.arrow_locy, self.arrow_size)
-        self.attacked = False
-        self.attacking = False
-        self.dashing = False
-        self.attack_type = 0
-        self.surface = surface
-        self.hp = data[3]
-        self.GRAVITY = 2
-        self.dashGravity = 0.5
-        self.dashLength = 40
-        self.attack_cooldown = 0
-        # attacks
-        self.moveCombo = []
-        self.framesWithoutCombo = 0
-        self.inputIndex = 0
-        self.inputs = {}
-        self.inputValues = []
-        self.inputKey = []
-
-        self.status = 'idle'
-        self.attack_status = 'LP'
-        # self.status = 0
-        self.animation_speed = .22
-        # self.animation_list = self.load_images(sprite_sheet, animation_steps)
-        # self.image = self.animation_list[self.status][self.frame_index]
-        self.update_time = pg.time.get_ticks()  # spawn timestamp
-        # self.rect = self.image.get_rect(topleft=(x,y))
-
-        '''player state'''
-        self.facing_right = True
 
     def import_character_assets(self):
         character_path = f'./assets/characters/{self.character}/'
+
         match self.character:
             case "Homusubi":
                 self.animations = Homusubi_Anims
@@ -94,8 +90,7 @@ class Fighter():
         for animation in self.animations.keys():
             full_path = character_path + animation
             original_images = import_folder(full_path)
-            scaled_images = scale_images(
-                original_images, (self.size, self.size))
+            scaled_images = scale_images(original_images, (self.size, self.size))
             self.animations[animation] = scaled_images
 
     def animate(self):
@@ -185,19 +180,6 @@ class Fighter():
 
         self.image = animation[int(self.frame_index)]
 
-    def load_images(self, sprite_sheet, animation_steps):
-        # extract images from spritesheet
-        animation_list = []
-        for y, animation in enumerate(animation_steps):
-          temp_img_list = []
-          for x in range(animation):
-            temp_img = sprite_sheet.subsurface(
-                x * self.size, y, self.size, self.size)
-            temp_img_list.append(pg.transform.scale(
-                temp_img, (self.size * self.image_scale, self.size * self.image_scale)))
-          animation_list.append(temp_img_list)
-        return animation_list
-
     def handle_keydowns(self, event, target):
         # check current action
         if not self.attacking and self.attack_cooldown == 0:
@@ -263,9 +245,9 @@ class Fighter():
 
                 if event.key == pg.K_w:
                     self.dY = 0
-                if event.key == pg.K_a:
+                elif event.key == pg.K_a:
                     self.dX = 0
-                if event.key == pg.K_d:
+                elif event.key == pg.K_d:
                     self.dX = 0
             
             if self.attacking:
@@ -473,7 +455,6 @@ class Fighter():
             self.status = new_status
             #update the animation settings
             self.frame_index = 0
-            self.update_time = pg.time.get_ticks()
 
     def attack(self, target, damage=None):
         # get hitbox attributes for the active frame
@@ -507,11 +488,11 @@ class Fighter():
 
             self.hitspark(attack_rect, flip_hit_box, fireball, target)
     
-            self.animated_text = TextAnimation("", 60, 0, target.hit_box.topright, "white",30,self.surface)
+            self.animated_text = TextAnimation("", 60, 0, target.hit_box.topright, "white", 30, self.game.screen)
             self.animated_text.damage = damage
 
             # hit stun
-            self.hit_stun = HitStunFrames(self.game, stun_frames=5)
+            self.hit_stun = HitStunFrames(self.game, stun_frames=3)
             while self.hit_stun.frame <= self.hit_stun.stun_frames:
                 self.hit_stun.update()
             self.hit_stun = None
@@ -606,7 +587,6 @@ class Fighter():
                     self.throwing_proj = False
 
     def draw(self):
-        pg.key.set_repeat(0)
         self.particle.emit("white")
         if self.dashing:
             self.applyGravityDash()
@@ -626,13 +606,13 @@ class Fighter():
             self.checkMoveCombo()
         self.hit_box = pg.Rect(self.rect.x, self.rect.y - 100, 120, 280)
         img = pg.transform.flip(self.image, self.flip, False)
-        # pg.draw.rect(self.surface,"red",self.rect)
-        # pg.draw.rect(self.surface,"blue",self.hit_box)
+        # pg.draw.rect(self.game.screen, "red", self.rect)
+        # pg.draw.rect(self.game.screen, "blue", self.hit_box)
 
         if self.flip:
-            self.surface.blit(img,(self.rect.x - (self.offset[0] * self.image_scale), self.rect.y - (self.offset[1] * self.image_scale)))
+            self.game.screen.blit(img,(self.rect.x - (self.offset[0] * self.image_scale), self.rect.y - (self.offset[1] * self.image_scale)))
         else:
-            self.surface.blit(img,(self.rect.x - (self.offset[0] * self.image_scale), self.rect.y - (self.offset[1] * self.image_scale)))
+            self.game.screen.blit(img,(self.rect.x - (self.offset[0] * self.image_scale), self.rect.y - (self.offset[1] * self.image_scale)))
 
         if self.super_meter > 250:
             self.super_meter = 250

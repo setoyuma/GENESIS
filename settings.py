@@ -1,23 +1,23 @@
 import pygame as pg
-pg.init()
-pg.display.set_icon(pg.image.load('./assets/icons/main/gameicon.ico'))
-HITSPARK = pg.image.load('./assets/vfx/hit/Hit-Spark8.png')
 
 FPS = 60
+
 screen_width = 1600
 screen_height = 800
+HALF_SCREENW = screen_width//2
+HALF_SCREENH = screen_height//2
+QUARTER_SCREENW = screen_width//4
+QUARTER_SCREENH = screen_width//4
+
 floor_height = 30
+
+pg.font.init()
 FONT = pg.font.Font("assets/ui/font/minotaur.ttf", 30)
 
 '''FIGHTER SCALES'''
 fighter_scales = {
     1: 1,
 }
-
-HALF_SCREENW = screen_width//2
-HALF_SCREENH = screen_height//2
-QUARTER_SCREENW = screen_width//4
-QUARTER_SCREENH = screen_width//4
 
 '''BACKGROUNDS'''
 carnival = "bay-side-carnival"
