@@ -201,7 +201,7 @@ class Game:
 			
 			volume_button.Process()
 			back_button.Process()
-			self.clock.tick(60)
+			self.clock.tick(FPS)
 			particle1.emit("Red")
 			pg.display.flip()
 

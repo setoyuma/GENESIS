@@ -500,7 +500,7 @@ class Fighter():
             self.hitspark(attack_rect, flip_hit_box)
             self.animated_text = TextAnimation("", 60, 0, target.hit_box.topright, "white",30,self.surface)
             self.animated_text.damage = self.move_damage[self.attack_status]
-            HitStunFrames(self.game.clock, stun_frames=5)
+            HitStunFrames(self.game, stun_frames=5)
 
             # knockback
             if self.attacking:
