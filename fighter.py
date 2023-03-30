@@ -16,6 +16,7 @@ attacks = ['LP', 'MP', 'HP', 'LK', 'MK', 'HK', '2LP', '2MP', '2HP']
 class Fighter():
     def __init__(self, game, x, y, flip, surface, char, data, sprite_sheet, animation_steps, mode):
         self.game = game
+        self.player_num = 1
         self.character = char
         self.size = data[0]
         self.import_character_assets()

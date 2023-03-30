@@ -64,7 +64,7 @@ class Game:
 		self.screen.blit(self.image,(0,0))
 
 	def draw_HUD(self, surf):
-		HUD = get_image("./assets/ui/HUD/In-Battle-HUD2.png")
+		HUD = get_image("./assets/ui/HUD/HUD.png")
 		scaled_HUD = pg.transform.scale(HUD, (screen_width,  screen_height/3))
 		# surf.blit(HUD, (400,0))
 		surf.blit(scaled_HUD, (0,-55))
@@ -86,6 +86,8 @@ class Game:
 
 	def draw_portrait(self, x, y, size, target, surf):
 		portrait = get_image(f"./assets/characters/{target.character}/portrait/portrait.png")
+		if target ==  self.player_2:
+			portrait = pg.transform.flip(portrait, True, False)
 		scaled_portrait = pg.transform.scale(portrait, (size+20, size-10))
 		surf.blit(scaled_portrait, (x,y))
 		pass
@@ -340,8 +342,8 @@ class Game:
 			#show player stats
 			self.drawHealthBar(self.player_1.hp, 40, 48)
 			self.draw_HUD(self.screen)
-			self.draw_portrait(50, 0, 80, self.player_1, self.screen)
-			self.draw_portrait(1500, 0, 80, self.player_2, self.screen)
+			self.draw_portrait(50, 2, 80, self.player_1, self.screen)
+			self.draw_portrait(1460, 2, 80, self.player_2, self.screen)
 
 			# show fps
 			fpsCounter = str(int(self.clock.get_fps()))
