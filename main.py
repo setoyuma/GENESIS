@@ -141,9 +141,9 @@ class Game:
 			self.clock.tick(60)
 			particle1.emit("Red")
 			pg.display.flip()
-	
-	def Options(self):
-		pg.display.set_caption("Kami No Ken: OPTIONS")
+
+	def SoundSettings(self):
+		pg.display.set_caption("Kami No Ken: SOUND SETTINGS")
 		mainMenuBG = get_image("./assets/backgrounds/main-menu/KnK.png")
 		particle1 = ParticlePrinciple()
 		PARTICLE_EVENT = pg.USEREVENT + 1
@@ -152,8 +152,7 @@ class Game:
 		while True:
 			self.screen.fill('black')
 			self.screen.blit(mainMenuBG,(480,115))
-			sound_button = Button(screen_width//2,400,200,100,"SOUND",self.HomeScreen,True)
-			video_button = Button(screen_width//2,480,200,100,"VIDEO",self.HomeScreen,True)
+			play_button = Button(screen_width//2,screen_height//2,200,100,"PLAY",self.HomeScreen,True)
 			for event in pg.event.get():
 				if event.type == pg.QUIT:
 						print('\nGame Closed\n')
@@ -169,8 +168,7 @@ class Game:
 					if event.key == pg.K_SPACE:
 						self.Play()
             
-			sound_button.Process()
-			video_button.Process()
+			play_button.Process()
 			self.clock.tick(60)
 			particle1.emit("Red")
 			pg.display.flip()
@@ -211,7 +209,40 @@ class Game:
 			self.clock.tick(60)
 			particle1.emit("Red")
 			pg.display.flip()
+	
+	def Options(self):
+		pg.display.set_caption("Kami No Ken: OPTIONS")
+		mainMenuBG = get_image("./assets/backgrounds/main-menu/KnK.png")
+		particle1 = ParticlePrinciple()
+		PARTICLE_EVENT = pg.USEREVENT + 1
+		pg.time.set_timer(PARTICLE_EVENT,5)
 
+		while True:
+			self.screen.fill('black')
+			self.screen.blit(mainMenuBG,(480,115))
+			sound_button = Button(screen_width//2,400,200,100,"SOUND",self.HomeScreen,True)
+			video_button = Button(screen_width//2,480,200,100,"VIDEO",self.HomeScreen,True)
+			for event in pg.event.get():
+				if event.type == pg.QUIT:
+						print('\nGame Closed\n')
+						pg.quit()
+						sys.exit()
+				if event.type == PARTICLE_EVENT:
+					particle1.addParticles(pg.mouse.get_pos()[0], pg.mouse.get_pos()[1])
+				if event.type == pg.KEYDOWN:
+					if event.key == pg.K_q:
+						print('\nGame Closed\n')
+						pg.quit()
+						sys.exit()
+					if event.key == pg.K_SPACE:
+						self.Play()
+            
+			sound_button.Process()
+			video_button.Process()
+			self.clock.tick(60)
+			particle1.emit("Red")
+			pg.display.flip()
+	
 	def Training(self):
 		pg.display.set_caption("Kami No Ken: GENESIS")
 		pg.mixer.music.load(songs['credits'])

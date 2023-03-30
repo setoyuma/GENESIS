@@ -1,31 +1,40 @@
-import pygame as pg
+import pygame
+
+# Window size
+WINDOW_WIDTH    = 400
+WINDOW_HEIGHT   = 400
+
+### initialisation
+pygame.init()
+window = pygame.display.set_mode( ( WINDOW_WIDTH, WINDOW_HEIGHT ) )
+pygame.display.set_caption("Gradient Rect")
+
+def gradientRect( window, left_colour, right_colour, target_rect ):
+    """ Draw a horizontal-gradient filled rectangle covering <target_rect> """
+    colour_rect = pygame.Surface( ( 2, 2 ) )                                   # tiny! 2x2 bitmap
+    pygame.draw.line( colour_rect, left_colour,  ( 0,0 ), ( 0,1 ) )            # left colour line
+    pygame.draw.line( colour_rect, right_colour, ( 1,0 ), ( 1,1 ) )            # right colour line
+    colour_rect = pygame.transform.smoothscale( colour_rect, ( target_rect.width, target_rect.height ) )  # stretch!
+    window.blit( colour_rect, target_rect )                                    # paint it
 
 
-def main():
-    pg.init()
-    screen = pg.display.set_mode((1500,800))
-    clock = pg.time.Clock()
-    FPS = 60
+### Main Loop
+clock = pygame.time.Clock()
+finished = False
+while not finished:
 
-    while True:
+    # Handle user-input
+    for event in pygame.event.get():
+        if ( event.type == pygame.QUIT ):
+            done = True
 
-        screen.fill("black")
+    # Update the window
+    window.fill( ( 0,0,0 ) )
+    gradientRect( window, (0, 255, 0), (0, 100, 0), pygame.Rect( 100,100, 100, 50 ) )
+    gradientRect( window, (255, 255, 0), (0, 0, 255), pygame.Rect( 100,200, 128, 64 ) )
+    pygame.display.flip()
 
-        wedge = pg.draw.polygon(screen, "red", [(572, 30), (572, 80), (0, 80)],)
-        # screen.blit(screen, (500,0), pg.draw.polygon(screen, "red", [(572, 80), (572, 30), (0, 80)]))
-        
-        HUD = pg.image.load("./assets/ui/HUD/In-Battle-HUD2.png")
-        scaled_HUD = pg.transform.scale(HUD, (1500,  800/3))
-        # screen.blit(scaled_HUD, (0,-55))
+    # Clamp FPS
+    clock.tick_busy_loop(60)
 
-        # pg.draw.rect(screen, "blue", wedge)
-        for event in pg.event.get():
-            if event.type == pg.QUIT:
-                pg.quit()
-
-
-        pg.display.flip()
-        clock.tick(FPS)
-
-if __name__ == '__main__':
-    main()
+pygame.quit()
