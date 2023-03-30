@@ -8,6 +8,7 @@ from color_animation import ColorGradient
 from settings import * 
 from support import *
 from character_variables import *
+from slider import Slider
 
 # might need to pre-init mixer to reduce sound delay (will affect sound effects)
 health_bar_colors = ColorGradient((0,255,0), (255,0,0)).generate_gradient()
@@ -155,7 +156,16 @@ class Game:
 		while True:
 			self.screen.fill('black')
 			self.screen.blit(mainMenuBG,(480,115))
-			play_button = Button(screen_width//2,screen_height//2,200,100,"PLAY",self.HomeScreen,True)
+			volume_button = Button(screen_width//2, 80, 200, 100, "VOLUME", self.SoundSettings, True)
+			back_button = Button(screen_width//2, 160, 200, 100, "BACK", self.Options, True)
+			
+			# slider = Slider(screen_width//2, screen_height//2, 300, 50, 40, "purple", "yellow", self.screen)
+			# slider.update()
+
+			slider = Slider(screen_width//2,screen_height//2,300,10)
+			mouse_pos = pg.mouse.get_pos()
+
+
 			for event in pg.event.get():
 				if event.type == pg.QUIT:
 						print('\nGame Closed\n')
@@ -168,14 +178,23 @@ class Game:
 						print('\nGame Closed\n')
 						pg.quit()
 						sys.exit()
-					if event.key == pg.K_SPACE:
+					elif event.key == pg.K_SPACE:
 						self.Play()
-            
-			play_button.Process()
+
+
+			slider.on_slider(mouse_pos[0], mouse_pos[1])
+			if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
+				slider.on_slider_hold(mouse_pos[0], mouse_pos[1])
+				slider.handle_event(self.screen, mouse_pos[0])
+			else:
+				slider.draw(self.screen)
+			
+			
+			volume_button.Process()
+			back_button.Process()
 			self.clock.tick(60)
 			particle1.emit("Red")
 			pg.display.flip()
-	
 	def HomeScreen(self):
 		pg.display.set_caption("Kami No Ken: MAIN MENU")
 		mainMenuBG = get_image("./assets/backgrounds/main-menu/KnK.png")
@@ -223,8 +242,9 @@ class Game:
 		while True:
 			self.screen.fill('black')
 			self.screen.blit(mainMenuBG,(480,115))
-			sound_button = Button(screen_width//2,400,200,100,"SOUND",self.HomeScreen,True)
-			video_button = Button(screen_width//2,480,200,100,"VIDEO",self.HomeScreen,True)
+			sound_button = Button(screen_width//2,320,200,100,"SOUND",self.SoundSettings,True)
+			video_button = Button(screen_width//2,400,200,100,"VIDEO",self.HomeScreen,True)
+			back_button = Button(screen_width//2, 480, 200, 100, "BACK", self.HomeScreen, True)
 			for event in pg.event.get():
 				if event.type == pg.QUIT:
 						print('\nGame Closed\n')
@@ -242,6 +262,7 @@ class Game:
             
 			sound_button.Process()
 			video_button.Process()
+			back_button.Process()
 			self.clock.tick(60)
 			particle1.emit("Red")
 			pg.display.flip()

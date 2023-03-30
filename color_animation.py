@@ -42,6 +42,7 @@ class ColorGradient:
     def generate_gradient(self, test=False):
         gradient = []
         while not self.target_reached:
+            gradient.append(self.next())
             color = self.next()
             color[1] = min(int(color[1] * 1.5), 255)
             color[0] = min(int(color[0] * 1.5), 255)
