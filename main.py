@@ -75,8 +75,6 @@ class Game:
 
 		if target == self.player_1:
 			super_meter_gain = (self.player_1.super_meter / 250) * .68
-			#under bar
-			#pg.draw.polygon(self.screen, health_bar_colors["Red 1"], [(610, 112), (610, 40), (30, 65), (30, 85)])  # br, tr, tl, bl
 			#health meter
 			pg.draw.polygon(self.screen, health_bar_colors[color_index], [(30+(600*ratio), 85+(ratio*27)), (30+(600*ratio), 67-(ratio*27)), (30, 65), (30, 85)])
 			#super meter
@@ -85,8 +83,6 @@ class Game:
 		else:
 			left_x = screen_width - 610
 			right_x = screen_width - 33
-			#under bar
-			#pg.draw.polygon(self.screen, health_bar_colors["Red 1"], [(left_x, 112), (left_x, 40), (right_x, 65), (right_x, 85)])  # bl, tl, tr, br
 			#health meter
 			pg.draw.polygon(self.screen, health_bar_colors[color_index], [(right_x-(600*ratio), 85+(ratio*27)), (right_x-(600*ratio), 67-(ratio*27)), (right_x, 65), (right_x, 85)])
 			#super meter
