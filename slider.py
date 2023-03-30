@@ -5,6 +5,7 @@ class Slider:
         self.circle_x = x
         self.volume = 0
         self.sliderRect = pg.Rect(x, y, w, h)
+        self.active = False
 
     def draw(self, screen):
         pg.draw.rect(screen, (255, 255, 255), self.sliderRect)
@@ -34,7 +35,7 @@ class Slider:
 
     def on_slider_hold(self, x, y):
         if ((x - self.circle_x) * (x - self.circle_x) + (y - (self.sliderRect.y + self.sliderRect.h / 2)) * (y - (self.sliderRect.y + self.sliderRect.h / 2)))\
-            <= (self.sliderRect.h * 1.5) * (self.sliderRect.h * 1.5):\
+            <= (self.sliderRect.h * 1.5) * (self.sliderRect.h * 1.5):
             return True
         else:
             return False

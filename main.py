@@ -167,8 +167,8 @@ class Game:
 			slider.draw(self.screen)
 
 			mouse_pos = pg.mouse.get_pos()
-			
-
+			if slider.active:
+				slider.handle_event(self.screen, mouse_pos[0])
 
 			for event in pg.event.get():
 				if event.type == pg.QUIT:
@@ -186,15 +186,19 @@ class Game:
 						self.Play()
 
 			
-			if event.type == pg.MOUSEBUTTONDOWN and event.button == 1 and slider.on_slider(mouse_pos[0], mouse_pos[1]):
-				slider.on_slider_hold(mouse_pos[0], mouse_pos[1])
-				slider.handle_event(self.screen, mouse_pos[0])
+				if event.type == pg.MOUSEBUTTONDOWN and event.button == 1 and slider.on_slider(mouse_pos[0], mouse_pos[1]):
+					#slider.on_slider_hold(mouse_pos[0], mouse_pos[1])
+					slider.active = True
+					slider.handle_event(self.screen, mouse_pos[0])
+				elif event.type == pg.MOUSEBUTTONUP:
+					slider.active = False
 			
 			volume_button.Process()
 			back_button.Process()
 			self.clock.tick(60)
 			particle1.emit("Red")
 			pg.display.flip()
+
 	def HomeScreen(self):
 		pg.display.set_caption("Kami No Ken: MAIN MENU")
 		mainMenuBG = get_image("./assets/backgrounds/main-menu/KnK.png")
