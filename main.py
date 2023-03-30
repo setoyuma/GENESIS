@@ -72,6 +72,8 @@ class Game:
 	def drawHealthBar(self, target):
 		ratio = target.hp / 200
 		color_index = len(health_bar_colors) - int(ratio * len(health_bar_colors))
+		if color_index >= len(health_bar_colors):
+			color_index = len(health_bar_colors) - 1
 
 		if target == self.player_1:
 			super_meter_gain = (self.player_1.super_meter / 250) * .68
