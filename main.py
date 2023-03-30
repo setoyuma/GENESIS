@@ -359,11 +359,9 @@ class Game:
 		pg.display.set_caption("Kami No Ken: GENESIS")
 		pg.mixer.music.load(songs['science'])
 		pg.mixer.music.play(-1)
-		pg.mixer.music.set_volume(0.0)
 
 		self.player_1 = Fighter(self, 200, 510, False, self.screen, "Homusubi", subi_data, subi_sheet, subi_anim_steps, "Play")
 		self.player_2 = Fighter(self, 1000, 570, True, self.screen, "Homusubi", subi_data, subi_sheet, subi_anim_steps, "Play")
-
 		while True:
 
 			self.screen.fill('grey')
@@ -373,7 +371,7 @@ class Game:
 
 			'''PLAYER MVMNT'''
 			self.player_1.move(self.player_2)
-			# self.dummy.move(self.player_1)
+			#self.dummy.move(self.player_1)
 
 			#update fighters
 			self.player_1.updateAnim(self.player_2)

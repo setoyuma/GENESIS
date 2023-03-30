@@ -10,6 +10,7 @@ from show_inputs import Arrow
 from animations import *
 from attack_damage import char_damage
 from particle import ParticlePrinciple
+from hit_stun import HitStunFrames
 
 attacks = ['LP', 'MP', 'HP', 'LK', 'MK', 'HK', '2LP', '2MP', '2HP']
 
@@ -499,6 +500,7 @@ class Fighter():
             self.hitspark(attack_rect, flip_hit_box)
             self.animated_text = TextAnimation("", 60, 0, target.hit_box.topright, "white",30,self.surface)
             self.animated_text.damage = self.move_damage[self.attack_status]
+            HitStunFrames(self.game.clock, stun_frames=5)
 
             # knockback
             if self.attacking:
