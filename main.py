@@ -45,6 +45,12 @@ class Game:
 		HUD = get_image("./assets/ui/HUD/HUD.png")
 		self.scaled_HUD = pg.transform.scale(HUD, (screen_width,  screen_height/3))
 
+		# portait
+		# will need to change eventually for new characters
+		portrait = get_image(f"./assets/characters/Homusubi/portrait/portrait.png")
+		size = 80
+		self.scaled_portrait = pg.transform.scale(portrait, (size+20, size-10))
+
 		# bg
 		bg_path = f'./assets/backgrounds/'
 
@@ -93,13 +99,17 @@ class Game:
 			#super meter
 			pg.draw.polygon(self.screen, "blue", [(screen_width - 635, 148), (screen_width - 615, 110), (screen_width - 200, 93), (screen_width - 190, 113)])
 
-	def draw_portrait(self, x, y, size, target, surf):
-		portrait = get_image(f"./assets/characters/{target.character}/portrait/portrait.png")
-		if target ==  self.player_2:
+	def draw_portrait(self, target):
+		portrait = self.scaled_portrait
+
+		if target ==  self.player_1:
+			pos = (50, 2)
+
+		else:
+			pos = (1460, 2)
 			portrait = pg.transform.flip(portrait, True, False)
-		scaled_portrait = pg.transform.scale(portrait, (size+20, size-10))
-		surf.blit(scaled_portrait, (x,y))
-		pass
+
+		self.screen.blit(portrait, pos)
 
 	def MainMenu(self):
 		pg.display.set_caption("Kami No Ken: MAIN MENU")
@@ -352,8 +362,8 @@ class Game:
 			self.drawHealthBar(self.player_1)
 			self.drawHealthBar(self.player_2)
 			self.draw_HUD(self.screen)
-			self.draw_portrait(50, 2, 80, self.player_1, self.screen)
-			self.draw_portrait(1460, 2, 80, self.player_2, self.screen)
+			self.draw_portrait(self.player_1)
+			self.draw_portrait(self.player_2)
 
 			# show fps
 			fpsCounter = str(int(self.clock.get_fps()))
