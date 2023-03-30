@@ -4,22 +4,14 @@ import sys
 from fighter import Fighter
 from button import Button
 from particle import ParticlePrinciple
+from color_animation import ColorGradient
 from settings import * 
 from support import *
 from character_variables import *
 
 # might need to pre-init mixer to reduce sound delay (will affect sound effects)
+health_bar_colors = ColorGradient((0,255,0), (255,0,0)).generate_gradient()
 
-health_bar_colors = {
-	"Green 1" : "#00980b",
-	"Green 2" : "#57bf00" ,
-	"Green 3" : "#a1ff00" ,
-	"Yellow 1" : "#fff700" ,
-	"Yellow 2" : "#ffbf00" ,
-	"Orange 1" : "#ff9d00" ,
-	"Orange 2" : "#ff4f00",
-	"Red 1" : "#ff0000" ,
-}
 
 class Game:
 	def __init__(self):
@@ -79,13 +71,14 @@ class Game:
 
 	def drawHealthBar(self, target):
 		ratio = target.hp / 200
+		color_index = len(health_bar_colors) - int(ratio * len(health_bar_colors))
 
 		if target == self.player_1:
 			super_meter_gain = (self.player_1.super_meter / 250) * .68
 			#under bar
-			pg.draw.polygon(self.screen, health_bar_colors["Red 1"], [(610, 112), (610, 40), (30, 65), (30, 85)])  # br, tr, tl, bl
+			#pg.draw.polygon(self.screen, health_bar_colors["Red 1"], [(610, 112), (610, 40), (30, 65), (30, 85)])  # br, tr, tl, bl
 			#health meter
-			pg.draw.polygon(self.screen, health_bar_colors["Green 1"], [(30+(600*ratio), 85+(ratio*27)), (30+(600*ratio), 67-(ratio*27)), (30, 65), (30, 85)])
+			pg.draw.polygon(self.screen, health_bar_colors[color_index], [(30+(600*ratio), 85+(ratio*27)), (30+(600*ratio), 67-(ratio*27)), (30, 65), (30, 85)])
 			#super meter
 			pg.draw.polygon(self.screen, "red", [(190 + (super_meter_gain * 635), 113 + (super_meter_gain * 54)), (200 + (super_meter_gain * 615), 93 + (super_meter_gain * 26)), (200 , 93), (190, 113)])
 		
@@ -93,9 +86,9 @@ class Game:
 			left_x = screen_width - 610
 			right_x = screen_width - 33
 			#under bar
-			pg.draw.polygon(self.screen, health_bar_colors["Red 1"], [(left_x, 112), (left_x, 40), (right_x, 65), (right_x, 85)])  # bl, tl, tr, br
+			#pg.draw.polygon(self.screen, health_bar_colors["Red 1"], [(left_x, 112), (left_x, 40), (right_x, 65), (right_x, 85)])  # bl, tl, tr, br
 			#health meter
-			pg.draw.polygon(self.screen, health_bar_colors["Green 1"], [(right_x-(600*ratio), 85+(ratio*27)), (right_x-(600*ratio), 67-(ratio*27)), (right_x, 65), (right_x, 85)])
+			pg.draw.polygon(self.screen, health_bar_colors[color_index], [(right_x-(600*ratio), 85+(ratio*27)), (right_x-(600*ratio), 67-(ratio*27)), (right_x, 65), (right_x, 85)])
 			#super meter
 			pg.draw.polygon(self.screen, "blue", [(screen_width - 635, 148), (screen_width - 615, 110), (screen_width - 200, 93), (screen_width - 190, 113)])
 
