@@ -172,7 +172,7 @@ class Game:
 			if slider.active:
 				slider.handle_event(self.screen, mouse_pos[0])
 				self.volume = slider.get_volume()
-				pg.mixer.music.set_volume(self.volume)
+				pg.mixer.music.set_volume(self.volume/100)
 
 			for event in pg.event.get():
 				if event.type == pg.QUIT:
@@ -195,7 +195,7 @@ class Game:
 					slider.active = True
 					slider.handle_event(self.screen, mouse_pos[0])
 					self.volume = slider.get_volume()
-					pg.mixer.music.set_volume(self.volume)
+					pg.mixer.music.set_volume(self.volume/100)
 				elif event.type == pg.MOUSEBUTTONUP:
 					slider.active = False
 			
