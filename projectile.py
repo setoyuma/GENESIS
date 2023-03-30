@@ -1,4 +1,5 @@
 import pygame as pg
+from settings import screen_width
 from support import *
 
 class Projectile():
@@ -12,6 +13,7 @@ class Projectile():
         self.animation_speed = 0.25
         self.frame_index = 0
         self.frames_passed = 0
+        self.off_screen = False
         self.import_assets()
         self.rect = pg.Rect(spawn_pos[0], spawn_pos[1], self.size, self.size)
         if not facing_right:
@@ -37,10 +39,13 @@ class Projectile():
     def move(self):
         if self.type == "LFB":
             self.rect.x += self.speed
-        if self.type == "MFB":
+        elif self.type == "MFB":
             self.rect.x += int(self.speed * 1.5)
-        if self.type == "HFB":
+        elif self.type == "HFB":
             self.rect.x += int(self.speed * 2.2)
+
+        if self.rect.x < 0 or self.rect.x > screen_width:
+            self.off_screen = True
 
     def draw(self, surf):
         self.animate()

@@ -363,6 +363,12 @@ class Fighter():
                 self.fireball = False
                 self.throwing_proj = False
                 self.attack(target, damage)
+
+            elif self.proj.off_screen:
+                self.proj = None
+                self.fireball = False
+                self.throwing_proj = False
+
         #check screen loc
         if self.rect.left + self.dX < 0:
             self.dX = -self.rect.left
