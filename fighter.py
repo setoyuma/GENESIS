@@ -372,8 +372,7 @@ class Fighter():
                         self.animated_text = TextAnimation("", 60, 0, target.hit_box.topright, "white",30,self.surface)
                         self.animated_text.damage = 7
                     if self.proj.type == "HFB":
-                        print("hit")
-                        self.hp -= 14
+                        target.hp -= 14
                         target.hit = True
                         self.animated_text = TextAnimation("", 60, 0, target.hit_box.topright, "white",30,self.surface)
                         self.animated_text.damage = 14
