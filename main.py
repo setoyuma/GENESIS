@@ -1,7 +1,6 @@
 import pygame as pg
 import sys
 
-from text_animation import TextAnimation
 from fighter import Fighter
 from button import Button
 from particle import ParticlePrinciple
@@ -60,21 +59,37 @@ class Game:
 		surf.blit(scaled_HUD, (0,-55))
 
 	def drawHealthBar(self, hp, x, y):
+		health_bar_colors = {
+			"Green 1" : "#00980b",
+			"Green 2" : "#57bf00" ,
+			"Green 3" : "#a1ff00" ,
+			"Yellow 1" : "#fff700" ,
+			"Yellow 2" : "#ffbf00" ,
+			"Orange 1" : "#ff9d00" ,
+			"Orange 2" : "#ff4f00",
+			"Red 1" : "#ff0000" ,
+		}
+
 		# player 1
 		ratio = self.player_1.hp / 200
-		pg.draw.polygon(self.screen, "red", [(610, 112), (610, 40), (30, 65), (30, 85)])  # br, tr, tl, bl
-		pg.draw.polygon(self.screen, "yellow", [(30+(600*ratio), 85+(ratio*27)), (30+(600*ratio), 67-(ratio*27)), (30, 65), (30, 85)])
-		pg.draw.polygon(self.screen, "orange", [(635, 148), (615, 110), (200, 93), (190, 113)])
+		pg.draw.polygon(self.screen, health_bar_colors["Red 1"], [(610, 112), (610, 40), (30, 65), (30, 85)])  # br, tr, tl, bl
+		pg.draw.polygon(self.screen, health_bar_colors["Green 1"], [(30+(600*ratio), 85+(ratio*27)), (30+(600*ratio), 67-(ratio*27)), (30, 65), (30, 85)])
+		pg.draw.polygon(self.screen, "#ff0000", [(635, 148), (615, 110), (200, 93), (190, 113)])
 
 		# player 2
 		ratio = self.player_2.hp / 200
 		print(ratio)
 		left_x = HALF_SCREENW + (HALF_SCREENW - 610)
 		right_y = screen_width - 30
-		pg.draw.polygon(self.screen, "red", [(left_x, 112), (left_x, 40), (right_y, 65), (right_y, 85)])
-		pg.draw.polygon(self.screen, "yellow", [((left_x/ratio), 85+(ratio*27)), ((left_x/ratio), 67-(ratio*27)), (right_y, 65), (right_y, 85)])
+		pg.draw.polygon(self.screen, health_bar_colors["Red 1"], [(left_x, 112), (left_x, 40), (right_y, 65), (right_y, 85)])
+		pg.draw.polygon(self.screen, health_bar_colors["Green 1"], [((left_x/ratio), 85+(ratio*27)), ((left_x/ratio), 67-(ratio*27)), (right_y, 65), (right_y, 85)])
 		#pg.draw.polygon(self.screen, "orange", [(635, 148), (615, 110), (200, 93), (190, 113)])
 
+	def draw_portrait(self, x, y, size, target, surf):
+		portrait = get_image(f"./assets/characters/{target.character}/portrait/portrait.png")
+		scaled_portrait = pg.transform.scale(portrait, (size, size))
+		surf.blit(scaled_portrait, (x,y))
+		pass
 
 	def MainMenu(self):
 		pg.display.set_caption("Kami No Ken: MAIN MENU")
@@ -326,6 +341,8 @@ class Game:
 			#show player stats
 			self.drawHealthBar(self.player_1.hp, 40, 48)
 			self.draw_HUD(self.screen)
+			self.draw_portrait(50, -20, 80, self.player_1, self.screen)
+			self.draw_portrait(1050, 50, 80, self.player_2, self.screen)
 
 			# show fps
 			fpsCounter = str(int(self.clock.get_fps()))

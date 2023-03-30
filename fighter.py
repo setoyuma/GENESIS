@@ -363,18 +363,18 @@ class Fighter():
                     if self.proj.type == "LFB":
                         target.hp -= 5
                         target.hit = True
-                        self.animated_text = TextAnimation("", 60, 0, target.hit_box.topright, "blue",30,self.surface)
+                        self.animated_text = TextAnimation("", 60, 0, target.hit_box.topright, "white",30,self.surface)
                         self.animated_text.damage = 5
                     if self.proj.type == "MFB":
                         target.hp -= 7
                         target.hit = True
-                        self.animated_text = TextAnimation("", 60, 0, target.hit_box.topright, "blue",30,self.surface)
+                        self.animated_text = TextAnimation("", 60, 0, target.hit_box.topright, "white",30,self.surface)
                         self.animated_text.damage = 7
                     if self.proj.type == "HFB":
                         print("hit")
                         self.hp -= 14
                         target.hit = True
-                        self.animated_text = TextAnimation("", 60, 0, target.hit_box.topright, "blue",30,self.surface)
+                        self.animated_text = TextAnimation("", 60, 0, target.hit_box.topright, "white",30,self.surface)
                         self.animated_text.damage = 14
                 self.proj = None
                 self.fireball = False
@@ -499,7 +499,7 @@ class Fighter():
             target.hit = True
             target.hp -= self.move_damage[self.attack_status]
             self.hitspark(attack_rect, flip_hit_box)
-            self.animated_text = TextAnimation("", 60, 0, target.hit_box.topright, "blue",30,self.surface)
+            self.animated_text = TextAnimation("", 60, 0, target.hit_box.topright, "white",30,self.surface)
             self.animated_text.damage = self.move_damage[self.attack_status]
 
             # knockback
@@ -537,7 +537,7 @@ class Fighter():
         self.particle.addParticles(target_x, target_y)
         self.particle.addParticles(target_x, target_y)
         self.particle.addParticles(target_x, target_y)
-        self.particle.update()
+        # self.particle.update()    #call this to show hitspark animation
     
     def jump(self):
         self.dY += self.vel_y
