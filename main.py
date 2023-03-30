@@ -155,18 +155,20 @@ class Game:
 		PARTICLE_EVENT = pg.USEREVENT + 1
 		pg.time.set_timer(PARTICLE_EVENT,5)
 
-		slider = Slider(screen_width//2, screen_height//2, 300, 10, self.volume)
+		slider = Slider(screen_width//2 - 95, 145, 200, 10, self.volume)
 
 		while True:
 			self.screen.fill('black')
 			self.screen.blit(mainMenuBG,(480,115))
-			volume_button = Button(screen_width//2, 80, 200, 100, "VOLUME", self.SoundSettings, True)
+			volume_button = Button(screen_width//2, 40, 200, 100, "VOLUME", None, True)
 			back_button = Button(screen_width//2, 160, 200, 100, "BACK", self.Options, True)
+
 			
 			# slider = Slider(screen_width//2, screen_height//2, 300, 50, 40, "purple", "yellow", self.screen)
 			# slider.update()
 
 			slider.draw(self.screen)
+			
 
 			mouse_pos = pg.mouse.get_pos()
 			if slider.active:
