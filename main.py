@@ -11,6 +11,11 @@ from character_variables import *
 
 # might need to pre-init mixer to reduce sound delay (will affect sound effects)
 health_bar_colors = ColorGradient((0,255,0), (255,0,0)).generate_gradient()
+# br ~ tr ~ tl ~ bl  br=0                          # tr=3     # tl=4               # bl=6
+blast_points = [(179, 127), (195, 99), (225, 98), (225, 95), (30, 85), (6, 113), (28, 137), (53, 123), (92, 112), (173, 127)]
+top_points = [(30, 85), (6, 113)]
+bottom_points = [(225, 95), (53, 123)]
+y_distances = [point[1] - top_points[i][1] for i, point in enumerate(bottom_points)]
 
 
 class Game:
@@ -81,7 +86,10 @@ class Game:
 			pg.draw.polygon(self.screen, health_bar_colors[color_index], [(30+(600*ratio), 85+(ratio*27)), (30+(600*ratio), 67-(ratio*27)), (30, 65), (30, 85)])
 			#super meter
 			pg.draw.polygon(self.screen, "red", [(190 + (super_meter_gain * 635), 113 + (super_meter_gain * 54)), (200 + (super_meter_gain * 615), 93 + (super_meter_gain * 26)), (200 , 93), (190, 113)])
-		
+			# blast meter
+			if self.player_1.super_meter >= 50: # and self.player_1.blast_cooldown == 0:
+				#adjusted_points = [(point[0], point[1] - 20) for i, point in enumerate(blast_points) if i in top_blast_points]
+				pg.draw.polygon(self.screen, "yellow", blast_points)
 		else:
 			left_x = screen_width - 610
 			right_x = screen_width - 33
@@ -89,6 +97,10 @@ class Game:
 			pg.draw.polygon(self.screen, health_bar_colors[color_index], [(right_x-(600*ratio), 85+(ratio*27)), (right_x-(600*ratio), 67-(ratio*27)), (right_x, 65), (right_x, 85)])
 			#super meter
 			pg.draw.polygon(self.screen, "blue", [(screen_width - 635, 148), (screen_width - 615, 110), (screen_width - 200, 93), (screen_width - 190, 113)])
+			# blast meter
+			#if self.player_2.super_meter >= 50: # and self.player_1.blast_cooldown == 0:
+			#	#adjusted_points = [(point[0], point[1] + (ratio * y_distances[top_points.index(point)])) if point in top_points else point for point in blast_points]
+			#	pg.draw.polygon(self.screen, "yellow", blast_points)
 
 	def draw_portrait(self, target):
 		portrait = self.scaled_portrait

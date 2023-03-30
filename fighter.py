@@ -498,6 +498,7 @@ class Fighter():
         if attack_rect.colliderect(target.hit_box) and not self.throwing_proj:
             target.hit = True
             self.super_meter += self.move_damage[self.attack_status] * 2
+            self.hp -= self.move_damage[self.attack_status]
             target.hp -= self.move_damage[self.attack_status]
             self.hitspark(attack_rect, flip_hit_box)
             self.animated_text = TextAnimation("", 60, 0, target.hit_box.topright, "white",30,self.surface)

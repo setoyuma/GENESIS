@@ -33,15 +33,18 @@ class ColorGradient:
             (self.step_B >= 0 and self.b >= self.colorTo[2]) or (self.step_B <= 0 and self.b <= self.colorTo[2])]):
             self.target_reached = True
         
-        return self.color
+        return list(self.color)
 
     """ 
     Returns a list of all the colors in between the 
     initial color and target color 
     """
-    def generate_gradient(self):
+    def generate_gradient(self, test=False):
         gradient = []
         while not self.target_reached:
-            gradient.append(self.next())
+            color = self.next()
+            color[1] = min(int(color[1] * 1.5), 255)
+            color[0] = min(int(color[0] * 1.5), 255)
+            gradient.append((color[0], color[1], color[2]))
         print(gradient)
         return gradient
