@@ -35,6 +35,22 @@ class ColorGradient:
         
         return list(self.color)
 
+    def lerp(self, a, b, t):
+        return a + (b - a) * t
+
+    def brighten_gradient(self, gradient_colors, factor=1.5):
+        brightened_colors = []
+        for i, color in enumerate(gradient_colors):
+            t = i / (len(gradient_colors) - 1)
+            r = int(self.lerp(self.colorFrom[0], self.colorTo[0], t))
+            g = int(self.lerp(self.colorFrom[1], self.colorTo[1], t))
+            b = int(self.lerp(self.colorFrom[2], self.colorTo[2], t))
+            
+            brightened_color = (min(int(r * factor), 255), min(int(g * factor), 255), min(int(b * factor), 255))
+            brightened_colors.append(brightened_color)
+        
+        return brightened_colors
+
     """ 
     Returns a list of all the colors in between the 
     initial color and target color 
@@ -44,7 +60,6 @@ class ColorGradient:
         while not self.target_reached:
             gradient.append(self.next())
             color = self.next()
-            color[1] = min(int(color[1] * 1.5), 255)
-            color[0] = min(int(color[0] * 1.5), 255)
             gradient.append((color[0], color[1], color[2]))
+        gradient = self.brighten_gradient(gradient)
         return gradient
