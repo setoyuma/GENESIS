@@ -475,9 +475,6 @@ class Fighter():
             self.update_time = pg.time.get_ticks()
 
     def attack(self, target):
-        frame_index = int(self.frame_index)
-        # print(frame_index+1, self.status)
-
         # get hitbox attributes for the active frame
         hitbox_attrs = hit_boxes["Homusubi"][str(self.attack_type)]
         offset_x, offset_y, w, h = hitbox_attrs[1]

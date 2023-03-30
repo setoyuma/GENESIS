@@ -337,10 +337,6 @@ class Game:
 			'''DRAW PLAYER'''
 			self.player_2.draw()
 			self.player_1.draw()
-			
-
-			# print(self.player_2.hp)
-			print(self.player_1.super_meter)
 
 			if self.player_1.animated_text is not None:
 				if self.player_1.animated_text.update():

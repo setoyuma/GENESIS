@@ -7,7 +7,7 @@ FPS = 60
 screen_width = 1600
 screen_height = 800
 floor_height = 30
-FONT = pg.font.Font("./font/minotaur.ttf", 30)
+FONT = pg.font.Font("assets/ui/font/minotaur.ttf", 30)
 
 '''FIGHTER SCALES'''
 fighter_scales = {

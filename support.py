@@ -51,7 +51,7 @@ def draw_text(surf, text, pos, size=30, color=(255,255,255), bg_color=None):
     global _text_library
     text_surf = _text_library.get(f"{text}{color}{size}")
     if text_surf is None:
-        font = pygame.font.Font('font/minotaur.ttf', size)
+        font = pygame.font.Font('assets/ui/font/minotaur.ttf', size)
         text_surf = font.render(text, True, color, bg_color)
         _text_library[f"{text}{color}{size}"] = text_surf
     x, y = pos

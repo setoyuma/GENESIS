@@ -1,4 +1,0 @@
-
-- fix sprite stretching (cut each sprite evenly)
-- add main menu
-- create character select scene
