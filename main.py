@@ -153,6 +153,7 @@ class Game:
 		particle1 = ParticlePrinciple()
 		PARTICLE_EVENT = pg.USEREVENT + 1
 		pg.time.set_timer(PARTICLE_EVENT,5)
+		slider = Slider(screen_width//2,screen_height//2,300,10)
 
 		while True:
 			self.screen.fill('black')
@@ -163,8 +164,10 @@ class Game:
 			# slider = Slider(screen_width//2, screen_height//2, 300, 50, 40, "purple", "yellow", self.screen)
 			# slider.update()
 
-			slider = Slider(screen_width//2,screen_height//2,300,10)
+			slider.draw(self.screen)
+
 			mouse_pos = pg.mouse.get_pos()
+			
 
 
 			for event in pg.event.get():
@@ -182,14 +185,10 @@ class Game:
 					elif event.key == pg.K_SPACE:
 						self.Play()
 
-
-			slider.on_slider(mouse_pos[0], mouse_pos[1])
-			if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
+			
+			if event.type == pg.MOUSEBUTTONDOWN and event.button == 1 and slider.on_slider(mouse_pos[0], mouse_pos[1]):
 				slider.on_slider_hold(mouse_pos[0], mouse_pos[1])
 				slider.handle_event(self.screen, mouse_pos[0])
-			else:
-				slider.draw(self.screen)
-			
 			
 			volume_button.Process()
 			back_button.Process()

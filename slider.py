@@ -29,12 +29,12 @@ class Slider:
             # print("mouse on slider")
             return True
         else:
-            # print("mouse not on slider")
+            print("mouse not on slider")
             return False
 
     def on_slider_hold(self, x, y):
         if ((x - self.circle_x) * (x - self.circle_x) + (y - (self.sliderRect.y + self.sliderRect.h / 2)) * (y - (self.sliderRect.y + self.sliderRect.h / 2)))\
-               <= (self.sliderRect.h * 1.5) * (self.sliderRect.h * 1.5):
+            <= (self.sliderRect.h * 1.5) * (self.sliderRect.h * 1.5):\
             return True
         else:
             return False
