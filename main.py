@@ -18,7 +18,7 @@ class Game:
 		pg.mixer.init()
 		pg.mixer.music.load(songs['main'])
 		pg.mixer.music.play(-1)
-		pg.mixer.music.set_volume(0.1)
+		pg.mixer.music.set_volume(0.0)
 		self.screen = pg.display.set_mode((screen_width, screen_height), )
 		self.bg_animations = { "bay-side-carnival": [], "ogre-gate": []}
 		pg.display.set_caption("Kami No Ken: GENESIS")
@@ -87,7 +87,7 @@ class Game:
 
 	def draw_portrait(self, x, y, size, target, surf):
 		portrait = get_image(f"./assets/characters/{target.character}/portrait/portrait.png")
-		scaled_portrait = pg.transform.scale(portrait, (size, size))
+		scaled_portrait = pg.transform.scale(portrait, (size+20, size-10))
 		surf.blit(scaled_portrait, (x,y))
 		pass
 
@@ -274,7 +274,7 @@ class Game:
 		pg.display.set_caption("Kami No Ken: GENESIS")
 		pg.mixer.music.load(songs['science'])
 		pg.mixer.music.play(-1)
-		pg.mixer.music.set_volume(0.1)
+		pg.mixer.music.set_volume(0.0)
 
 		self.player_1 = Fighter(self, 200, 510, False, self.screen, "Homusubi", subi_data, subi_sheet, subi_anim_steps, "Play")
 		self.player_2 = Fighter(self, 1000, 570, True, self.screen, "Homusubi", subi_data, subi_sheet, subi_anim_steps, "Play")
@@ -341,8 +341,8 @@ class Game:
 			#show player stats
 			self.drawHealthBar(self.player_1.hp, 40, 48)
 			self.draw_HUD(self.screen)
-			self.draw_portrait(50, -20, 80, self.player_1, self.screen)
-			self.draw_portrait(1050, 50, 80, self.player_2, self.screen)
+			self.draw_portrait(50, 0, 80, self.player_1, self.screen)
+			self.draw_portrait(1500, 0, 80, self.player_2, self.screen)
 
 			# show fps
 			fpsCounter = str(int(self.clock.get_fps()))
