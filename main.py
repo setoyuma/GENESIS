@@ -41,6 +41,11 @@ class Game:
 		self.animation_speed = 0.25
 
 	def import_assets(self, bg):
+		# hud
+		HUD = get_image("./assets/ui/HUD/HUD.png")
+		self.scaled_HUD = pg.transform.scale(HUD, (screen_width,  screen_height/3))
+
+		# bg
 		bg_path = f'./assets/backgrounds/'
 
 		for animation in self.bg_animations.keys():
@@ -64,31 +69,29 @@ class Game:
 		self.screen.blit(self.image,(0,0))
 
 	def draw_HUD(self, surf):
-		HUD = get_image("./assets/ui/HUD/HUD.png")
-		scaled_HUD = pg.transform.scale(HUD, (screen_width,  screen_height/3))
-		# surf.blit(HUD, (400,0))
-		surf.blit(scaled_HUD, (0,-55))
+		surf.blit(self.scaled_HUD, (0,-55))
 
-	def drawHealthBar(self, target, x, y):
-		# player 1
+	def drawHealthBar(self, target):
 		ratio = target.hp / 200
-		super_meter_gain = (self.player_1.super_meter / 250) * .68
-		#under bar
-		pg.draw.polygon(self.screen, health_bar_colors["Red 1"], [(610, 112), (610, 40), (30, 65), (30, 85)])  # br, tr, tl, bl
-		#health meter
-		pg.draw.polygon(self.screen, health_bar_colors["Green 1"], [(30+(600*ratio), 85+(ratio*27)), (30+(600*ratio), 67-(ratio*27)), (30, 65), (30, 85)])
-		#super meter
-		pg.draw.polygon(self.screen, "red", [(190 + (super_meter_gain * 635), 113 + (super_meter_gain * 54)), (200 + (super_meter_gain * 615), 93 + (super_meter_gain * 26)), (200 , 93), (190, 113)])
 
-		# player 2
-		left_x = screen_width - 610
-		right_x = screen_width - 33
-		#under bar
-		pg.draw.polygon(self.screen, health_bar_colors["Red 1"], [(left_x, 112), (left_x, 40), (right_x, 65), (right_x, 85)])  # bl, tl, tr, br
-		#health meter
-		pg.draw.polygon(self.screen, health_bar_colors["Green 1"], [(right_x-(600*ratio), 85+(ratio*27)), (right_x-(600*ratio), 67-(ratio*27)), (right_x, 65), (right_x, 85)])
-		#super meter
-		pg.draw.polygon(self.screen, "blue", [(screen_width - 635, 148), (screen_width - 615, 110), (screen_width - 200, 93), (screen_width - 190, 113)])
+		if target == self.player_1:
+			super_meter_gain = (self.player_1.super_meter / 250) * .68
+			#under bar
+			pg.draw.polygon(self.screen, health_bar_colors["Red 1"], [(610, 112), (610, 40), (30, 65), (30, 85)])  # br, tr, tl, bl
+			#health meter
+			pg.draw.polygon(self.screen, health_bar_colors["Green 1"], [(30+(600*ratio), 85+(ratio*27)), (30+(600*ratio), 67-(ratio*27)), (30, 65), (30, 85)])
+			#super meter
+			pg.draw.polygon(self.screen, "red", [(190 + (super_meter_gain * 635), 113 + (super_meter_gain * 54)), (200 + (super_meter_gain * 615), 93 + (super_meter_gain * 26)), (200 , 93), (190, 113)])
+		
+		else:
+			left_x = screen_width - 610
+			right_x = screen_width - 33
+			#under bar
+			pg.draw.polygon(self.screen, health_bar_colors["Red 1"], [(left_x, 112), (left_x, 40), (right_x, 65), (right_x, 85)])  # bl, tl, tr, br
+			#health meter
+			pg.draw.polygon(self.screen, health_bar_colors["Green 1"], [(right_x-(600*ratio), 85+(ratio*27)), (right_x-(600*ratio), 67-(ratio*27)), (right_x, 65), (right_x, 85)])
+			#super meter
+			pg.draw.polygon(self.screen, "blue", [(screen_width - 635, 148), (screen_width - 615, 110), (screen_width - 200, 93), (screen_width - 190, 113)])
 
 	def draw_portrait(self, x, y, size, target, surf):
 		portrait = get_image(f"./assets/characters/{target.character}/portrait/portrait.png")
@@ -263,8 +266,8 @@ class Game:
 
 			
 			#show player stats
-			self.drawHealthBar(self.player_1.hp, 40, 48)
-			self.drawHealthBar(self.player_2.hp, screen_width - 608, 48)
+			self.drawHealthBar(self.player_1)
+			self.drawHealthBar(self.player_2)
 			self.draw_HUD(self.screen)
 
 			# show fps
@@ -346,14 +349,15 @@ class Game:
 					self.player_2.animated_text = None
 			
 			#show player stats
-			self.drawHealthBar(self.player_1, 40, 48)
+			self.drawHealthBar(self.player_1)
+			self.drawHealthBar(self.player_2)
 			self.draw_HUD(self.screen)
 			self.draw_portrait(50, 2, 80, self.player_1, self.screen)
 			self.draw_portrait(1460, 2, 80, self.player_2, self.screen)
 
 			# show fps
 			fpsCounter = str(int(self.clock.get_fps()))
-			draw_text(self.screen, f"FPS: {fpsCounter}", (1000, 10))
+			draw_text(self.screen, f"FPS: {fpsCounter}", (HALF_SCREENW, 200))
 
 			pg.display.update()
 			self.clock.tick(FPS)
