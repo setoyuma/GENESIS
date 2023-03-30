@@ -10,6 +10,17 @@ from character_variables import *
 
 # might need to pre-init mixer to reduce sound delay (will affect sound effects)
 
+health_bar_colors = {
+	"Green 1" : "#00980b",
+	"Green 2" : "#57bf00" ,
+	"Green 3" : "#a1ff00" ,
+	"Yellow 1" : "#fff700" ,
+	"Yellow 2" : "#ffbf00" ,
+	"Orange 1" : "#ff9d00" ,
+	"Orange 2" : "#ff4f00",
+	"Red 1" : "#ff0000" ,
+}
+
 class Game:
 	def __init__(self):
 		# pg setup
@@ -59,31 +70,19 @@ class Game:
 		surf.blit(scaled_HUD, (0,-55))
 
 	def drawHealthBar(self, hp, x, y):
-		health_bar_colors = {
-			"Green 1" : "#00980b",
-			"Green 2" : "#57bf00" ,
-			"Green 3" : "#a1ff00" ,
-			"Yellow 1" : "#fff700" ,
-			"Yellow 2" : "#ffbf00" ,
-			"Orange 1" : "#ff9d00" ,
-			"Orange 2" : "#ff4f00",
-			"Red 1" : "#ff0000" ,
-		}
-
 		# player 1
 		ratio = self.player_1.hp / 200
 		pg.draw.polygon(self.screen, health_bar_colors["Red 1"], [(610, 112), (610, 40), (30, 65), (30, 85)])  # br, tr, tl, bl
 		pg.draw.polygon(self.screen, health_bar_colors["Green 1"], [(30+(600*ratio), 85+(ratio*27)), (30+(600*ratio), 67-(ratio*27)), (30, 65), (30, 85)])
-		pg.draw.polygon(self.screen, "#ff0000", [(635, 148), (615, 110), (200, 93), (190, 113)])
+		pg.draw.polygon(self.screen, "red", [(635, 148), (615, 110), (200, 93), (190, 113)])
 
 		# player 2
 		ratio = self.player_2.hp / 200
-		print(ratio)
-		left_x = HALF_SCREENW + (HALF_SCREENW - 610)
-		right_y = screen_width - 30
-		pg.draw.polygon(self.screen, health_bar_colors["Red 1"], [(left_x, 112), (left_x, 40), (right_y, 65), (right_y, 85)])
-		pg.draw.polygon(self.screen, health_bar_colors["Green 1"], [((left_x/ratio), 85+(ratio*27)), ((left_x/ratio), 67-(ratio*27)), (right_y, 65), (right_y, 85)])
-		#pg.draw.polygon(self.screen, "orange", [(635, 148), (615, 110), (200, 93), (190, 113)])
+		left_x = screen_width - 610
+		right_x = screen_width - 33
+		pg.draw.polygon(self.screen, health_bar_colors["Red 1"], [(left_x, 112), (left_x, 40), (right_x, 65), (right_x, 85)])  # bl, tl, tr, br
+		pg.draw.polygon(self.screen, health_bar_colors["Green 1"], [(right_x-(600*ratio), 85+(ratio*27)), (right_x-(600*ratio), 67-(ratio*27)), (right_x, 65), (right_x, 85)])
+		pg.draw.polygon(self.screen, "blue", [(screen_width - 635, 148), (screen_width - 615, 110), (screen_width - 200, 93), (screen_width - 190, 113)])
 
 	def draw_portrait(self, x, y, size, target, surf):
 		portrait = get_image(f"./assets/characters/{target.character}/portrait/portrait.png")
