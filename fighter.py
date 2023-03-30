@@ -36,6 +36,7 @@ class Fighter():
         self.proj = None
         self.throwing_proj = False
         self.animated_text = None
+        self.hit_stun = None
 
         '''FIREBALLS'''
         self.fireball = False
@@ -98,6 +99,9 @@ class Fighter():
             self.animations[animation] = scaled_images
 
     def animate(self):
+        if self.hit_stun is not None:
+            return
+
         animation = self.animations[self.status]
 
 		# loop over frame index
@@ -372,15 +376,11 @@ class Fighter():
                 elif self.proj.type == "HFB":
                     damage = 14
 
-                target.hp -= damage
                 target.hit = True
-                self.animated_text = TextAnimation("", 60, 0, target.hit_box.topright, "white",30,self.surface)
-                self.animated_text.damage = damage
-                self.super_meter += damage * 2
                 self.proj = None
                 self.fireball = False
                 self.throwing_proj = False
-
+                self.attack(target, damage)
         #check screen loc
         if self.rect.left + self.dX < 0:
             self.dX = -self.rect.left
@@ -475,7 +475,7 @@ class Fighter():
             self.frame_index = 0
             self.update_time = pg.time.get_ticks()
 
-    def attack(self, target):
+    def attack(self, target, damage=None):
         # get hitbox attributes for the active frame
         hitbox_attrs = hit_boxes["Homusubi"][str(self.attack_type)]
         offset_x, offset_y, w, h = hitbox_attrs[1]
@@ -493,14 +493,28 @@ class Fighter():
         # pg.draw.rect(pg.display.get_surface(), "green", attack_rect)
 
         # detect collision on the active frame
-        if attack_rect.colliderect(target.hit_box) and not self.throwing_proj:
+        if (attack_rect.colliderect(target.hit_box) and not self.throwing_proj) or damage is not None:
+            if damage is None:
+                fireball = False
+                damage = self.move_damage[self.attack_status]
+            else:
+                fireball = True
+
+            self.super_meter += damage * 2
+
             target.hit = True
-            self.super_meter += self.move_damage[self.attack_status] * 2
             target.hp -= self.move_damage[self.attack_status]
-            self.hitspark(attack_rect, flip_hit_box)
+
+            self.hitspark(attack_rect, flip_hit_box, fireball, target)
+    
             self.animated_text = TextAnimation("", 60, 0, target.hit_box.topright, "white",30,self.surface)
-            self.animated_text.damage = self.move_damage[self.attack_status]
-            HitStunFrames(self.game, stun_frames=5)
+            self.animated_text.damage = damage
+
+            # hit stun
+            self.hit_stun = HitStunFrames(self.game, stun_frames=5)
+            while self.hit_stun.frame <= self.hit_stun.stun_frames:
+                self.hit_stun.update()
+            self.hit_stun = None
 
             # knockback
             if self.attacking:
@@ -509,18 +523,21 @@ class Fighter():
                 else:
                     self.rect.x += 30
 
-    def hitspark(self, attack_rect, flip_hit_box):
+    def hitspark(self, attack_rect, flip_hit_box, fireball=False, target=None):
         # calculate hitspark position based on attack_rect
-        offset_x = 40
-        target_x = attack_rect.x
-        if self.facing_right:
-            offset_x *= -1
-            target_x += flip_hit_box
-        target_x += offset_x
+        if not fireball:
+            offset_x = 40
+            target_x = attack_rect.x
+            if self.facing_right:
+                offset_x *= -1
+                target_x += flip_hit_box
+            target_x += offset_x
 
-        target_y = attack_rect.centery
-        if self.crouching:
-            target_y += 80
+            target_y = attack_rect.centery
+            if self.crouching:
+                target_y += 80
+        else:
+            target_x, target_y = target.hit_box.center
 
         self.particle.addParticles(target_x, target_y)
         self.particle.addParticles(target_x, target_y)

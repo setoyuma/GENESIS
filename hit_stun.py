@@ -7,8 +7,6 @@ class HitStunFrames:
         self.game = game
         self.frame = 0
         self.stun_frames = stun_frames
-        while self.frame <= self.stun_frames:
-            self.update()
     
     def update(self):
         self.game.screen.fill('grey')
@@ -53,4 +51,3 @@ class HitStunFrames:
         self.game.clock.tick(FPS)
         self.frame += 1
         pg.display.flip()
-        self.game.clock.tick(FPS)
