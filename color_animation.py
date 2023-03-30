@@ -46,5 +46,4 @@ class ColorGradient:
             color[1] = min(int(color[1] * 1.5), 255)
             color[0] = min(int(color[0] * 1.5), 255)
             gradient.append((color[0], color[1], color[2]))
-        print(gradient)
         return gradient
