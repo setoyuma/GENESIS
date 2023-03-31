@@ -533,7 +533,7 @@ class Fighter():
             target_x, target_y = target.hit_box.center
 
         for x in range(15):
-            self.particle.addParticles(target_x, target_y)
+            self.particle.addParticles(target_x, target_y, color="white")
 
     def jump(self):
         self.dY += self.vel_y
@@ -586,7 +586,7 @@ class Fighter():
                     self.throwing_proj = False
 
     def draw(self):
-        self.particle.emit("white")
+        self.particle.emit()
 
         if self.dashing:
             self.applyGravityDash()

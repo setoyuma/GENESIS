@@ -156,7 +156,7 @@ class Game:
 				play_button.Process(event)
 
 			play_button.draw()
-			particle1.emit("Red")
+			particle1.emit()
 			self.send_frame()
 
 	def SoundSettings(self):
@@ -208,7 +208,7 @@ class Game:
 			volume_button.draw()
 			back_button.draw()
 
-			particle1.emit("Red")
+			particle1.emit()
 			self.send_frame()
 
 	def HomeScreen(self):
@@ -248,7 +248,7 @@ class Game:
 			train_button.draw()
 			options_button.draw()
 
-			particle1.emit("Red")
+			particle1.emit()
 			self.send_frame()
 	
 	def Options(self):
@@ -284,7 +284,7 @@ class Game:
 			video_button.draw()
 			back_button.draw()
 
-			particle1.emit("Red")
+			particle1.emit()
 			self.send_frame()
 	
 	def Training(self):

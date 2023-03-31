@@ -6,14 +6,14 @@ from support import import_folder, scale_images
 class ParticlePrinciple:
     def __init__(self):
         self.particles = []
-        self.colors = ["red","green","blue","yellow","purple"]
         self.animation_speed = 0.25
         self.size = 64
         self.frame_index = 0
         self.import_assets()
         self.image = self.animation[self.frame_index]
+        self.color = "red"
     
-    def emit(self, color):
+    def emit(self):
         # move/draw particles
         if self.particles:
             self.deleteParticles()
@@ -24,7 +24,7 @@ class ParticlePrinciple:
                 #shrink particle
                 particle[1] -= 0.2
                 #draw circle around particle
-                pg.draw.circle(pg.display.get_surface(),pg.Color(color),particle[0], int(particle[1]))
+                pg.draw.circle(pg.display.get_surface(),pg.Color(self.color),particle[0], int(particle[1]))
                 # pg.draw.circle(pg.display.get_surface(),pg.Color(random.choice(self.colors)),particle[0], int(particle[1]))
                 # pg.draw.circle(pg.display.get_surface(),pg.Color(random.choice(self.colors)),particle[0], int(particle[1]))
 
@@ -44,7 +44,8 @@ class ParticlePrinciple:
         self.image = self.animation[int(self.frame_index)]
         self.frame_index += 1
 
-    def addParticles(self, posX, posY):
+    def addParticles(self, posX, posY, color="red"):
+        self.color = color
         # adds particles
         # posX = pg.mouse.get_pos()[0]
         # posY = pg.mouse.get_pos()[1]
