@@ -21,6 +21,12 @@ Subi_Inputs = {
         "MFireball":(DOWN, FORWARD, MP),
         "HFireball":(DOWN, FORWARD, HP),
 
+        "LDP":(FORWARD, DOWN, FORWARD, LP),
+        "MDP":(FORWARD, DOWN, FORWARD, MP),
+        "HDP":(FORWARD, DOWN, FORWARD, HP),
+        "EXDP":(FORWARD, DOWN, FORWARD, LP, MP),
+
+
         "FDASH" : (FORWARD, FORWARD),
         "BDASH" : (BACK, BACK),
 

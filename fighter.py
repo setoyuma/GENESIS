@@ -555,6 +555,10 @@ class Fighter():
         self.inputValues = list(self.inputs.values())
         self.inputKey = list(self.inputs.keys())
 
+    def launch(self, target):
+        target.rect.y -= 5
+        
+
     def checkMoveCombo(self):
         moveCombo = self.moveCombo
         if not self.facing_right:
@@ -562,18 +566,42 @@ class Fighter():
 
         for i in range(len(self.inputValues)):
             if self.proj is None:
-
-                if moveCombo == list(self.inputValues[0]):
+                
+                '''FIREBALLS'''
+                if moveCombo == list(self.inputs["LFireball"]):
                     self.proj = Projectile("FSTECH", "LFB", 98, (self.rect.centerx, self.rect.y), self, self.facing_right)
                     self.fireball = True
 
-                elif moveCombo == list(self.inputValues[1]):
+                elif moveCombo == list(self.inputs["MFireball"]):
                     self.proj = Projectile("FSTECH", "MFB", 98, (self.rect.centerx, self.rect.y), self, self.facing_right)
                     self.fireball = True
 
-                elif moveCombo == list(self.inputValues[2]):
+                elif moveCombo == list(self.inputs["HFireball"]):
                     self.proj = Projectile("FSTECH", "HFB", 98, (self.rect.centerx, self.rect.y), self, self.facing_right)
                     self.fireball = True
+
+
+                '''DP'S'''
+                if "LDP" in list(self.inputs):
+                    if moveCombo == list(self.inputs["LDP"]):
+                        self.launch(self)
+                        self.moveCombo = []
+                        print("LDP")
+                    elif moveCombo == list(self.inputs["MDP"]):
+                        self.launch(self)
+                        self.moveCombo = []
+                        print("MDP")
+                    elif moveCombo == list(self.inputs["HDP"]):
+                        self.launch(self)
+                        self.moveCombo = []
+                        print("HDP")
+                    elif moveCombo == list(self.inputs["EXDP"]):
+                        self.launch(self)
+                        self.moveCombo = []
+                        print("EXDP")
+                else:
+                    print("character has no dp")
+                
 
                 # check if a fireball has been created just now
                 if self.fireball and self.proj is not None:
