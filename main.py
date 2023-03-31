@@ -421,7 +421,7 @@ class Game:
 		self.players = [self.player_2, self.player_1]  # reversed for client draw order
 
 		COUNT_DOWN = pg.USEREVENT + 1
-		self.match_time = 11
+		self.match_time = 99
 
 		while True:
 
