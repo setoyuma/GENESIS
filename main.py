@@ -172,10 +172,10 @@ class Game:
 
 		pg.draw.polygon(self.screen, blast_polygon_colors[player.blast_meter], points)
 
-	def draw_portrait(self, target):
+	def draw_portrait(self, player):
 		portrait = self.scaled_portrait
 
-		if target ==  self.player_1:
+		if player ==  self.player_1:
 			pos = (50, 2)
 
 		else:
@@ -424,7 +424,7 @@ class Game:
 
 		COUNT_DOWN = pg.USEREVENT + 1
 		self.match_time = 99
-
+		self.match_time_text = "99"
 		while True:
 
 			self.screen.fill('grey')
@@ -491,14 +491,13 @@ class Game:
 
 			#show player stats
 			self.draw_HUD()
+			self.draw_portrait(self.player_1)
+			self.draw_portrait(self.player_2)
+
 			for player in self.players:
 				if player.animated_text is not None:
 					if player.animated_text.update():
 						player.animated_text = None
-			
-			# portraits
-			self.draw_portrait(self.player_1)
-			self.draw_portrait(self.player_2)
 
 			# match clock
 			draw_text(self.screen, self.match_time_text[:-1], (self.settings["screen_width"]/2 - 50, 80), 120, (255, 0, 0))
