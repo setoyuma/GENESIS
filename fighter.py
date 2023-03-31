@@ -31,7 +31,7 @@ class Fighter():
         self.character = char
         self.import_character_assets()
         self.frame_index = 0
-        self.animation_speed = 0.2
+        self.animation_speed = 0.22
         self.image = self.animations['idle'][self.frame_index]
         self.flip = flip
         if self.flip: img = pg.transform.flip(self.image, True, False)
@@ -590,9 +590,6 @@ class Fighter():
         self.inputKey = list(self.inputs.keys())
 
     def checkMoveCombo(self):
-    
-        
-
         moveCombo = self.moveCombo
         if not self.facing_right:
             moveCombo = [pg.K_a if key == pg.K_d else pg.K_d if key == pg.K_a else key for key in moveCombo]
@@ -620,19 +617,20 @@ class Fighter():
                 '''DP'S'''
                 if "LDP" in list(self.inputs):
                     if moveCombo == list(self.inputs["LDP"]):
-                        self.launch(self)
+                        self.launch_target = Launch(self, 500, 6)
                         self.moveCombo = []
                         print("LDP")
                     elif moveCombo == list(self.inputs["MDP"]):
-                        self.launch(self)
+                        self.launch_target = Launch(self, 500, 6)
                         self.moveCombo = []
                         print("MDP")
                     elif moveCombo == list(self.inputs["HDP"]):
-                        self.launch(self)
+                        self.launch_target = Launch(self, 500, 6)
                         self.moveCombo = []
                         print("HDP")
                     elif moveCombo == list(self.inputs["EXDP"]):
-                        self.launch(self)
+                        self.launch_target = Launch(self, 500, 6)
+
                         self.moveCombo = []
                         print("EXDP")
                 else:
