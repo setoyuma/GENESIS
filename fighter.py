@@ -31,7 +31,7 @@ class Fighter():
         self.character = char
         self.import_character_assets()
         self.frame_index = 0
-        self.animation_speed = 0.22
+        self.animation_speed = 0.2
         self.image = self.animations['idle'][self.frame_index]
         self.flip = flip
         if self.flip: img = pg.transform.flip(self.image, True, False)
