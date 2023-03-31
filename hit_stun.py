@@ -1,6 +1,5 @@
 import pygame as pg
 from support import draw_text
-from settings import *
 
 class HitStunFrames:
     def __init__(self, game, stun_frames=3):
@@ -14,7 +13,7 @@ class HitStunFrames:
         self.game.screen.fill('grey')
         self.game.drawBG()
         self.game.animate()
-        self.dt = self.clock.tick(FPS)/2000
+        self.dt = self.clock.tick(self.game.settings["FPS"])/2000
 
         COUNT_DOWN = pg.USEREVENT + 1   # sometimes 1/4 of a second slower than game clock
 
@@ -53,14 +52,14 @@ class HitStunFrames:
         self.game.draw_portrait(self.game.player_2)
 
         # match clock
-        draw_text(self.game.screen, self.match_time_text[:-1], (screen_width/2 - 70, 80), 100, (255, 0, 0))
-        draw_text(self.game.screen, self.match_time_text[-1:], (screen_width/2 + 50, 80), 100, (255, 0, 0))
+        draw_text(self.game.screen, self.match_time_text[:-1], (self.game.settings["screen_width"]/2 - 70, 80), 100, (255, 0, 0))
+        draw_text(self.game.screen, self.match_time_text[-1:], (self.game.settings["screen_width"]/2 + 50, 80), 100, (255, 0, 0))
 
         # show fps
         fpsCounter = str(int(self.game.clock.get_fps()))
-        draw_text(self.game.screen, f"FPS: {fpsCounter}", (HALF_SCREENW, 200))
+        draw_text(self.game.screen, f"FPS: {fpsCounter}", (self.game.settings["screen_width"]/2, 200))
 
         pg.display.update()
-        self.game.clock.tick(FPS)
+        self.game.clock.tick(self.game.settings["FPS"])
         self.frame += 1
         pg.display.flip()

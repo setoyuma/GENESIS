@@ -7,7 +7,7 @@ from show_inputs import Arrow
 from attack_damage import char_damage
 from particle import ParticlePrinciple
 from hit_stun import HitStunFrames
-from character_variables import *
+from character_variables import subi_anim_steps, subi_data, subi_flip_offset, subi_sheet
 from animations import *
 from settings import *
 from support import *
@@ -74,7 +74,7 @@ class Fighter():
         self.vel_y = 0
         self.GRAVITY = 2
         self.dir = "forward"
-        self.arrow_locx = screen_width/2-50
+        self.arrow_locx = self.game.settings["screen_width"]/2-50
         self.arrow_locy = 200
         self.arrow_size = 96
         if self.mode == "Train":
@@ -378,8 +378,8 @@ class Fighter():
         #check screen loc
         if self.rect.left + self.dX < 0:
             self.dX = -self.rect.left
-        if self.rect.right + self.dX > screen_width:
-            self.dX = screen_width - self.rect.right
+        if self.rect.right + self.dX > self.game.settings["screen_width"]:
+            self.dX = self.game.settings["screen_width"] - self.rect.right
 
         #keep players facing
         if target.rect.centerx > self.rect.centerx:
@@ -396,11 +396,11 @@ class Fighter():
             self.attack_cooldown -= 1
 
         #check ground
-        if self.rect.bottom + self.dY > screen_height - floor_height:
+        if self.rect.bottom + self.dY > self.game.settings["screen_height"] - self.game.settings["floor_height"]:
             self.on_ground = True
             self.vel_y = 0
             self.jumping = False
-            self.dY = screen_height - floor_height - self.rect.bottom
+            self.dY = self.game.settings["screen_height"] - self.game.settings["floor_height"] - self.rect.bottom
 
         #update pos
         self.rect.x += self.dX
@@ -584,15 +584,15 @@ class Fighter():
                 
                 '''FIREBALLS'''
                 if moveCombo == list(self.inputs["LFireball"]):
-                    self.proj = Projectile("FSTECH", "LFB", 98, (self.rect.centerx, self.rect.y), self, self.facing_right)
+                    self.proj = Projectile("FSTECH", "LFB", 98, (self.rect.centerx, self.rect.y), self, self.facing_right, self.game)
                     self.fireball = True
 
                 elif moveCombo == list(self.inputs["MFireball"]):
-                    self.proj = Projectile("FSTECH", "MFB", 98, (self.rect.centerx, self.rect.y), self, self.facing_right)
+                    self.proj = Projectile("FSTECH", "MFB", 98, (self.rect.centerx, self.rect.y), self, self.facing_right, self.game)
                     self.fireball = True
 
                 elif moveCombo == list(self.inputs["HFireball"]):
-                    self.proj = Projectile("FSTECH", "HFB", 98, (self.rect.centerx, self.rect.y), self, self.facing_right)
+                    self.proj = Projectile("FSTECH", "HFB", 98, (self.rect.centerx, self.rect.y), self, self.facing_right, self.game)
                     self.fireball = True
 
 

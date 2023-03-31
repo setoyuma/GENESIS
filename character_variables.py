@@ -1,5 +1,4 @@
 from settings import fighter_scales
-
 '''FIGHTERS'''
 # subi_sheet = pg.image.load("./assets/characters/subi/homusubi.png").convert_alpha()
 subi_sheet = 0

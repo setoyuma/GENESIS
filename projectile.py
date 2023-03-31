@@ -1,14 +1,14 @@
 import pygame as pg
-from settings import screen_width
 from support import *
 
 class Projectile():
-    def __init__(self, name, type, size, spawn_pos, player, facing_right):
+    def __init__(self, name, type, size, spawn_pos, player, facing_right, game):
         # self.image = anim_list[0]
         self.name = name
         self.type = type
         self.size = size
         self.player = player
+        self.game = game
         self.speed = 10
         self.animation_speed = 0.25
         self.frame_index = 0
@@ -44,7 +44,7 @@ class Projectile():
         elif self.type == "HFB":
             self.rect.x += int(self.speed * 2.2)
 
-        if self.rect.x < 0 or self.rect.x > screen_width:
+        if self.rect.x < 0 or self.rect.x > self.game.settings["screen_width"]:
             self.off_screen = True
 
     def draw(self, surf):

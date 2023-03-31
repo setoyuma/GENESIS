@@ -1,5 +1,6 @@
 import pygame as pg
 import sys
+import json
 
 from fighter import Fighter
 from particle import ParticlePrinciple
@@ -21,32 +22,42 @@ health_bar_colors = ColorGradient((0,255,0), (255,0,0)).generate_gradient()
 class Game:
 	def __init__(self):
 		pg.init()
+		self.load_settings()
 
 		# music and sound
 		pg.mixer.init()
-		pg.mixer.music.load(songs['main'])
+		pg.mixer.music.load(self.settings["songs"]['main'])
 		pg.mixer.music.play(-1)
 		self.volume = 0.25
 		pg.mixer.music.set_volume(self.volume)
 
 		# display
-		self.screen = pg.display.set_mode((screen_width, screen_height), )
+		self.screen = pg.display.set_mode((self.settings["screen_width"], self.settings["screen_height"]), )
 		self.clock = pg.time.Clock()
 		pg.display.set_icon(pg.image.load('./assets/icons/main/gameicon.ico'))
 		pg.display.set_caption("Kami No Ken: GENESIS")
 
 		# background animation
-		self.import_assets(carnival)
+		self.import_assets()
 		self.frame_index = 0
-		self.bg = ogre
-		self.image = self.bg_animations[self.bg][self.frame_index]
+		self.bg = self.settings["backgrounds"]["ogre"]
+		# self.image = self.bg_animations[self.bg][self.frame_index]
 		self.animation_speed = 0.25
 
 	def load_settings(self):
-		HALF_SCREENW = screen_width//2
-		HALF_SCREENH = screen_height//2
-		QUARTER_SCREENW = screen_width//4
-		QUARTER_SCREENH = screen_width//4
+		
+		reader = open('settings.json', 'r')
+		self.settings = json.loads(reader.read())
+		
+
+		# data = json.load(reader)
+		# print(data)
+		# print(settings["self.settings["FPS"]"])
+
+		HALF_SCREENW = self.settings["screen_width"]//2
+		HALF_SCREENH = self.settings["screen_height"]//2
+		QUARTER_SCREENW = self.settings["screen_width"]//4
+		QUARTER_SCREENH = self.settings["screen_width"]//4
 		
 		'''MOVEMENT'''
 		UP = pg.K_w
@@ -62,10 +73,10 @@ class Game:
 		MK = pg.K_l
 		HK = pg.K_SEMICOLON
 
-	def import_assets(self, bg):
+	def import_assets(self):
 		# hud
 		HUD = get_image("./assets/ui/HUD/HUD.png")
-		self.scaled_HUD = pg.transform.scale(HUD, (screen_width,  screen_height/3))
+		self.scaled_HUD = pg.transform.scale(HUD, (self.settings["screen_width"],  self.settings["screen_height"]/3))
 
 		# portait
 		# will need to change eventually for new characters
@@ -80,7 +91,7 @@ class Game:
 		for animation in self.bg_animations.keys():
 			full_path = bg_path + animation
 			original_images = import_folder(full_path)
-			scaled_images = scale_images(original_images, (screen_width, screen_height))
+			scaled_images = scale_images(original_images, (self.settings["screen_width"], self.settings["screen_height"]))
 			self.bg_animations[animation] = scaled_images
 
 	def animate(self):
@@ -123,12 +134,12 @@ class Game:
 		
 		# player 2
 		else:
-			left_x = screen_width - 610
-			right_x = screen_width - 33
+			left_x = self.settings["screen_width"] - 610
+			right_x = self.settings["screen_width"] - 33
 			#health meter
 			pg.draw.polygon(self.screen, health_bar_colors[color_index], [(right_x-(600*ratio), 85+(ratio*27)), (right_x-(600*ratio), 67-(ratio*27)), (right_x, 65), (right_x, 85)])
 			#super meter
-			pg.draw.polygon(self.screen, "blue", [(screen_width - 635, 148), (screen_width - 615, 110), (screen_width - 200, 93), (screen_width - 190, 113)])
+			pg.draw.polygon(self.screen, "blue", [(self.settings["screen_width"] - 635, 148), (self.settings["screen_width"] - 615, 110), (self.settings["screen_width"] - 200, 93), (self.settings["screen_width"] - 190, 113)])
 			# blast meter
 			if self.player_2.super_meter >= 50: # and self.player_1.blast_cooldown == 0:
 				#adjusted_points = [(point[0], point[1] + (ratio * y_distances[top_points.index(point)])) if point in top_points else point for point in blast_points]
@@ -147,13 +158,13 @@ class Game:
 		self.screen.blit(portrait, pos)
 
 	def send_frame(self):
-		self.dt = self.clock.tick(FPS)/2000
+		self.dt = self.clock.tick(self.settings["FPS"])/2000
 		pg.display.flip()
 
 	def MainMenu(self):
 		pg.display.set_caption("Kami No Ken: MAIN MENU")
 		mainMenuBG = get_image("./assets/backgrounds/main-menu/KnK.png")
-		play_button = Button(HALF_SCREENW, HALF_SCREENH, 200, 100, "PLAY", self.HomeScreen)
+		play_button = Button(self.settings["screen_width"]/2, self.settings["screen_height"]/2, 200, 100, "PLAY", self.HomeScreen)
 		particle1 = ParticlePrinciple()
 		PARTICLE_EVENT = pg.USEREVENT + 1
 		pg.time.set_timer(PARTICLE_EVENT,5)
@@ -185,9 +196,9 @@ class Game:
 		particle1 = ParticlePrinciple()
 		PARTICLE_EVENT = pg.USEREVENT + 1
 		pg.time.set_timer(PARTICLE_EVENT,5)
-		slider = Slider(HALF_SCREENW - 95, 145, 200, 10, self.volume)
-		volume_button = Button(HALF_SCREENW, 40, 200, 100, "VOLUME", None)
-		back_button = Button(HALF_SCREENW, 160, 200, 100, "BACK", self.Options)
+		slider = Slider(self.settings["screen_width"]/2 - 95, 145, 200, 10, self.volume)
+		volume_button = Button(self.settings["screen_width"]/2, 40, 200, 100, "VOLUME", None)
+		back_button = Button(self.settings["screen_width"]/2, 160, 200, 100, "BACK", self.Options)
 
 		while True:
 			self.screen.fill('black')
@@ -277,9 +288,9 @@ class Game:
 		particle1 = ParticlePrinciple()
 		PARTICLE_EVENT = pg.USEREVENT + 1
 		pg.time.set_timer(PARTICLE_EVENT,5)
-		back_button = Button(screen_width//2, 480, 200, 100, "BACK", self.HomeScreen)
-		sound_button = Button(screen_width//2, 320, 200, 100, "SOUND", self.SoundSettings)
-		video_button = Button(screen_width//2, 400, 200, 100, "VIDEO", self.HomeScreen)
+		back_button = Button(self.settings["screen_width"]//2, 480, 200, 100, "BACK", self.HomeScreen)
+		sound_button = Button(self.settings["screen_width"]//2, 320, 200, 100, "SOUND", self.SoundSettings)
+		video_button = Button(self.settings["screen_width"]//2, 400, 200, 100, "VIDEO", self.HomeScreen)
 
 		while True:
 			self.screen.fill('black')
@@ -309,7 +320,7 @@ class Game:
 	
 	def Training(self):
 		pg.display.set_caption("Kami No Ken: GENESIS")
-		pg.mixer.music.load(songs['credits'])
+		pg.mixer.music.load(self.settings["songs"]['credits'])
 		pg.mixer.music.play(-1)
 		pg.mixer.music.set_volume(0.1)
 
@@ -319,8 +330,8 @@ class Game:
 		while True:
 
 			self.screen.fill('grey')
-			self.drawBG()
 			self.animate()
+			self.drawBG()
 
 			'''PLAYER MVMNT'''
 			self.player_1.move(self.player_2)
@@ -366,18 +377,35 @@ class Game:
 			self.draw_portrait(self.player_1)
 			self.draw_portrait(self.player_2)
 
-			# show fps
+			# show self.settings["fps"]
 			fpsCounter = round(self.clock.get_fps())
-			draw_text(self.screen, f"FPS: {fpsCounter}", (HALF_SCREENW, 200))
+			draw_text(self.screen, f"FPS: {fpsCounter}", (self.settings["screen_width"]/2, 200))
 
 			self.send_frame()
 	
 	def Play(self):
 		pass
 	
+	def Test(self):
+		# self.load_settings()
+		UP = pg.K_w
+		DOWN = pg.K_s
+		BACK = pg.K_a
+		FORWARD = pg.K_d
+
+		'''ATTACKS'''
+		LP = pg.K_i
+		MP = pg.K_o
+		HP = pg.K_p
+		LK = pg.K_k
+		MK = pg.K_l
+		HK = pg.K_SEMICOLON
+
+		print(HK)
+	
 	def PlayLocal(self):
 		pg.display.set_caption("Kami No Ken: GENESIS")
-		pg.mixer.music.load(songs['science'])
+		pg.mixer.music.load(self.settings["songs"]['science'])
 		pg.mixer.music.play(-1)
 
 		self.player_1 = Fighter(self, 200, 510, False, "Homusubi", self.dt)
@@ -389,8 +417,8 @@ class Game:
 		while True:
 
 			self.screen.fill('grey')
-			self.drawBG()
 			self.animate()
+			self.drawBG()
 
 			'''PLAYER MVMNT'''
 			self.player_1.move(self.player_2)
@@ -454,15 +482,16 @@ class Game:
 
 			
 			# match clock
-			draw_text(self.screen, self.match_time_text[:-1], (screen_width/2 - 70, 80), 100, (255, 0, 0))
-			draw_text(self.screen, self.match_time_text[-1:], (screen_width/2 + 50, 80), 100, (255, 0, 0))
+			draw_text(self.screen, self.match_time_text[:-1], (self.settings["screen_width"]/2 - 70, 80), 100, (255, 0, 0))
+			draw_text(self.screen, self.match_time_text[-1:], (self.settings["screen_width"]/2 + 50, 80), 100, (255, 0, 0))
 
-			# show fps
+			# show self.settings["fps"]
 			fpsCounter = round(self.clock.get_fps())
-			draw_text(self.screen, f"FPS: {fpsCounter}", (HALF_SCREENW, 200))
+			draw_text(self.screen, f"FPS: {fpsCounter}", (self.settings["screen_width"]/2, 200))
 
 			self.send_frame()
 
 if __name__ == '__main__':
 	game = Game()
+	# game.Test()
 	game.MainMenu()
