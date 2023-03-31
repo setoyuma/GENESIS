@@ -7,13 +7,22 @@ class HitStunFrames:
         self.game = game
         self.frame = 0
         self.stun_frames = stun_frames
-    
+        self.clock = pg.time.Clock()
+        self.match_time = self.game.match_time
+
     def update(self):
         self.game.screen.fill('grey')
         self.game.drawBG()
         self.game.animate()
+        self.dt = self.clock.tick(FPS)/2000
+
+        COUNT_DOWN = pg.USEREVENT + 1   # sometimes 1/4 of a second slower than game clock
 
         for event in pg.event.get():
+            if event.type == COUNT_DOWN:
+                dt = self.dt
+                self.match_time -= dt
+                self.match_time_text = str(int(self.match_time)).rjust(3) if int(self.match_time) > 0 else 'GAME'
             if event.type == pg.QUIT:
                 pg.quit()
                 sys.exit()
@@ -42,6 +51,10 @@ class HitStunFrames:
         self.game.draw_HUD(self.game.screen)
         self.game.draw_portrait(self.game.player_1)
         self.game.draw_portrait(self.game.player_2)
+
+        # match clock
+        draw_text(self.game.screen, self.match_time_text[:-1], (screen_width/2 - 70, 80), 100, (255, 0, 0))
+        draw_text(self.game.screen, self.match_time_text[-1:], (screen_width/2 + 50, 80), 100, (255, 0, 0))
 
         # show fps
         fpsCounter = str(int(self.game.clock.get_fps()))

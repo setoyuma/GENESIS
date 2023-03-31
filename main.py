@@ -127,7 +127,7 @@ class Game:
 		self.screen.blit(portrait, pos)
 
 	def send_frame(self):
-		self.clock.tick(FPS)
+		self.dt = self.clock.tick(FPS)/2000
 		pg.display.flip()
 
 	def MainMenu(self):
@@ -360,8 +360,12 @@ class Game:
 		pg.mixer.music.load(songs['science'])
 		pg.mixer.music.play(-1)
 
-		self.player_1 = Fighter(self, 200, 510, False, "Homusubi")
-		self.player_2 = Fighter(self, 1000, 570, True, "Homusubi")
+		self.player_1 = Fighter(self, 200, 510, False, "Homusubi", self.dt)
+		self.player_2 = Fighter(self, 1000, 570, True, "Homusubi", self.dt)
+
+		COUNT_DOWN = pg.USEREVENT + 1
+		self.match_time = 99
+
 		while True:
 
 			self.screen.fill('grey')
@@ -383,6 +387,14 @@ class Game:
 
 			for event in pg.event.get():
 				check_for_quit(event)
+
+				if event.type == COUNT_DOWN:
+					dt = self.dt
+					self.match_time -= dt
+					self.match_time_text = str(int(self.match_time)).rjust(3) if int(self.match_time) > 0 else 'GAME'
+					if int(self.match_time) == 0:
+						self.match_time = 0
+						print("match over")
 
 				if event.type == pg.KEYDOWN:
 					self.player_1.handle_keydowns(event, self.player_2)
@@ -419,6 +431,11 @@ class Game:
 
 			self.draw_portrait(self.player_1)
 			self.draw_portrait(self.player_2)
+
+			
+			# match clock
+			draw_text(self.screen, self.match_time_text[:-1], (screen_width/2 - 70, 80), 100, (255, 0, 0))
+			draw_text(self.screen, self.match_time_text[-1:], (screen_width/2 + 50, 80), 100, (255, 0, 0))
 
 			# show fps
 			fpsCounter = round(self.clock.get_fps())

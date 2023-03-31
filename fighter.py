@@ -259,6 +259,7 @@ class Fighter():
 
     def move(self, target):
         self.SPEED = 10
+        self.target = target
         self.dX = 0
         self.dY = 0
         self.walking = False
@@ -495,6 +496,14 @@ class Fighter():
 
             target.hit = True
             target.hp -= self.move_damage[self.attack_status]
+        
+
+            '''LAUNCH MOVES'''
+            match self.character:
+                case "Homusubi":
+                    if self.status == "2HP" and target.hit:
+                        self.launch(target)
+
 
             self.hitspark(attack_rect, flip_hit_box, fireball, target)
     
