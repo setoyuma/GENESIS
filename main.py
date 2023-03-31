@@ -42,6 +42,26 @@ class Game:
 		self.image = self.bg_animations[self.bg][self.frame_index]
 		self.animation_speed = 0.25
 
+	def load_settings(self):
+		HALF_SCREENW = screen_width//2
+		HALF_SCREENH = screen_height//2
+		QUARTER_SCREENW = screen_width//4
+		QUARTER_SCREENH = screen_width//4
+		
+		'''MOVEMENT'''
+		UP = pg.K_w
+		DOWN = pg.K_s
+		BACK = pg.K_a
+		FORWARD = pg.K_d
+
+		'''ATTACKS'''
+		LP = pg.K_i
+		MP = pg.K_o
+		HP = pg.K_p
+		LK = pg.K_k
+		MK = pg.K_l
+		HK = pg.K_SEMICOLON
+
 	def import_assets(self, bg):
 		# hud
 		HUD = get_image("./assets/ui/HUD/HUD.png")

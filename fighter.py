@@ -39,6 +39,7 @@ class Fighter():
         self.flip = flip
         self.rect = pg.Rect(x, y, 80, 180)
         self.particle = ParticlePrinciple()
+        self.alive = True
 
         # attacks
         self.fireball = False
@@ -408,9 +409,9 @@ class Fighter():
 
     def updateAnim(self, target):
         if self.hp <= 0:
-           self.hp = 0
-            #self.alive = False
-            #self.update_action(6)
+            self.hp = 0
+            self.alive = False
+            # self.update_action(6)
         elif self.hit == True:
             self.update_action('hit')
         
@@ -494,8 +495,9 @@ class Fighter():
 
             self.super_meter += damage * 2
 
-            target.hit = True
-            target.hp -= self.move_damage[self.attack_status]
+            if target.alive:
+                target.hit = True
+                target.hp -= self.move_damage[self.attack_status]
         
 
             '''LAUNCH MOVES'''
@@ -507,11 +509,15 @@ class Fighter():
 
             self.hitspark(attack_rect, flip_hit_box, fireball, target)
     
-            self.animated_text = TextAnimation("", 60, 0, target.hit_box.topright, "white", 30, self.game.screen)
+            self.animated_text = TextAnimation("", 60, 0, target. hit_box.topright, "white", 30, self.game.screen)
             self.animated_text.damage = damage
 
             # hit stun
-            self.hit_stun = HitStunFrames(self.game, stun_frames=3)
+            if fireball:
+                self.hit_stun = HitStunFrames(self.game, stun_frames=0)
+            else:
+                self.hit_stun = HitStunFrames(self.game, stun_frames=3)
+
             while self.hit_stun.frame <= self.hit_stun.stun_frames:
                 self.hit_stun.update()
             self.hit_stun = None
