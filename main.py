@@ -133,7 +133,7 @@ class Game:
 	def MainMenu(self):
 		pg.display.set_caption("Kami No Ken: MAIN MENU")
 		mainMenuBG = get_image("./assets/backgrounds/main-menu/KnK.png")
-		play_button = Button(screen_width//2,screen_height//2,200,100,"PLAY",self.HomeScreen,True)
+		play_button = Button(HALF_SCREENW, HALF_SCREENH, 200, 100, "PLAY", self.HomeScreen)
 		particle1 = ParticlePrinciple()
 		PARTICLE_EVENT = pg.USEREVENT + 1
 		pg.time.set_timer(PARTICLE_EVENT,5)
@@ -153,7 +153,9 @@ class Game:
 					if event.key == pg.K_SPACE:
 						self.Play()
 
-			play_button.Process()
+				play_button.Process(event)
+
+			play_button.draw()
 			particle1.emit("Red")
 			self.send_frame()
 
@@ -163,9 +165,9 @@ class Game:
 		particle1 = ParticlePrinciple()
 		PARTICLE_EVENT = pg.USEREVENT + 1
 		pg.time.set_timer(PARTICLE_EVENT,5)
-		slider = Slider(screen_width//2 - 95, 145, 200, 10, self.volume)
-		volume_button = Button(screen_width//2, 40, 200, 100, "VOLUME", None, True)
-		back_button = Button(screen_width//2, 160, 200, 100, "BACK", self.Options, True)
+		slider = Slider(HALF_SCREENW - 95, 145, 200, 10, self.volume)
+		volume_button = Button(HALF_SCREENW, 40, 200, 100, "VOLUME", None)
+		back_button = Button(HALF_SCREENW, 160, 200, 100, "BACK", self.Options)
 
 		while True:
 			self.screen.fill('black')
@@ -200,8 +202,12 @@ class Game:
 				elif event.type == pg.MOUSEBUTTONUP:
 					slider.active = False
 			
-			volume_button.Process()
-			back_button.Process()
+				volume_button.Process(event)
+				back_button.Process(event)
+
+			volume_button.draw()
+			back_button.draw()
+
 			particle1.emit("Red")
 			self.send_frame()
 
@@ -212,10 +218,10 @@ class Game:
 		PARTICLE_EVENT = pg.USEREVENT + 1
 		pg.time.set_timer(PARTICLE_EVENT,5)
 
-		fight_button = Button(70, 40, 200, 100, "LOCAL", self.PlayLocal, True)
-		train_button = Button(70, 120, 200, 100, "TRAINING", self.Training, True)
-		back_button = Button(70, 200, 200, 100, "BACK", self.MainMenu, True)
-		options_button = Button(70, 280, 200, 100, "OPTIONS", self.Options, True)
+		fight_button = Button(70, 40, 200, 100, "LOCAL", self.PlayLocal)
+		train_button = Button(70, 120, 200, 100, "TRAINING", self.Training)
+		back_button = Button(70, 200, 200, 100, "BACK", self.MainMenu)
+		options_button = Button(70, 280, 200, 100, "OPTIONS", self.Options)
 
 		while True:
 			self.screen.fill('black')
@@ -232,10 +238,16 @@ class Game:
 					if event.key == pg.K_SPACE:
 						self.Play()
             
-			back_button.Process()
-			fight_button.Process()
-			train_button.Process()
-			options_button.Process()
+				back_button.Process(event)
+				fight_button.Process(event)
+				train_button.Process(event)
+				options_button.Process(event)
+
+			back_button.draw()
+			fight_button.draw()
+			train_button.draw()
+			options_button.draw()
+
 			particle1.emit("Red")
 			self.send_frame()
 	
@@ -245,13 +257,13 @@ class Game:
 		particle1 = ParticlePrinciple()
 		PARTICLE_EVENT = pg.USEREVENT + 1
 		pg.time.set_timer(PARTICLE_EVENT,5)
+		back_button = Button(screen_width//2, 480, 200, 100, "BACK", self.HomeScreen)
+		sound_button = Button(screen_width//2, 320, 200, 100, "SOUND", self.SoundSettings)
+		video_button = Button(screen_width//2, 400, 200, 100, "VIDEO", self.HomeScreen)
 
 		while True:
 			self.screen.fill('black')
 			self.screen.blit(mainMenuBG,(480,115))
-			sound_button = Button(screen_width//2,320,200,100,"SOUND",self.SoundSettings,True)
-			video_button = Button(screen_width//2,400,200,100,"VIDEO",self.HomeScreen,True)
-			back_button = Button(screen_width//2, 480, 200, 100, "BACK", self.HomeScreen, True)
 
 			for event in pg.event.get():
 				check_for_quit(event)
@@ -264,9 +276,14 @@ class Game:
 					if event.key == pg.K_SPACE:
 						self.Play()
             
-			sound_button.Process()
-			video_button.Process()
-			back_button.Process()
+				sound_button.Process(event)
+				video_button.Process(event)
+				back_button.Process(event)
+
+			sound_button.draw()
+			video_button.draw()
+			back_button.draw()
+
 			particle1.emit("Red")
 			self.send_frame()
 	

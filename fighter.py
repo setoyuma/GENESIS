@@ -548,12 +548,12 @@ class Fighter():
         match char:
             case "Homusubi":
                 self.inputs = Subi_Inputs.copy()
-                self.inputValues = list(self.inputs.values())
-                self.inputKey = list(self.inputs.keys())
+
             case "Raijin":
                 self.inputs = Raijin_Inputs.copy()
-                self.inputValues = list(self.inputs.values())
-                self.inputKey = list(self.inputs.keys())
+
+        self.inputValues = list(self.inputs.values())
+        self.inputKey = list(self.inputs.keys())
 
     def checkMoveCombo(self):
         moveCombo = self.moveCombo

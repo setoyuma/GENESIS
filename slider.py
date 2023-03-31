@@ -30,7 +30,6 @@ class Slider:
             # print("mouse on slider")
             return True
         else:
-            print("mouse not on slider")
             return False
 
     def on_slider_hold(self, x, y):
