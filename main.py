@@ -276,8 +276,8 @@ class Game:
 		pg.mixer.music.play(-1)
 		pg.mixer.music.set_volume(0.1)
 
-		self.player_1 = Fighter(self, 200, 510, False, "Homusubi")
-		self.player_2 = Fighter(self, 1000, 570, True, "Homusubi")
+		self.player_1 = Fighter(self, 200, 510, False, "Homusubi", "Train")
+		self.player_2 = Fighter(self, 1000, 570, True, "Homusubi", "Train")
 
 		while True:
 
