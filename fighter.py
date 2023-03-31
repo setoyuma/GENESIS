@@ -234,16 +234,16 @@ class Fighter():
                 self.attack_type = 6
                 self.attacking = True
 
-            elif event.key == pg.K_LSHIFT and self.dir == "forward" and not self.dashing:
-                print("FDASH")
-                self.dashing = True
-                self.rect.x += self.dashLength * 2
-                self.rect.y -= 12
-            elif event.key == pg.K_LSHIFT and self.dir == "back" and not self.dashing:
-                print("BDASH")
-                self.dashing = True
-                self.rect.x -= (self.dashLength * 2)//2
-                self.rect.y -= 12
+            # elif event.key == pg.K_LSHIFT and self.dir == "forward" and not self.dashing:
+            #     print("FDASH")
+            #     self.dashing = True
+            #     self.rect.x += self.dashLength * 2
+            #     self.rect.y -= 12
+            # elif event.key == pg.K_LSHIFT and self.dir == "back" and not self.dashing:
+            #     print("BDASH")
+            #     self.dashing = True
+            #     self.rect.x -= (self.dashLength * 2)//2
+            #     self.rect.y -= 12
 
             elif self.dashing:
                 self.dX = 0
@@ -571,7 +571,7 @@ class Fighter():
         self.inputKey = list(self.inputs.keys())
 
     def launch(self, target):
-        target.rect.y -= 5
+        target.rect.y -= 100
         
 
     def checkMoveCombo(self):
@@ -583,17 +583,20 @@ class Fighter():
             if self.proj is None:
                 
                 '''FIREBALLS'''
-                if moveCombo == list(self.inputs["LFireball"]):
+                if moveCombo == list(self.inputs["LFireball"]) and self.super_meter >= 50:
                     self.proj = Projectile("FSTECH", "LFB", 98, (self.rect.centerx, self.rect.y), self, self.facing_right, self.game)
                     self.fireball = True
+                    self.super_meter -= 50
 
-                elif moveCombo == list(self.inputs["MFireball"]):
+                elif moveCombo == list(self.inputs["MFireball"]) and self.super_meter >= 50:
                     self.proj = Projectile("FSTECH", "MFB", 98, (self.rect.centerx, self.rect.y), self, self.facing_right, self.game)
                     self.fireball = True
+                    self.super_meter -= 50
 
-                elif moveCombo == list(self.inputs["HFireball"]):
+                elif moveCombo == list(self.inputs["HFireball"]) and self.super_meter >= 50:
                     self.proj = Projectile("FSTECH", "HFB", 98, (self.rect.centerx, self.rect.y), self, self.facing_right, self.game)
                     self.fireball = True
+                    self.super_meter -= 50
 
 
                 '''DP'S'''
@@ -618,6 +621,22 @@ class Fighter():
                     print("character has no dp")
                 
 
+                '''DASHES'''
+                if self.dir == "forward" and moveCombo == list(self.inputs["FDASH"]):
+                    print("FDASH")
+                    self.dashing = True
+                    self.rect.x += self.dashLength 
+                    self.rect.y -= 12
+                    moveCombo = []
+                
+                if self.dir == "back" and moveCombo == list(self.inputs["BDASH"]):
+                    print("BDASH")
+                    self.dashing = True
+                    self.rect.x -= self.dashLength 
+                    self.rect.y -= 12
+                    moveCombo = []
+
+
                 # check if a fireball has been created just now
                 if self.fireball and self.proj is not None:
                     self.proj.frames_passed = 0
@@ -630,6 +649,14 @@ class Fighter():
 
     def draw(self):
         self.particle.emit()
+        print(self.super_meter)
+
+        if self.super_meter >= 250:
+            self.super_meter = 250
+        if self.super_meter <= 0:
+            self.super_meter = 0
+
+
 
         if self.dashing:
             self.applyGravityDash()
