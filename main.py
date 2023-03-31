@@ -38,7 +38,7 @@ class Game:
 		# background animation
 		self.import_assets(carnival)
 		self.frame_index = 0
-		self.bg = carnival
+		self.bg = ogre
 		self.image = self.bg_animations[self.bg][self.frame_index]
 		self.animation_speed = 0.25
 
