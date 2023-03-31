@@ -12,7 +12,7 @@ from settings import *
 from support import *
 from inputs import *
 
-attacks = ['LP', 'MP', 'HP', 'LK', 'MK', 'HK', '2LP', '2MP', '2HP']
+attacks = ['LP', 'MP', 'HP', 'LK', 'MK', 'HK', '2LP', '2MP', '2HP', '2LK']
 
 class Fighter():
     def __init__(self, game, x, y, flip, char, mode="Play"):
