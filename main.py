@@ -421,7 +421,7 @@ class Game:
 		self.players = [self.player_2, self.player_1]  # reversed for client draw order
 
 		COUNT_DOWN = pg.USEREVENT + 1
-		self.match_time = 99
+		self.match_time = 11
 
 		while True:
 
@@ -460,7 +460,7 @@ class Game:
 						if event.type == COUNT_DOWN:
 							dt = self.dt
 							self.match_time -= dt
-							self.match_time_text = str(int(self.match_time)).rjust(3) if int(self.match_time) > 0 else 'GAME'
+							self.match_time_text = str(int(self.match_time)) if int(self.match_time) > 0 else '00'
 							if int(self.match_time) == 0:
 								self.match_time = 0
 								print("match over")
@@ -488,8 +488,8 @@ class Game:
 						player.animated_text = None
 			
 			# match clock
-			draw_text(self.screen, self.match_time_text[:-1], (self.settings["screen_width"]/2 - 70, 80), 100, (255, 0, 0))
-			draw_text(self.screen, self.match_time_text[-1:], (self.settings["screen_width"]/2 + 50, 80), 100, (255, 0, 0))
+			draw_text(self.screen, self.match_time_text[:-1], (self.settings["screen_width"]/2 - 50, 80), 120, (255, 0, 0))
+			draw_text(self.screen, self.match_time_text[-1:], (self.settings["screen_width"]/2 + 50, 80), 120, (255, 0, 0))
 
 			# show self.settings["fps"]
 			fpsCounter = round(self.clock.get_fps())
