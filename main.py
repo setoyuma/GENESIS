@@ -7,6 +7,7 @@ from particle import ParticlePrinciple
 from color_animation import ColorGradient
 from button import Button
 from slider import Slider
+from pause import Pause
 from settings import * 
 from support import *
 from character_variables import *
@@ -43,6 +44,7 @@ class Game:
 		# self.image = self.bg_animations[self.bg][self.frame_index]
 		self.animation_speed = 0.25
 		self.hit_stun = None
+		self.paused = False
 
 	def load_settings(self):
 		
@@ -183,7 +185,7 @@ class Game:
 		self.screen.blit(portrait, pos)
 
 	def send_frame(self):
-		self.dt = self.clock.tick(self.settings["FPS"])/2000
+		self.dt = self.clock.tick(self.settings["FPS"]) / 2300
 		pg.display.flip()
 
 	def MainMenu(self):
@@ -465,18 +467,25 @@ class Game:
 								self.match_time = 0
 								print("match over")
 
-						if event.type == pg.KEYDOWN and not self.hit_stun:
-							self.player_1.handle_keydowns(event, self.player_2)
-							self.player_1.moveCombo.append(event.key)
-							# self.player_2.moveCombo.append(event.key)
+						if event.type == pg.KEYDOWN:
+							if not self.hit_stun:
+								self.player_1.handle_keydowns(event, self.player_2)
+								self.player_1.moveCombo.append(event.key)
+								# self.player_2.moveCombo.append(event.key)
 
-							if event.key == pg.K_r:
-								self.__init__()
-								self.MainMenu()
+								if event.key == pg.K_r:
+									self.__init__()
+									self.MainMenu()
 
-							if event.key == pg.K_h:
-								pg.draw.rect(self.screen, "green", self.player_1.hit_box)
+								if event.key == pg.K_h:
+									pg.draw.rect(self.screen, "green", self.player_1.hit_box)
+							
+							if event.key == pg.K_ESCAPE:
+								self.paused = True
+								pause = Pause(self)
+								pause.update()
 
+							
 				# draw player
 				player.draw()
 

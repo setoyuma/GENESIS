@@ -6,7 +6,6 @@ from projectile import Projectile
 from show_inputs import Arrow
 from attack_damage import char_damage
 from particle import ParticlePrinciple
-from hit_stun import HitStunFrames
 from character_variables import subi_anim_steps, subi_data, subi_flip_offset, subi_sheet
 from animations import *
 from settings import *
@@ -641,7 +640,8 @@ class Fighter():
             self.proj.move()
             self.proj.draw(pg.display.get_surface())
 
-        self.animate()
+        if not self.game.paused:
+            self.animate()
 
         self.getInputs(self.character)
         if self.moveCombo:
