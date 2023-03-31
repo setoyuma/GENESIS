@@ -28,7 +28,7 @@ class Game:
 		pg.mixer.init()
 		pg.mixer.music.load(self.settings["songs"]['main'])
 		pg.mixer.music.play(-1)
-		self.volume = 0.25
+		self.volume = self.settings["game_volume"]
 		pg.mixer.music.set_volume(self.volume)
 
 		# display
@@ -496,6 +496,10 @@ class Game:
 					if player.animated_text.update():
 						player.animated_text = None
 			
+			# portraits
+			self.draw_portrait(self.player_1)
+			self.draw_portrait(self.player_2)
+
 			# match clock
 			draw_text(self.screen, self.match_time_text[:-1], (self.settings["screen_width"]/2 - 50, 80), 120, (255, 0, 0))
 			draw_text(self.screen, self.match_time_text[-1:], (self.settings["screen_width"]/2 + 50, 80), 120, (255, 0, 0))

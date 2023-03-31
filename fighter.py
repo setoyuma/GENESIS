@@ -649,7 +649,6 @@ class Fighter():
 
     def draw(self):
         self.particle.emit()
-        print(self.super_meter)
 
         if self.super_meter >= 250:
             self.super_meter = 250

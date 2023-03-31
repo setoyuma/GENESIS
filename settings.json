@@ -3,7 +3,7 @@
     "screen_width" : 1600,
     "screen_height" : 800,
     "floor_height" : 30,
-    "game_volume" : 0.6,
+    "game_volume" : 0.0,
     
     "backgrounds" : {
         "carnival" : "bay-side-carnival",
