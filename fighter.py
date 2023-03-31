@@ -26,6 +26,7 @@ class Fighter():
         self.offset = subi_data[2]
         self.hp = subi_data[3]
         self.super_meter = 0
+        self.blast_meter = 0
 
         # animations
         self.character = char
@@ -97,7 +98,7 @@ class Fighter():
             self.animations[animation] = scaled_images
 
     def animate(self):
-        if self.hit_stun is not None:
+        if self.game.hit_stun:
             return
 
         animation = self.animations[self.status]
@@ -259,12 +260,16 @@ class Fighter():
                 self.attacked = False
 
     def move(self, target):
+
         self.SPEED = 10
         self.target = target
         self.dX = 0
         self.dY = 0
         self.walking = False
-        key = pg.key.get_pressed()
+        if self == self.game.player_1:
+            key = pg.key.get_pressed()
+        else:
+            key = [False]*300
 
         if not self.attacking and not self.throwing_proj:
             #movement
@@ -513,14 +518,10 @@ class Fighter():
             self.animated_text.damage = damage
 
             # hit stun
-            if fireball:
-                self.hit_stun = HitStunFrames(self.game, stun_frames=0)
-            else:
-                self.hit_stun = HitStunFrames(self.game, stun_frames=3)
-
-            while self.hit_stun.frame <= self.hit_stun.stun_frames:
-                self.hit_stun.update()
-            self.hit_stun = None
+            if not fireball:
+                self.game.hit_stun = True
+                self.game.stun_frames = 0
+                self.game.max_stun_frames = 3
 
             # knockback
             if self.attacking:
