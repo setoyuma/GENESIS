@@ -8,11 +8,11 @@ from attack_damage import char_damage
 from particle import ParticlePrinciple
 from character_variables import subi_anim_steps, subi_data, subi_flip_offset, subi_sheet
 from animations import *
-from settings import *
+from constants import *
 from support import *
 from inputs import *
 
-attacks = ['LP', 'MP', 'HP', 'LK', 'MK', 'HK', '2LP', '2MP', '2HP', '2LK']
+
 
 class Fighter():
     def __init__(self, game, x, y, flip, char, mode="Play"):

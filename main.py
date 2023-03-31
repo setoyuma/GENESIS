@@ -8,8 +8,8 @@ from color_animation import ColorGradient
 from button import Button
 from slider import Slider
 from pause import Pause
-from settings import * 
 from support import *
+from constants import *
 from character_variables import *
 
 # br ~ tr ~ tl ~ bl  br=0                          # tr=3     # tl=4               # bl=6
@@ -46,35 +46,7 @@ class Game:
 		self.hit_stun = None
 		self.paused = False
 
-	def load_settings(self):
-		
-		reader = open('settings.json', 'r')
-		self.settings = json.loads(reader.read())
-		
-
-		# data = json.load(reader)
-		# print(data)
-		# print(settings["self.settings["FPS"]"])
-
-		HALF_SCREENW = self.settings["screen_width"]//2
-		HALF_SCREENH = self.settings["screen_height"]//2
-		QUARTER_SCREENW = self.settings["screen_width"]//4
-		QUARTER_SCREENH = self.settings["screen_width"]//4
-		
-		'''MOVEMENT'''
-		UP = pg.K_w
-		DOWN = pg.K_s
-		BACK = pg.K_a
-		FORWARD = pg.K_d
-
-		'''ATTACKS'''
-		LP = pg.K_i
-		MP = pg.K_o
-		HP = pg.K_p
-		LK = pg.K_k
-		MK = pg.K_l
-		HK = pg.K_SEMICOLON
-
+	
 	def import_assets(self):
 		# hud
 		HUD = get_image("./assets/ui/HUD/HUD.png")
