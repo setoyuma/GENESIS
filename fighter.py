@@ -619,7 +619,6 @@ class Fighter():
                         print("EXDP")
                 else:
                     print("character has no dp")
-                
 
                 '''DASHES'''
                 if self.dir == "forward" and moveCombo == list(self.inputs["FDASH"]):
@@ -635,7 +634,6 @@ class Fighter():
                     self.rect.x -= self.dashLength 
                     self.rect.y -= 12
                     moveCombo = []
-
 
                 # check if a fireball has been created just now
                 if self.fireball and self.proj is not None:
