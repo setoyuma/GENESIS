@@ -4,6 +4,9 @@ import json
 import time
 import sys
 
+import AI
+from fighter import Fighter
+from particle import ParticlePrinciple
 from color_animation import ColorGradient
 from particle import ParticlePrinciple
 from fighter import Fighter, Event
@@ -25,6 +28,22 @@ blast_polygon_colors = ColorGradient((255,255,255), (255,255,0)).generate_gradie
 blast_points = [(179, 127), (195, 99), (225, 98), (225, 95), (30, 85), (6, 113), (28, 137), (53, 123), (92, 112), (173, 127)]
 right_blast_points = [(1421, 127), (1405, 99), (1375, 98), (1375, 95), (1570, 85), (1594, 113), (1572, 137), (1547, 123), (1508, 112), (1427, 127)]
 
+
+ai_actions = [pg.K_w, pg.K_s, pg.K_a, pg.K_d, LP, MP, HP, LK, MK, HK]
+
+class Event:
+    def __init__(self, key):
+        self.type = None
+        self.key = key
+        self.button = None
+
+ai_actions = [pg.K_w, pg.K_s, pg.K_a, pg.K_d, LP, MP, HP, LK, MK, HK]
+
+class Event:
+    def __init__(self, key):
+        self.type = None
+        self.key = key
+        self.button = None
 
 class Game:
 	def __init__(self):
@@ -205,6 +224,38 @@ class Game:
 		fpsCounter = round(self.clock.get_fps())
 		draw_text(self.screen, f"FPS: {fpsCounter}", (self.settings["screen_width"]/2, 200))
 
+	def init_training_vars(self):
+		self.reward = 0
+		self.damage_dealt_to_opponent = 0
+		self.damage_received = 0
+		self.agent_won = False
+		self.agent_lost = False
+		self.over = False
+	
+	def calculate_reward(self):
+		# Initialize reward
+		self.reward = 0
+
+		# Encourage dealing damage
+		self.reward += self.damage_dealt_to_opponent
+
+		# Discourage receiving damage
+		self.reward -= self.damage_received
+
+		# Encourage winning and discourage losing
+		if self.agent_won:
+			self.reward += 100
+		elif self.agent_lost:
+			self.reward -= 100
+
+		# Avoid excessive movement
+		self.reward -= 0.1
+
+		# Time limit
+		self.reward -= self.time_remaining / self.total_time
+
+		return self.reward
+
 	def send_frame(self):
 		self.dt = self.clock.tick(self.settings["FPS"]) / 1000.0
 		pg.display.flip()
@@ -237,3 +288,10 @@ if __name__ == '__main__':
 	game = Game()
 	game.sceneManager = SceneManager(Main_Menu(game))
 	game.sceneManager.start()
+	train = False
+	if train:
+		game.reset()  # init player vars
+		game.init_training_vars()
+		AI.train()
+	else:
+		game.MainMenu()
