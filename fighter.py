@@ -56,6 +56,7 @@ class Fighter():
 
         # flags
         self.hit = False
+        self.launch_target = None
         self.crouching = False
         self.on_ground = True
         self.walking = False
@@ -152,6 +153,12 @@ class Fighter():
                     self.attack_cooldown = 3
                     self.update_action("crouch")
                     self.frame_index = 4
+                
+                elif self.status == '2LK':
+                    self.attacking = False
+                    self.attack_cooldown = 3
+                    self.update_action("crouch")
+                    self.frame_index = 4
 
 
         if self.status == 'LP':
@@ -174,6 +181,9 @@ class Fighter():
             self.frame_index += 0.1
         elif self.status == '2HP':
             self.frame_index += 0.1
+        
+        elif self.status == '2LK':
+            self.frame_index += 0.2
 
         elif self.status == 'crouch':
             self.frame_index += self.animation_speed + 0.5
@@ -203,6 +213,11 @@ class Fighter():
                     self.attack_status = '2HP'
                     self.attacking = True
                     self.attack_type = 9
+                
+                elif event.key == LK:
+                    self.attack_status = '2LK'
+                    self.attacking = True
+                    self.attack_type = 10
             
             # punches
             elif event.key == LP and self.on_ground:
@@ -508,7 +523,7 @@ class Fighter():
             match self.character:
                 case "Homusubi":
                     if self.status == "2HP" and target.hit:
-                        self.launch(target)
+                        self.launch_target = Launch(target, 500, 6)
 
 
             self.hitspark(attack_rect, flip_hit_box, fireball, target)
@@ -555,6 +570,10 @@ class Fighter():
 
     def applyGravity(self):
         self.vel_y += self.GRAVITY
+        if self.launch_target != None:
+            if self.launch_target.update():
+                self.launch_target = None
+        
     
     def applyGravityDash(self):
         self.vel_y += self.dashGravity
@@ -570,11 +589,10 @@ class Fighter():
         self.inputValues = list(self.inputs.values())
         self.inputKey = list(self.inputs.keys())
 
-    def launch(self, target):
-        target.rect.y -= 100
+    def checkMoveCombo(self):
+    
         
 
-    def checkMoveCombo(self):
         moveCombo = self.moveCombo
         if not self.facing_right:
             moveCombo = [pg.K_a if key == pg.K_d else pg.K_d if key == pg.K_a else key for key in moveCombo]
@@ -678,3 +696,15 @@ class Fighter():
 
         if self.super_meter > 250:
             self.super_meter = 250
+
+class Launch:
+        def __init__(self, target, value, speed):
+            self.start_y = target.rect.y
+            self.end_y = self.start_y + value
+            self.speed = (self.end_y - self.start_y) / speed
+            self.target = target
+
+        def update(self):
+            self.target.rect.y -= self.speed
+            return self.target.rect.y <= self.start_y
+            
