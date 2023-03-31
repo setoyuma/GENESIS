@@ -33,6 +33,8 @@ class Fighter():
         self.frame_index = 0
         self.animation_speed = 0.22
         self.image = self.animations['idle'][self.frame_index]
+        self.flip = flip
+        if self.flip: img = pg.transform.flip(self.image, True, False)
         self.status = 'idle'
         self.flip = flip
         self.rect = pg.Rect(x, y, 80, 180)
@@ -179,6 +181,8 @@ class Fighter():
                     self.frame_index -= 1
 
         self.image = animation[int(self.frame_index)]
+        if self.flip:
+            self.image = pg.transform.flip(self.image, True, False)
 
     def handle_keydowns(self, event, target):
         # check current action
@@ -419,7 +423,7 @@ class Fighter():
             self.update_action('MP')
           elif self.attack_type == 3:
             self.update_action('HP')
-          if self.attack_type == 4:
+          elif self.attack_type == 4:
             self.update_action('LK')
           elif self.attack_type == 5:
             self.update_action('MK')
@@ -515,6 +519,7 @@ class Fighter():
         if not fireball:
             offset_x = 40
             target_x = attack_rect.x
+
             if self.facing_right:
                 offset_x *= -1
                 target_x += flip_hit_box
@@ -522,27 +527,14 @@ class Fighter():
 
             target_y = attack_rect.centery
             if self.crouching:
-                target_y += 80
+                target_y += 70
+
         else:
             target_x, target_y = target.hit_box.center
 
-        self.particle.addParticles(target_x, target_y)
-        self.particle.addParticles(target_x, target_y)
-        self.particle.addParticles(target_x, target_y)
-        self.particle.addParticles(target_x, target_y)
-        self.particle.addParticles(target_x, target_y)
-        self.particle.addParticles(target_x, target_y)
-        self.particle.addParticles(target_x, target_y)
-        self.particle.addParticles(target_x, target_y)
-        self.particle.addParticles(target_x, target_y)
-        self.particle.addParticles(target_x, target_y)
-        self.particle.addParticles(target_x, target_y)
-        self.particle.addParticles(target_x, target_y)
-        self.particle.addParticles(target_x, target_y)
-        self.particle.addParticles(target_x, target_y)
-        self.particle.addParticles(target_x, target_y)
-        # self.particle.update()    #call this to show hitspark animation
-    
+        for x in range(15):
+            self.particle.addParticles(target_x, target_y)
+
     def jump(self):
         self.dY += self.vel_y
 
@@ -575,14 +567,15 @@ class Fighter():
                     self.proj = Projectile("FSTECH", "LFB", 98, (self.rect.centerx, self.rect.y), self, self.facing_right)
                     self.fireball = True
 
-                if moveCombo == list(self.inputValues[1]):
+                elif moveCombo == list(self.inputValues[1]):
                     self.proj = Projectile("FSTECH", "MFB", 98, (self.rect.centerx, self.rect.y), self, self.facing_right)
                     self.fireball = True
 
-                if moveCombo == list(self.inputValues[2]):
+                elif moveCombo == list(self.inputValues[2]):
                     self.proj = Projectile("FSTECH", "HFB", 98, (self.rect.centerx, self.rect.y), self, self.facing_right)
                     self.fireball = True
 
+                # check if a fireball has been created just now
                 if self.fireball and self.proj is not None:
                     self.proj.frames_passed = 0
                     self.throwing_proj = True
@@ -594,31 +587,26 @@ class Fighter():
 
     def draw(self):
         self.particle.emit("white")
+
         if self.dashing:
             self.applyGravityDash()
         else:
             self.applyGravity()
+
         if self.proj is not None:
-            if self.facing_right:
-                self.proj.move()
-                self.proj.draw(pg.display.get_surface())
-            if not self.facing_right:
-                self.proj.move()
-                self.proj.draw(pg.display.get_surface())
+            self.proj.move()
+            self.proj.draw(pg.display.get_surface())
 
         self.animate()
+
         self.getInputs(self.character)
         if self.moveCombo:
             self.checkMoveCombo()
+
         self.hit_box = pg.Rect(self.rect.x, self.rect.y - 100, 120, 280)
-        img = pg.transform.flip(self.image, self.flip, False)
         # pg.draw.rect(self.game.screen, "red", self.rect)
         # pg.draw.rect(self.game.screen, "blue", self.hit_box)
-
-        if self.flip:
-            self.game.screen.blit(img,(self.rect.x - (self.offset[0] * self.image_scale), self.rect.y - (self.offset[1] * self.image_scale)))
-        else:
-            self.game.screen.blit(img,(self.rect.x - (self.offset[0] * self.image_scale), self.rect.y - (self.offset[1] * self.image_scale)))
+        self.game.screen.blit(self.image, (self.rect.x - (self.offset[0] * self.image_scale), self.rect.y - (self.offset[1] * self.image_scale)))
 
         if self.super_meter > 250:
             self.super_meter = 250
