@@ -4,13 +4,8 @@
     "screen_height" : 800,
     "floor_height" : 30,
     "game_volume" : 0.0,
-    
-    "backgrounds" : {
-        "carnival" : "bay-side-carnival",
-        "ogre" : "ogre-gate"
-    },
 
-    "movement" : {
+    "controls" : {
         "UP" : 119,
         "DOWN" : 115,
         "BACK" : 97,
@@ -24,18 +19,5 @@
         "LK" : 107,
         "MK" : 108,
         "HK" : 59
-    },
-
-    "fighter_scales" : {
-        "1": 1
-    },
-
-    "songs" : {
-        "main": "assets/music/main/main.wav",
-        "egypt": "assets/music/egypt/egypt.wav",
-        "science": "assets/music/science/science_R1.wav",
-        "q": "assets/music/q/q.wav",
-        "credits": "assets/music/credits/credits.wav"
     }
-    
 }

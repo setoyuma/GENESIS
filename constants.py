@@ -1,25 +1,34 @@
-import pygame as pg
-pg.font.init()
+SONGS = [
+    "main"
+    "egypt"
+    "science"
+    "q"
+    "credits"
+]
 
-def load_settings(self):
-    reader = open('settings.json', 'r')
-    settings = json.loads(reader.read())
-    return(settings)
-
-
-'''FONT'''
-FONT = pg.font.Font("assets/ui/font/minotaur.ttf", 30)
-
-'''FIGHTER SCALES'''
-FIGHTER_SCALES = {
-    1: 1,
+BACKGROUNDS = {
+    "carnival" : "bay-side-carnival",
+    "ogre" : "ogre-gate"
 }
 
-'''ATTACKS'''
-ATTACKS = {
-
-    "HIT_BOXES" : {
-        "Homusubi": {
+FIGHTER_DATA = {
+    "Homusubi": {
+        "max hp": 200,
+        "size": 350,
+        "scale": 1,
+        "damage": {
+            "LP": 3,
+            "MP": 6,
+            "HP": 10,
+            "LK": 4,
+            "MK": 8,
+            "HK": 15,
+            "2LP": 4,
+            "2MP": 8,
+            "2HP": 15,
+            "2LK": 5,
+        },
+        "hitboxes": {
             "0": [0, (0,0,0,0)],
             "1": [2, (-40, -80, 100, 50)],  #LP
             "2": [2, (-10, -40, 100, 50)],  #MP
@@ -31,91 +40,97 @@ ATTACKS = {
             "8": [2, (0, 0, 100, 50)],  #2MP
             "9": [2, (50, 0, 100, 150)],  #2HP
             "10": [2, (50, 0, 100, 150)],  #2HP
+        },
+        "combos": {
+            "LFireball":(DOWN, FORWARD, LP),
+            "MFireball":(DOWN, FORWARD, MP),
+            "HFireball":(DOWN, FORWARD, HP),
+
+            "LDP":(FORWARD, DOWN, FORWARD, LP),
+            "MDP":(FORWARD, DOWN, FORWARD, MP),
+            "HDP":(FORWARD, DOWN, FORWARD, HP),
+            "EXDP":(FORWARD, DOWN, FORWARD, LP, MP),
+
+            "FDASH" : (FORWARD, FORWARD),
+            "BDASH" : (BACK, BACK),
+
+            "AXEKICK": (FORWARD, MK), 
+            "VIGNITION": (DOWN, HP),
+            
+            "SC1":(MP,HP),
+            "SC2":(DOWN,LK, DOWN,MK),
+
+            "TCLAW":(DOWN, FORWARD, LP),
+            "MCLAW":(DOWN, FORWARD, MP),
+            "HCLAW":(DOWN, FORWARD, HP),
+            "EXCLAW":(DOWN, FORWARD, LP , MP),
+
+            "COMETDROP":(DOWN, BACK, LK),
+            "MDROP": (DOWN, BACK, MK),
+            "HDROP": (DOWN, BACK, HK),
+            "EXDROP": (DOWN, BACK, LK ,MK),
+
+            #hyper bomb
+            "OGREDROP":(FORWARD, DOWN, BACK, LP),
+            "MBOMB":(FORWARD, DOWN, BACK, MP),
+            "HBOMB":(FORWARD, DOWN, BACK, HP),
+            "EXBOMB":(FORWARD, DOWN, BACK, MP, HP),
+
+            "TIGERPOUNCE":(FORWARD, DOWN, BACK, LK),
+            "MPOUNCE":(FORWARD, DOWN, BACK, MK),
+            "HPOUNCE":(FORWARD, DOWN, BACK, HK),
+            "EXPOUNCE":(FORWARD, DOWN, BACK, MK, HK),
+
+            "COLDONE":(DOWN, DOWN, LP or MP or HP),
+
+            '''SUPERS'''
+            "OO":(FORWARD, DOWN, BACK, UP, HP),
+            "MSP":(DOWN, BACK, DOWN, BACK, MK),
+            "HELLHAZE":(DOWN, FORWARD, DOWN, FORWARD, LP)
         }
     },
+    "Raijin": {
 
-    "SUBI_INPUTS" : {
-        "LFireball":(DOWN, FORWARD, LP),
-        "MFireball":(DOWN, FORWARD, MP),
-        "HFireball":(DOWN, FORWARD, HP),
-
-        "LDP":(FORWARD, DOWN, FORWARD, LP),
-        "MDP":(FORWARD, DOWN, FORWARD, MP),
-        "HDP":(FORWARD, DOWN, FORWARD, HP),
-        "EXDP":(FORWARD, DOWN, FORWARD, LP, MP),
-
-
-        "FDASH" : (FORWARD, FORWARD),
-        "BDASH" : (BACK, BACK),
-
-        "AXEKICK": (FORWARD, MK), 
-        "VIGNITION": (DOWN, HP),
-        
-        "SC1":(MP,HP),
-        "SC2":(DOWN,LK, DOWN,MK),
-
-        "TCLAW":(DOWN, FORWARD, LP),
-        "MCLAW":(DOWN, FORWARD, MP),
-        "HCLAW":(DOWN, FORWARD, HP),
-        "EXCLAW":(DOWN, FORWARD, LP , MP),
-
-        "COMETDROP":(DOWN, BACK, LK),
-        "MDROP": (DOWN, BACK, MK),
-        "HDROP": (DOWN, BACK, HK),
-        "EXDROP": (DOWN, BACK, LK ,MK),
-
-        #hyper bomb
-        "OGREDROP":(FORWARD, DOWN, BACK, LP),
-        "MBOMB":(FORWARD, DOWN, BACK, MP),
-        "HBOMB":(FORWARD, DOWN, BACK, HP),
-        "EXBOMB":(FORWARD, DOWN, BACK, MP, HP),
-
-        "TIGERPOUNCE":(FORWARD, DOWN, BACK, LK),
-        "MPOUNCE":(FORWARD, DOWN, BACK, MK),
-        "HPOUNCE":(FORWARD, DOWN, BACK, HK),
-        "EXPOUNCE":(FORWARD, DOWN, BACK, MK, HK),
-
-        "COLDONE":(DOWN, DOWN, LP or MP or HP),
-
-        '''SUPERS'''
-        "OO":(FORWARD, DOWN, BACK, UP, HP),
-        "MSP":(DOWN, BACK, DOWN, BACK, MK),
-        "HELLHAZE":(DOWN, FORWARD, DOWN, FORWARD, LP),
-
-    },
-
-    "UNUSED_INPUTS" : {
-        '''FIREBALLS'''
-        "LFireball":(DOWN, FORWARD, LP),
-        "MFireball":(DOWN, FORWARD, MP),
-        "HFireball":(DOWN, FORWARD, HP),
-        '''DP's'''
-        "LDP":(FORWARD, DOWN, FORWARD, LP),
-        "MDP":(FORWARD, DOWN, FORWARD, MP),
-        "HDP":(FORWARD, DOWN, FORWARD, HP),
-        '''TATSU'''
-        "LTATSU":(DOWN, BACK, LK),
-        "MTATSU":(DOWN, BACK, LK),
-        "LTATSU":(DOWN, BACK, LK),
-
-    },
-
-
+    }
 }
 
-'''RESOLUTION'''
-HALF_SCREENW = self.settings["screen_width"]//2
-HALF_SCREENH = self.settings["screen_height"]//2
-QUARTER_SCREENW = self.settings["screen_width"]//4
-QUARTER_SCREENH = self.settings["screen_width"]//4
+ANIMATION_SPEEDS = {
+    'LP': 0.2,
+    'MP': 0.1,
+    'HP': 0.2,
+    'LK': 0.2,
+    'MK': 0.2,
+    'HK': 0.2,
+    '2LP': 0.4,
+    '2MP': 0.1,
+    '2HP': 0.1,
+    '2LK': 0.2,
+    'bg': 0.2,
+    'idle': 0.2
+}
 
-'''MOVEMENT'''
+UNUSED_INPUTS = {
+    '''FIREBALLS'''
+    "LFireball":(DOWN, FORWARD, LP),
+    "MFireball":(DOWN, FORWARD, MP),
+    "HFireball":(DOWN, FORWARD, HP),
+
+    '''DP's'''
+    "LDP":(FORWARD, DOWN, FORWARD, LP),
+    "MDP":(FORWARD, DOWN, FORWARD, MP),
+    "HDP":(FORWARD, DOWN, FORWARD, HP),
+
+    '''TATSU'''
+    "LTATSU":(DOWN, BACK, LK),
+    "MTATSU":(DOWN, BACK, LK),
+    "LTATSU":(DOWN, BACK, LK)
+}
+
+'''ACTIONS'''
 UP = pg.K_w
 DOWN = pg.K_s
 BACK = pg.K_a
 FORWARD = pg.K_d
-
-'''NORMAL ATTACKS'''
 LP = pg.K_i
 MP = pg.K_o
 HP = pg.K_p
@@ -138,24 +153,6 @@ ACTIONS = [
     'FDASH'
     'BDASH'
     ]
-
-HOMUSUBI = {
-    "LP": 3,
-    "MP": 6,
-    "HP": 10,
-    "LK": 4,
-    "MK": 8,
-    "HK": 15,
-    "2LP": 4,
-    "2MP": 8,
-    "2HP": 15,
-    "2LK": 5,
-
-}
-
-CHAR_DAMAGE = {
-    "Homusubi": HOMUSUBI,
-}
 
 '''(UN-USED) CHARACTER INPUTS'''
 RAIJIN_INPUTS = {
