@@ -118,6 +118,7 @@ class Game:
 			self.screen.blit(self.hud, (0,-55))
 			self.draw_portrait(player)
 			self.show_match_time()
+	
 	def draw_hud_bg(self):
 		bg_color = (40,40,40,200)
 		self.hud_bg_surf.fill((0,0,0,0))
@@ -214,7 +215,10 @@ class Game:
 		pg.display.set_caption("Kami No Ken: MAIN MENU")
 		bg = get_image("./assets/backgrounds/main-menu/KnK.png")
 		bg_pos = bg.get_rect().center # wouldnt line up in center for some reason
-		play_button = Button(self.settings["screen_width"]/2, self.settings["screen_height"]/2, 200, 100, 30, "PLAY", self.home_screen)
+		buttons = [
+			Button(self.settings["screen_width"]/2, self.settings["screen_height"]/2, 200, 100, 30, "PLAY", self.home_screen),
+			Button(self.settings["screen_width"] - 100, 0 - 10, 200, 100, 30, "QUIT", pg.QUIT),
+		]
 
 		# mouse fx
 		particle1 = ParticlePrinciple()
@@ -232,9 +236,12 @@ class Game:
 					mouse_pos = pg.mouse.get_pos()
 					particle1.addParticles(mouse_pos[0], mouse_pos[1])
 
-				play_button.Process(event)
-
-			play_button.draw()
+				for button in buttons:
+					button.Process(event)
+			
+			for button in buttons:
+				button.draw()
+			
 			particle1.emit()
 			self.send_frame()
 
@@ -248,7 +255,8 @@ class Game:
 			Button(70, 40, 200, 100, 30, "LOCAL", self.play_local),
 			Button(70, 200, 200, 100, 30, "BACK", self.main_menu),
 			#Button(70, 120, 200, 100, 30, "TRAINING", self.training),
-			Button(70, 280, 200, 100, 30, "OPTIONS", self.options)
+			Button(70, 280, 200, 100, 30, "OPTIONS", self.options),
+			Button(self.settings["screen_width"] - 100, 0 - 10, 200, 100, 30, "QUIT", pg.QUIT),
 		]
 		while True:
 			self.screen.fill('black')
@@ -286,7 +294,8 @@ class Game:
 		buttons = [
 			Button(self.settings["screen_width"]//2, 480, 200, 100, 30, "BACK", self.home_screen),
 			Button(self.settings["screen_width"]//2, 320, 200, 100, 30, "SOUND", self.sound_settings),
-			Button(self.settings["screen_width"]//2, 400, 200, 100, 30, "VIDEO", self.home_screen)
+			Button(self.settings["screen_width"]//2, 400, 200, 100, 30, "VIDEO", self.home_screen),
+			Button(self.settings["screen_width"] - 100, 0 - 10, 200, 100, 30, "QUIT", pg.QUIT),
 		]
 		while True:
 			self.screen.fill('black')
@@ -347,7 +356,6 @@ class Game:
 					pg.mixer.music.set_volume(self.volume/100)
 				elif event.type == pg.MOUSEBUTTONUP:
 					slider.active = False
-			
 				volume_button.Process(event)
 				back_button.Process(event)
 			volume_button.draw()

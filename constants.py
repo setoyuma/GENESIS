@@ -113,21 +113,21 @@ FIGHTER_DATA = {
 }
 
 ANIMATION_SPEEDS = {
-    'LP': 0.1,
-    'MP': 0.1,
-    'HP': 0.1,
-    'LK': 0.1,
-    'MK': 0.1,
-    'HK': 0.1,
+    'LP': 0.2,
+    'MP': 0.2,
+    'HP': 0.2,
+    'LK': 0.2,
+    'MK': 0.2,
+    'HK': 0.2,
     '2LP': 0.05,
     '2MP': 0.2,
     '2HP': 0.2,
     '2LK': 0.1,
-    'bg': 0.1,
-    'idle': 0.1,
-    'run': 0.1,
+    'bg': 0.05,
+    'idle': 0.08,
+    'run': 0.08,
     'jump': 0.1,
-    'crouch': 0.1
+    'crouch': 0.01
 }
 
 UNUSED_INPUTS = {
