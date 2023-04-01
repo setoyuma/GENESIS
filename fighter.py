@@ -4,16 +4,14 @@ from text_animation import TextAnimation
 from particle import ParticlePrinciple
 from projectile import Projectile
 from animation import Animator
-from show_inputs import Arrow
-# from animations import *
 from constants import *
 from support import *
-# from inputs import *
 
 
 class Fighter():
-    def __init__(self, game, x, y, char, mode="Play"):
+    def __init__(self, game, num, x, y, char, mode="Play"):
         self.game = game
+        self.rect = pg.Rect(x, y, 80, 180)
         self.character = char
         self.mode = mode
 
@@ -24,65 +22,46 @@ class Fighter():
         self.super_meter = 0
         self.blast_meter = 0
         self.speed = 10
-        self.offset = [120,150]
-        self.image_scale = FIGHTER_DATA[char]["scale"]
 
         # animations
         self.import_character_assets()
         self.animation = Animator(game, self.animations["idle"], ANIMATION_SPEEDS["idle"], loop=True)
-        self.AI = 0
-        #  self.AI = self == self.game.players[0]
-        # if self.AI:
-        #     img = pg.transform.flip(self.image, True, False)
-        #     # if in AI mode, init a pressed_keys dict for the AI to keep track of
-        #     self.pressed_keys = {'UP': False, 'DOWN': False, 'LEFT': False, 'RIGHT': False}
         self.status = 'idle'
-        self.frame_index = self.animation.frame_index
-        self.image = self.animations[self.status][self.frame_index]
-        self.rect = pg.Rect(x, y, 80, 180)
+        self.image = self.animations[self.status][0]
+        self.AI = num - 1
+        if self.AI:
+            img = pg.transform.flip(self.image, True, False)
+            # if in AI mode, init a pressed_keys dict for the AI to keep track of
+            self.pressed_keys = pygame.key.get_pressed()
         self.particle = ParticlePrinciple()
-        self.alive = True
 
         # attacks
-        self.fireball = False
-        self.hit_stun = None
-        self.attack_status = 'LP'
-        self.attack_type = 0
-        self.attack_cooldown = 0
-        self.blast_cooldown = 0
-        self.frames_without_combo = 0
-        self.input_index = 0
         self.move_combo = []
         self.input_values = []
-        self.move_damage = FIGHTER_DATA[self.character]["damage"].values()
+        self.blast_cooldown = 0
+        self.attack_cooldown = 0
+        self.time_without_combo = 0
+        self.hit_stun = None
+        self.projectile = None
+        self.launch_target = None
+        self.animated_text = None
 
         # flags
-        self.hit = False
-        self.launch_target = None
-        self.crouching = False
+        self.alive = True
         self.on_ground = True
+        self.attacking = False
+        self.crouching = False
         self.walking = False
         self.jumping = False
-        self.proj = None
-        self.animated_text = None
-        self.attacked = False
-        self.attacking = False
-        self.dashing = False
+        self.hit = False
 
         # world
-        self.dashGravity = 0.5
-        self.dashLength = 40
-        self.vel_y = 0
+        self.dX = 0
+        self.dY = 0
         self.gravity = 1000  # pps
         self.jump_force = -500  # pps
         self.move_speed = 300  # pps
-        self.dir = "forward"
-        self.arrow_locx = self.game.settings["screen_width"]/2-50
-        self.arrow_locy = 200
-        self.arrow_size = 96
-        if self.mode == "Train":
-            self.arrow = Arrow(self.dir, self.arrow_locx,
-                               self.arrow_locy, self.arrow_size)
+
 
     def import_character_assets(self):
         self.animations = {'idle':[],'run':[],'jump':[],'fall':[],'crouch':[],'hit':[],'LP':[],'MP':[],'HP':[],'LK':[],'MK':[],'HK':[],'2LP':[],'2MP':[],'2HP':[],'2LK':[]} 
@@ -92,128 +71,6 @@ class Fighter():
             scaled_images = scale_images(original_images, (self.size, self.size))
             self.animations[animation] = scaled_images
 
-    ''' Updates things not related to frame-dependant input eg
-        moving, gravity, jumping, launching, animations, etc.
-        Animation is controlled by the player's animation status,
-        which is updated after all key presses are handled.
-    '''
-    def update(self, dt):
-        self.draw()
-        if self.AI:
-            pressed_keys = self.pressed_keys
-        else:
-            pressed_keys = pg.key.get_pressed()
-
-        # Update y_velocity based on gravity
-        self.dy += self.gravity * dt
-
-        # Update character's y position based on y_velocity
-        self.rect.y += self.dy * dt
-
-        # Check if the character is on the ground
-        if self.y >= 0:
-            self.y = 0
-            self.on_ground = True
-            self.jumping = False
-            self.dy = 0
-        else:
-            self.on_ground = False
-
-        # Update animations
-        # self.animation.update(dt)
-
-        if not self.attacking and not self.throwing_proj:
-            #basic movements
-            if pressed_keys[Actions.BACK]:
-                self.walking = True
-                self.dX = - self.speed
-
-            elif pressed_keys[Actions.FORWARD]:
-                self.walking = True
-                self.dX = self.speed
-
-            if pressed_keys[Actions.UP] and self.on_ground and not self.jumping:
-                self.vel_y = -30
-                self.jumping = True
-                self.on_ground = False
-
-            elif pressed_keys[Actions.DOWN] and self.on_ground:
-                self.crouching = True
-                self.dX = 0
-
-                # cancel movement
-                if pressed_keys[pg.K_w]:
-                    self.dY = 0
-                if pressed_keys[pg.K_a]:
-                    self.dX = 0
-                if pressed_keys[pg.K_d]:
-                    self.dX = 0
-            else:
-                self.crouching = False
-
-        # self.jump()
-
-        if self.proj is not None:
-            # check if 50 ms has passed since proj spawning
-            self.proj.frames_passed += 1
-            if self.proj.frames_passed >= 10:
-                self.throwing_proj = False
-
-            # check projectile collision with opponent
-            if self.proj.rect.collidepoint(target.rect.centerx, target.rect.centery-10):
-
-                if self.proj.type == "LFB":
-                    damage = 5
-                elif self.proj.type == "MFB":
-                    damage = 7
-                elif self.proj.type == "HFB":
-                    damage = 14
-
-                target.hit = True
-                self.proj = None
-                self.fireball = False
-                self.throwing_proj = False
-                # self.attack(target, damage)
-
-            elif self.proj.off_screen:
-                self.proj = None
-                self.fireball = False
-                self.throwing_proj = False
-
-        #check screen loc
-        if self.rect.left + self.dX < 0:
-            self.dX = -self.rect.left
-        if self.rect.right + self.dX > self.game.settings["screen_width"]:
-            self.dX = self.game.settings["screen_width"] - self.rect.right
-
-        #keep players facing
-        if target.rect.centerx > self.rect.centerx:
-            self.flip = False
-            self.facing_right = True
-            self.facing_right = True
-        else:
-            self.flip = True
-            self.facing_right = False
-            self.facing_right = False
-
-        #apply attack cooldown
-        if self.attack_cooldown > 0:
-            self.attack_cooldown -= 1
-
-        #check ground
-        if self.rect.bottom + self.dY > self.game.settings["screen_height"] - self.game.settings["floor_height"]:
-            self.on_ground = True
-            self.vel_y = 0
-            self.jumping = False
-            self.dY = self.game.settings["screen_height"] - self.game.settings["floor_height"] - self.rect.bottom
-
-        #update pos
-        self.rect.x += self.dX
-        self.rect.y += self.dY
-        self.dashing = False
-
-        # self.update_status()
-        self.image = self.animation.update()
 
     ''' Processes a single event from any event source.
         Updates single-press inputs like basic attacks,
@@ -221,107 +78,137 @@ class Fighter():
         valid combos and clears it if necessary.
     '''
     def handle_event(self, event):
-        # check current action
         if not self.attacking and self.attack_cooldown == 0:
-            '''ATTACKS'''
-            if any()
-            # crouching normals
+            attack_key = None
+
             if self.crouching:
-                match event.key:
-                    case Actions.LP:
-                        prtin("LP")
-                        self.attack_status = '2LP'
-                        self.attack_type = 7
-                        self.attacking = True
-                    case Actions.MP:
-                        self.attack_status = '2MP'
-                        self.attack_type = 8
-                        self.attacking = True
-                    case Actions.HP:
-                        self.attack_status = '2HP'
-                        self.attacking = True
-                        self.attack_type = 9
-                    
-                    case Actions.LK:
-                        self.attack_status = '2LK'
-                        self.attacking = True
-                        self.attack_type = 10
-            
-            match event.key:
-                # punches
-                case Actions.LP: 
-                    if self.on_ground:
-                        self.attack_status = 'LP'
-                        self.attack_type = 1
-                        self.attacking = True
-                case Actions.MP: 
-                    if self.on_ground:
-                        self.attack_status = 'MP'
-                        self.attack_type = 2
-                        self.attacking = True
-                case Actions.HP: 
-                    if self.on_ground:
-                        self.attack_status = 'HP'
-                        self.attack_type = 3
-                        self.attacking = True
+                if event.key in (Actions.LP, Actions.MP, Actions.HP, Actions.LK):#, Actions.MK, Actions.HK):
+                    attack_key = '2' + self.game.settings["attacks"][str(event.key.name)]
+            elif self.on_ground:
+                if event.key in (Actions.LP, Actions.MP, Actions.HP, Actions.LK, Actions.MK, Actions.HK):
+                    attack_key = self.game.settings["attacks"][str(event.key.name)]
 
-                # kicks
-                case Actions.LK:
-                    if self.on_ground:
-                        self.attack_status = 'LK'
-                        self.attack_type = 4
-                        self.attacking = True
-                case Actions.MK: 
-                    if self.on_ground:
-                        self.attack_status = 'MK'
-                    #if self.character == "Homusubi":
-                        #self.rect.x += 40
-                        self.attack_type = 5
-                        self.attacking = True
-                case Actions.HK: 
-                    if self.on_ground:
-                        self.attack_status = 'HK'
-                        self.attack_type = 6
-                        self.attacking = True
-
-            if self.dashing:
-                self.dX = 0
-                if event.key == pg.K_w:
-                    self.dY = 0
-                elif event.key == pg.K_a:
-                    self.dX = 0
-                elif event.key == pg.K_d:
-                    self.dX = 0
+            if attack_key is not None:
+                self.attacking = True
+                self.attack_cooldown = 50  # ms
+                self.status = attack_key
         
-            if self.attacking:
-                self.attacked = False
+        self.move_combo.append(event.key)
+        self.check_combos()
+
+
+    ''' Updates things not related to frame-dependant input eg
+        moving, gravity, jumping, launching, animations, etc.
+        Animation is controlled by the player's animation status,
+        which is updated after all key presses are handled.
+    '''
+    def update(self, dt):
+        status = self.status
+
+        if self.AI:
+            pressed_keys = self.pressed_keys
+        else:
+            pressed_keys = pg.key.get_pressed()
+
+        if not self.attacking:
+
+            #basic movements
+            if pressed_keys[Actions.BACK]:
+                self.rect.x -= self.move_speed * dt
+                status = "run"
+
+            elif pressed_keys[Actions.FORWARD]:
+                self.rect.x += self.move_speed * dt
+                status = "run"
+
+            if pressed_keys[Actions.UP] and self.on_ground and not self.jumping:
+                self.dY += self.jump_force
+                self.jumping = True
+                self.on_ground = False
+                status = "jump"
+
+            elif pressed_keys[Actions.DOWN] and self.on_ground:
+                self.crouching = True
+                status = "crouch"
+                self.dX = 0
+
+            else:
+                if not self.jumping and status == self.status:
+                    status = "idle"
+                self.crouching = False
+
+        if self.projectile is not None:
+            self.update_projectile()
+
+        # apply attack cooldown
+        if self.attack_cooldown > 0:
+            self.attack_cooldown -= dt
+            if self.attack_cooldown < 0:
+                self.attack_cooldown = 0
+
+        # update dY based on gravity
+        self.dY += self.gravity * dt
+
+        # update character's position based on deltas
+        self.rect.x += self.dX * dt
+        self.rect.y += self.dY * dt
+
+        # check x // walls
+        if self.rect.left < 0:
+            self.rect.left = 0
+        elif self.rect.right > self.game.settings["screen_width"]:
+            self.rect.right = self.game.settings["screen_width"]
+
+        # check y // if the character is on the ground
+        if self.rect.bottom >= 540:  # floor height
+            self.rect.bottom = 540
+            self.on_ground = True
+            self.jumping = False
+            self.dY = 0
+        else:
+            self.on_ground = False
+
+        # update animation status and image
+        self.update_status(status)
+        self.image = self.animation.update(dt)
+
+
+    def update_status(self, new_status):
+        if new_status != self.status:
+            self.status = new_status
+            self.animation = Animator(self.game, self.animations[new_status], ANIMATION_SPEEDS[new_status])
+
 
     def draw(self):
-        self.particle.emit()
-        # print(self.super_meter)
+        self.game.screen.blit(self.image, self.rect.center)
 
-        if self.super_meter >= 250:
-            self.super_meter = 250
-        if self.super_meter <= 0:
-            self.super_meter = 0
-        
-        # if self.dashing:
-        #     self.applyGravityDash()
-        # else:
-        #     self.applyGravity()
-        
-        # if self.proj is not None:
-        #     self.proj.move()
-        #     self.proj.draw(pg.display.get_surface())
-        # if not self.game.paused:
-        #     self.animate()
-        # self.getInputs(self.character)
-        # if self.move_combo:
-        #     self.checkMoveCombo()
-        
-        self.hit_box = pg.Rect(self.rect.x, self.rect.y - 100, 120, 280)
-        # pg.draw.rect(self.game.screen, "red", self.rect)
-        # pg.draw.rect(self.game.screen, "blue", self.hit_box)
-        self.game.screen.blit(self.image, (self.rect.x - (self.offset[0] * self.image_scale), self.rect.y - (self.offset[1] * self.image_scale)))
-        if self.super_meter > 250:
-            self.super_meter = 250
+
+    def update_projectile(self):
+        # check if 50 ms has passed since proj spawning
+        self.proj.frames_passed += 1
+        if self.proj.frames_passed >= 10:
+            self.throwing_proj = False
+
+        # check projectile collision with opponent
+        if self.proj.rect.collidepoint(target.rect.centerx, target.rect.centery-10):
+
+            if self.proj.type == "LFB":
+                damage = 5
+            elif self.proj.type == "MFB":
+                damage = 7
+            elif self.proj.type == "HFB":
+                damage = 14
+
+            target.hit = True
+            self.proj = None
+            self.fireball = False
+            self.throwing_proj = False
+            # self.attack(target, damage)
+
+        elif self.proj.off_screen:
+            self.proj = None
+            self.fireball = False
+            self.throwing_proj = False
+
+    def check_combos(self):
+        pass

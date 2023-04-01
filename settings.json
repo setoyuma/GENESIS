@@ -2,7 +2,6 @@
     "FPS" : 60,
     "screen_width" : 1600,
     "screen_height" : 800,
-    "floor_height" : 30,
     "game_volume" : 0.0,
 
     "controls" : {
@@ -13,11 +12,11 @@
     },
 
     "attacks" : {
-        "LP" : 105,
-        "MP" : 111,
-        "HP" : 112,
-        "LK" : 107,
-        "MK" : 108,
-        "HK" : 59
+        "LP" : "i",
+        "MP" : "o",
+        "HP" : "p",
+        "LK" : "k",
+        "MK" : "l",
+        "HK" : "semicolon"
     }
 }

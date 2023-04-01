@@ -5,7 +5,6 @@ class Animator:
         self.frame_duration = frame_duration
         self.current_time = 0
         self.frame_index = 0
-        self.speed = speed
         self.loop = loop
         self.done = False
 
@@ -18,7 +17,7 @@ class Animator:
 
             # add 1 to the frame_index and mod it with the number of frames.
             # this uses the remainder to loop the frame_index repeatedly
-            self.frame_index = (self.frame_index + 1) % len(self.frames)
+            self.frame_index = (self.frame_index + 1) % len(self.animation)
 
             # reset the cumulative time for the next frame
             self.current_time = 0

@@ -116,19 +116,8 @@ class Game:
 			self.draw_super_meter(player)
 			self.draw_blast_meter(player)
 			self.screen.blit(self.hud, (0,-55))
-
-	def animate(self):
-		animation = self.bg_animations[self.bg]
-		# loop over frame index 
-		self.frame_index += self.animation_speed
-		if self.frame_index >= len(animation):
-			self.frame_index = 0
-		image = animation[int(self.frame_index)]
-		self.image = image
-
-	def drawBG(self):
-		self.screen.blit(self.image, (0,0))
-
+			self.draw_portrait(player)
+			self.show_match_time()
 	def draw_hud_bg(self):
 		bg_color = (40,40,40,200)
 		self.hud_bg_surf.fill((0,0,0,0))
@@ -200,8 +189,25 @@ class Game:
 		portrait = pg.transform.flip(portrait, True, False)
 		self.screen.blit(portrait, pos)
 
+	def show_match_time(self):
+		if self.time_accumulator >= 1:  # If 1 or more seconds have passed
+			self.match_time -= 1
+			self.time_accumulator -= 1  # Subtract 1 second from the accumulator
+
+			if self.match_time <= 0:
+				self.match_time = 0
+				self.end_match()  # End the match when the timer reaches 0
+
+		time = str(self.match_time)
+		for i, char in enumerate(time):
+			draw_text(self.screen, char, ((self.settings["screen_width"]/2 - 50) + (i*100), 80), 120, (255,0,0))
+
+	def show_fps(self):
+		fpsCounter = round(self.clock.get_fps())
+		draw_text(self.screen, f"FPS: {fpsCounter}", (self.settings["screen_width"]/2, 200))
+
 	def send_frame(self):
-		self.dt = self.clock.tick(self.settings["FPS"]) / 1000
+		self.dt = self.clock.tick(self.settings["FPS"]) / 1000.0
 		pg.display.flip()
 
 	def main_menu(self):
@@ -238,10 +244,12 @@ class Game:
 		particle1 = ParticlePrinciple()
 		PARTICLE_EVENT = pg.USEREVENT + 1
 		pg.time.set_timer(PARTICLE_EVENT,5)
-		fight_button = Button(70, 40, 200, 100, 30, "LOCAL", self.play_local)
-		back_button = Button(70, 200, 200, 100, 30, "BACK", self.main_menu)
-		train_button = Button(70, 120, 200, 100, 30, "TRAINING", self.training)
-		options_button = Button(70, 280, 200, 100, 30, "OPTIONS", self.options)
+		buttons = [
+			Button(70, 40, 200, 100, 30, "LOCAL", self.play_local),
+			Button(70, 200, 200, 100, 30, "BACK", self.main_menu),
+			#Button(70, 120, 200, 100, 30, "TRAINING", self.training),
+			Button(70, 280, 200, 100, 30, "OPTIONS", self.options)
+		]
 		while True:
 			self.screen.fill('black')
 			self.screen.blit(mainMenuBG,(480,115))
@@ -260,14 +268,12 @@ class Game:
 						case pg.K_a, pg.K_w:
 							print("up-back")
             
-				back_button.Process(event)
-				fight_button.Process(event)
-				train_button.Process(event)
-				options_button.Process(event)
-			back_button.draw()
-			fight_button.draw()
-			train_button.draw()
-			options_button.draw()
+				for button in buttons:
+					button.Process(event)
+
+			for button in buttons:
+				button.draw()
+
 			particle1.emit()
 			self.send_frame()
 	
@@ -277,9 +283,11 @@ class Game:
 		particle1 = ParticlePrinciple()
 		PARTICLE_EVENT = pg.USEREVENT + 1
 		pg.time.set_timer(PARTICLE_EVENT,5)
-		back_button = Button(self.settings["screen_width"]//2, 480, 200, 100, 30, "BACK", self.home_screen)
-		sound_button = Button(self.settings["screen_width"]//2, 320, 200, 100, 30, "SOUND", self.sound_settings)
-		video_button = Button(self.settings["screen_width"]//2, 400, 200, 100, 30, "VIDEO", self.home_screen)
+		buttons = [
+			Button(self.settings["screen_width"]//2, 480, 200, 100, 30, "BACK", self.home_screen),
+			Button(self.settings["screen_width"]//2, 320, 200, 100, 30, "SOUND", self.sound_settings),
+			Button(self.settings["screen_width"]//2, 400, 200, 100, 30, "VIDEO", self.home_screen)
+		]
 		while True:
 			self.screen.fill('black')
 			self.screen.blit(mainMenuBG,(480,115))
@@ -294,12 +302,12 @@ class Game:
 					if event.key == pg.K_SPACE:
 						self.Play()
             
-				sound_button.Process(event)
-				video_button.Process(event)
-				back_button.Process(event)
-			back_button.draw()
-			sound_button.draw()
-			video_button.draw()
+				for button in buttons:
+					button.Process(event)
+
+			for button in buttons:
+				button.draw()
+
 			particle1.emit()
 			self.send_frame()
 
@@ -352,145 +360,59 @@ class Game:
 		pg.mixer.music.load(f"./assets/music/{SONGS[2]}.wav")
 		pg.mixer.music.play(-1)
 
-		self.player_1 = Fighter(self, 200, 510, "Homusubi", "Play")
-		self.player_2 = Fighter(self, 1000, 570, "Homusubi", "Play")
+		self.player_1 = Fighter(self, 1, 200, 510, "Homusubi", "Play")
+		self.player_2 = Fighter(self, 2, 1000, 570, "Homusubi", "Play")
 		self.players = [self.player_2, self.player_1]  # reversed for client draw order
 
 		COUNT_DOWN = pg.USEREVENT + 1
 		self.match_time = 99
-		self.match_time_text = "99"
+		self.time_accumulator = 0
 
 		while True:
-			self.screen.fill('grey')
-			self.animate()
-			self.drawBG()
+			# process client events
+			for event in pg.event.get():
+				check_for_quit(event)
 
-			for player in self.players:
-				first_player = player == self.player_1
+				if event.type == pg.KEYDOWN:
+					if not self.hit_stun:
+						self.player_1.handle_event(event)
 
-				if first_player:
-					other_player = self.player_2
-				else:
-					other_player = self.player_1
+						if event.key == pg.K_r:
+							self.__init__()
+							self.main_menu()
 
-				#update fighters
-				# if not self.hit_stun:
-				# 	player.handle_event(event)
-				# 	player.update(other_player)
+						if event.key == pg.K_h:
+							pg.draw.rect(self.screen, "green", self.player_1.hit_box)
 
-				# 	player.framesWithoutCombo += 1
-				# 	if player.framesWithoutCombo > 26 or len(player.moveCombo) > 9:
-				# 		player.framesWithoutCombo = 0
-				# 		player.moveCombo = []
-				# else:
-				# 	if self.stun_frames >= self.max_stun_frames:
-				# 		self.hit_stun = False
-				# 	else:
-				# 		self.stun_frames += 0.5  # add by half for each player
+					if event.key == pg.K_ESCAPE:
+						self.paused = True
+						pause = Pause(self)
+						pause.update()
+			
+			self.player_1.update(self.dt)
+			self.player_2.update(self.dt)
 
-				# process p1 events
-				if first_player:
-					for event in pg.event.get():
-						check_for_quit(event)
-
-						if event.type == COUNT_DOWN:
-							dt = self.dt
-							self.match_time -= dt
-							self.match_time_text = str(int(self.match_time)) if int(self.match_time) > 0 else '00'
-							if int(self.match_time) == 0:
-								self.match_time = 0
-								print("match over")
-
-						if event.type == pg.KEYDOWN:
-							if not self.hit_stun:
-								self.player_1.handle_event(event)
-								self.player_1.move_combo.append(event.key)
-								# self.player_2.moveCombo.append(event.key)
-
-								if event.key == pg.K_r:
-									self.__init__()
-									self.main_menu()
-
-								if event.key == pg.K_h:
-									pg.draw.rect(self.screen, "green", self.player_1.hit_box)
-							
-							if event.key == pg.K_ESCAPE:
-								self.paused = True
-								pause = Pause(self)
-								pause.update()
-
-							
-				# draw player
-				player.update(self.player_2)
-
-			#show player stats
+			# environment
+			self.screen.fill('black')
+			self.screen.blit(self.background.update(self.dt), (0,0))
 			self.draw_HUD()
-			self.draw_portrait(self.player_1)
-			self.draw_portrait(self.player_2)
+			self.show_fps()
 
+			# srpites
+			for player in self.players:
+				player.draw()
+
+			# damage text
 			for player in self.players:
 				if player.animated_text is not None:
 					if player.animated_text.update():
 						player.animated_text = None
 
-			# match clock
-			draw_text(self.screen, self.match_time_text[:-1], (self.settings["screen_width"]/2 - 50, 80), 120, (255, 0, 0))
-			draw_text(self.screen, self.match_time_text[-1:], (self.settings["screen_width"]/2 + 50, 80), 120, (255, 0, 0))
-
-			# show self.settings["fps"]
-			fpsCounter = round(self.clock.get_fps())
-			draw_text(self.screen, f"FPS: {fpsCounter}", (self.settings["screen_width"]/2, 200))
-
 			self.send_frame()
+			self.time_accumulator += self.dt
 
-	def training(self):
-		pg.display.set_caption("Kami No Ken: GENESIS")
-		pg.mixer.music.load(f"./assets/music/{SONGS[4]}.wav")
-		pg.mixer.music.play(-1)
-		pg.mixer.music.set_volume(0.1)
-		self.player_1 = Fighter(self, 200, 510, "Homusubi", "Train")
-		self.player_2 = Fighter(self, 1000, 570, "Homusubi", "Train")
-		while True:
-			self.screen.fill('grey')
-			self.animate()
-			self.drawBG()
-			'''PLAYER MVMNT'''
-			self.player_1.move(self.player_2)
-			# self.player_2.move(self.player_1)
-			#update fighters
-			self.player_1.updateAnim(self.player_2)
-			self.player_2.updateAnim(self.player_1)
-			
-			'''DRAW PLAYER'''
-			self.player_2.draw()
-			self.player_1.draw()
-			self.player_1.framesWithoutCombo += 1
-			if self.player_1.framesWithoutCombo > 26 or len(self.player_1.moveCombo) > 9:
-				self.player_1.framesWithoutCombo = 0
-				self.player_1.moveCombo = []
-			for event in pg.event.get():
-				check_for_quit(event)
-				if event.type == pg.KEYDOWN:
-					self.player_1.handle_keydowns(event, self.player_2)
-					self.player_1.moveCombo.append(event.key)
-					# self.player_2.moveCombo.append(event.key)
-					if event.key == pg.K_r:
-						self.__init__()
-						self.MainMenu()
-					elif event.key == pg.K_h:
-						pg.draw.rect(self.screen, "green", self.player_1.hit_box)
-					elif event.key == pg.K_RSHIFT:
-						pass
-			#show player stats
-			self.drawHealthBar(self.player_1)
-			self.drawHealthBar(self.player_2)
-			self.draw_HUD(self.screen)
-			self.draw_portrait(self.player_1)
-			self.draw_portrait(self.player_2)
-			# show self.settings["fps"]
-			fpsCounter = round(self.clock.get_fps())
-			draw_text(self.screen, f"FPS: {fpsCounter}", (self.settings["screen_width"]/2, 200))
-			self.send_frame()
+	def end_match(self):
+		pass
 
 if __name__ == '__main__':
 	game = Game()
