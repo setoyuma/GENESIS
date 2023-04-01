@@ -1,14 +1,16 @@
 import pygame as pg
-from settings import FONT
+# from settings import FONT
 
 class Button():
-    def __init__(self, x, y, width, height, buttonText="button", onClickFunction=None):
+
+    def __init__(self, x, y, width, height, size, buttonText="button", onClickFunction=None):
         self.displaySurf = pg.display.get_surface()
         self.x = x
         self.y = y
         self.width = width
         self.height = height
         self.onClickFunction = onClickFunction
+        FONT = pg.font.Font('assets/ui/font/minotaur.ttf', size)
         self.font = FONT
 
         self.fillColors = {

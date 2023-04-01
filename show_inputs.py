@@ -1,5 +1,5 @@
 import pygame as pg, sys
-from settings import *
+# from settings import *
 
 class Arrow:
     def __init__(self, direction, x, y, size):

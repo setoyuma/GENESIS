@@ -1,9 +1,27 @@
+import pygame as pg
+
+'''ACTIONS'''  
+# A variable name in a case clause is treated as a name capture pattern.
+# so i added them to a class namespace and it works
+class Actions:
+    UP = pg.K_w
+    DOWN = pg.K_s
+    BACK = pg.K_a
+    FORWARD = pg.K_d
+    LP = pg.K_i
+    MP = pg.K_o
+    HP = pg.K_p
+    LK = pg.K_k
+    MK = pg.K_l
+    HK = pg.K_SEMICOLON
+
+
 SONGS = [
-    "main"
-    "egypt"
-    "science"
-    "q"
-    "credits"
+    "main",
+    "egypt",
+    "science",
+    "q",
+    "credits",
 ]
 
 BACKGROUNDS = {
@@ -42,56 +60,56 @@ FIGHTER_DATA = {
             "10": [2, (50, 0, 100, 150)],  #2HP
         },
         "combos": {
-            "LFireball":(DOWN, FORWARD, LP),
-            "MFireball":(DOWN, FORWARD, MP),
-            "HFireball":(DOWN, FORWARD, HP),
+            "LFireball":(Actions.DOWN, Actions.FORWARD, Actions.LP),
+            "MFireball":(Actions.DOWN, Actions.FORWARD, Actions.MP),
+            "HFireball":(Actions.DOWN, Actions.FORWARD, Actions.HP),
 
-            "LDP":(FORWARD, DOWN, FORWARD, LP),
-            "MDP":(FORWARD, DOWN, FORWARD, MP),
-            "HDP":(FORWARD, DOWN, FORWARD, HP),
-            "EXDP":(FORWARD, DOWN, FORWARD, LP, MP),
+            "LDP":(Actions.FORWARD, Actions.DOWN, Actions.FORWARD, Actions.LP),
+            "MDP":(Actions.FORWARD, Actions.DOWN, Actions.FORWARD, Actions.MP),
+            "HDP":(Actions.FORWARD, Actions.DOWN, Actions.FORWARD, Actions.HP),
+            "EXDP":(Actions.FORWARD, Actions.DOWN, Actions.FORWARD, Actions.LP, Actions.MP),
 
-            "FDASH" : (FORWARD, FORWARD),
-            "BDASH" : (BACK, BACK),
+            "FDASH" : (Actions.FORWARD, Actions.FORWARD),
+            "BDASH" : (Actions.BACK, Actions.BACK),
 
-            "AXEKICK": (FORWARD, MK), 
-            "VIGNITION": (DOWN, HP),
+            "AXEKICK": (Actions.FORWARD, Actions.MK), 
+            "VIGNITION": (Actions.DOWN, Actions.HP),
             
-            "SC1":(MP,HP),
-            "SC2":(DOWN,LK, DOWN,MK),
+            "SC1":(Actions.MP,Actions.HP),
+            "SC2":(Actions.DOWN, Actions.LK, Actions.DOWN, Actions.MK),
 
-            "TCLAW":(DOWN, FORWARD, LP),
-            "MCLAW":(DOWN, FORWARD, MP),
-            "HCLAW":(DOWN, FORWARD, HP),
-            "EXCLAW":(DOWN, FORWARD, LP , MP),
+            "TCLAW":(Actions.DOWN, Actions.FORWARD, Actions.LP),
+            "MCLAW":(Actions.DOWN, Actions.FORWARD, Actions.MP),
+            "HCLAW":(Actions.DOWN, Actions.FORWARD, Actions.HP),
+            "EXCLAW":(Actions.DOWN, Actions.FORWARD, Actions.LP , Actions.MP),
 
-            "COMETDROP":(DOWN, BACK, LK),
-            "MDROP": (DOWN, BACK, MK),
-            "HDROP": (DOWN, BACK, HK),
-            "EXDROP": (DOWN, BACK, LK ,MK),
+            "COMETDROP":(Actions.DOWN, Actions.BACK, Actions.LK),
+            "MDROP": (Actions.DOWN, Actions.BACK, Actions.MK),
+            "HDROP": (Actions.DOWN, Actions.BACK, Actions.HK),
+            "EXDROP": (Actions.DOWN, Actions.BACK, Actions.LK , Actions.MK),
 
             #hyper bomb
-            "OGREDROP":(FORWARD, DOWN, BACK, LP),
-            "MBOMB":(FORWARD, DOWN, BACK, MP),
-            "HBOMB":(FORWARD, DOWN, BACK, HP),
-            "EXBOMB":(FORWARD, DOWN, BACK, MP, HP),
+            "OGREDROP":(Actions.FORWARD, Actions.DOWN, Actions.BACK, Actions.LP),
+            "MBOMB":(Actions.FORWARD, Actions.DOWN, Actions.BACK, Actions.MP),
+            "HBOMB":(Actions.FORWARD, Actions.DOWN, Actions.BACK, Actions.HP),
+            "EXBOMB":(Actions.FORWARD, Actions.DOWN, Actions.BACK, Actions.MP, Actions.HP),
 
-            "TIGERPOUNCE":(FORWARD, DOWN, BACK, LK),
-            "MPOUNCE":(FORWARD, DOWN, BACK, MK),
-            "HPOUNCE":(FORWARD, DOWN, BACK, HK),
-            "EXPOUNCE":(FORWARD, DOWN, BACK, MK, HK),
+            "TIGERPOUNCE":(Actions.FORWARD, Actions.DOWN, Actions.BACK, Actions.LK),
+            "MPOUNCE":(Actions.FORWARD, Actions.DOWN, Actions.BACK, Actions.MK),
+            "HPOUNCE":(Actions.FORWARD, Actions.DOWN, Actions.BACK, Actions.HK),
+            "EXPOUNCE":(Actions.FORWARD, Actions.DOWN, Actions.BACK, Actions.MK, Actions.HK),
 
-            "COLDONE":(DOWN, DOWN, LP or MP or HP),
+            "COLDONE":(Actions.DOWN, Actions.DOWN, Actions.LP or Actions.MP or Actions.HP),
 
             '''SUPERS'''
-            "OO":(FORWARD, DOWN, BACK, UP, HP),
-            "MSP":(DOWN, BACK, DOWN, BACK, MK),
-            "HELLHAZE":(DOWN, FORWARD, DOWN, FORWARD, LP)
+            "OO":(Actions.FORWARD, Actions.DOWN, Actions.BACK, Actions.UP, Actions.HP),
+            "MSP":(Actions.DOWN, Actions.BACK, Actions.DOWN, Actions.BACK, Actions.MK),
+            "HELLHAZE":(Actions.DOWN, Actions.FORWARD, Actions.DOWN, Actions.FORWARD, Actions.LP)
         }
     },
-    "Raijin": {
+    # "Raijin": {
 
-    }
+    # }
 }
 
 ANIMATION_SPEEDS = {
@@ -111,32 +129,22 @@ ANIMATION_SPEEDS = {
 
 UNUSED_INPUTS = {
     '''FIREBALLS'''
-    "LFireball":(DOWN, FORWARD, LP),
-    "MFireball":(DOWN, FORWARD, MP),
-    "HFireball":(DOWN, FORWARD, HP),
+    "LFireball":(Actions.DOWN, Actions.FORWARD, Actions.LP),
+    "MFireball":(Actions.DOWN, Actions.FORWARD, Actions.MP),
+    "HFireball":(Actions.DOWN, Actions.FORWARD, Actions.HP),
 
     '''DP's'''
-    "LDP":(FORWARD, DOWN, FORWARD, LP),
-    "MDP":(FORWARD, DOWN, FORWARD, MP),
-    "HDP":(FORWARD, DOWN, FORWARD, HP),
+    "LDP":(Actions.FORWARD, Actions.DOWN, Actions.FORWARD, Actions.LP),
+    "MDP":(Actions.FORWARD, Actions.DOWN, Actions.FORWARD, Actions.MP),
+    "HDP":(Actions.FORWARD, Actions.DOWN, Actions.FORWARD, Actions.HP),
 
     '''TATSU'''
-    "LTATSU":(DOWN, BACK, LK),
-    "MTATSU":(DOWN, BACK, LK),
-    "LTATSU":(DOWN, BACK, LK)
+    "LTATSU":(Actions.DOWN, Actions.BACK, Actions.LK),
+    "MTATSU":(Actions.DOWN, Actions.BACK, Actions.LK),
+    "LTATSU":(Actions.DOWN, Actions.BACK, Actions.LK)
 }
 
-'''ACTIONS'''
-UP = pg.K_w
-DOWN = pg.K_s
-BACK = pg.K_a
-FORWARD = pg.K_d
-LP = pg.K_i
-MP = pg.K_o
-HP = pg.K_p
-LK = pg.K_k
-MK = pg.K_l
-HK = pg.K_SEMICOLON
+
 
 '''NON-COMBO ACTIONS'''
 ACTIONS = [
@@ -156,53 +164,54 @@ ACTIONS = [
 
 '''(UN-USED) CHARACTER INPUTS'''
 RAIJIN_INPUTS = {
-   (): "THUNDERHAMMER",
-   (): "TIDECRASHER ",
-   (): "STORMRING",
-   (): "THUNDERBOLT",
-   (): "LTHUNDERBOLT",
-   (): "MTHUNDERBOLT",
-   (): "HTHUNDERBOLT",
-   (): "EXTHUNDERBOLT",
-   (): "WAVECHASER",
-   (): "LWAVECHASER",
-   (): "MWAVECHASER",
-   (): "HWAVECHASER",
-   (): "EXWAVECHASER",
-   (): "RISINGVOLT",
-   (): "LRISINGVOLT",
-   (): "MRISINGVOLT",
-   (): "HRISINGVOLT",
-   (): "EXRISINGVOLT",
-   (): "DANGEROUSDISCHARGE",
+    "THUNDERHAMMER" : (),
+    "TIDECRASHER " : (),
+    "STORMRING" : (),
+    "THUNDERBOLT" : (),
+    "LTHUNDERBOLT" : (),
+    "MTHUNDERBOLT" : (),
+    "HTHUNDERBOLT" : (),
+    "EXTHUNDERBOLT" : (),
+    "WAVECHASER" : (),
+    "LWAVECHASER" : (),
+    "MWAVECHASER" : (),
+    "HWAVECHASER" : (),
+    "EXWAVECHASER" : (),
+    "RISINGVOLT" : (),
+    "LRISINGVOLT" : (),
+    "MRISINGVOLT" : (),
+    "HRISINGVOLT" : (),
+    "EXRISINGVOLT" : (),
+    "DANGEROUSDISCHARGE" : (),
+}
 
-
-   (): "SPIDERDROP",
-   (): "FOXTROT",
-   (): "LFOXTROT",
-   (): "MFOXTROT",
-   (): "HFOXTROT",
-   (): "EXFOXTROT",
-   (): "FLYINGSWALLOW",
-   (): "LSWALLOW",
-   (): "MSWALLOW",
-   (): "HSWALLOW",
-   (): "EXSWALLOW",
-   (): "SPIDERSCOUTING",
-   (): "KICKOFF",
-   (): "SPIDERDROP",
-   (): "EAGLEWALK",
-   (): "WALLDROP",
-   (): "RISINGKOI",
-   (): "LKOI",
-   (): "MKOI",
-   (): "HKOI",
-   (): "EXKOI",
-   (): "RABBITRETREAT",
-   (): "EAGLEWALK",
-   (): "WILDCATHUNT",
-   (): "LHUNT",
-   (): "MHUNT",
-   (): "HHUNT",
-   (): "EXHUNT",
+INARI_INPUTS = {
+    "SPIDERDROP" : (),
+    "FOXTROT" : (),
+    "LFOXTROT" : (),
+    "MFOXTROT" : (),
+    "HFOXTROT" : (),
+    "EXFOXTROT" : (),
+    "FLYINGSWALLOW" : (),
+    "LSWALLOW" : (),
+    "MSWALLOW" : (),
+    "HSWALLOW" : (),
+    "EXSWALLOW" : (),
+    "SPIDERSCOUTING" : (),
+    "KICKOFF" : (),
+    "SPIDERDROP" : (),
+    "EAGLEWALK" : (),
+    "WALLDROP" : (),
+    "RISINGKOI" : (),
+    "LKOI" : (),
+    "MKOI" : (),
+    "HKOI" : (),
+    "EXKOI" : (),
+    "RABBITRETREAT" : (),
+    "EAGLEWALK" : (),
+    "WILDCATHUNT" : (),
+    "LHUNT" : (),
+    "MHUNT" : (),
+    "HHUNT" : (),
+    "EXHUNT" : (),
 }

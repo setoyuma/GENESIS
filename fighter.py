@@ -5,10 +5,10 @@ from particle import ParticlePrinciple
 from projectile import Projectile
 from animation import Animator
 from show_inputs import Arrow
-from animations import *
+# from animations import *
 from constants import *
 from support import *
-from inputs import *
+# from inputs import *
 
 
 class Fighter():
@@ -28,11 +28,11 @@ class Fighter():
         # animations
         self.import_character_assets()
         self.animation = Animator(game, self.animations["idle"], ANIMATION_SPEEDS["idle"], loop=True)
-        self.AI = self == self.game.player_2
-        if self.AI:
-            img = pg.transform.flip(self.image, True, False)
-            # if in AI mode, init a pressed_keys dict for the AI to keep track of
-            self.pressed_keys = {'UP': False, 'DOWN': False, 'LEFT': False, 'RIGHT': False}
+        # self.AI = self == self.game.players[1]
+        # if self.AI:
+        #     img = pg.transform.flip(self.image, True, False)
+        #     # if in AI mode, init a pressed_keys dict for the AI to keep track of
+        #     self.pressed_keys = {'UP': False, 'DOWN': False, 'LEFT': False, 'RIGHT': False}
 
         self.status = 'idle'
         self.rect = pg.Rect(x, y, 80, 180)
@@ -49,7 +49,7 @@ class Fighter():
         self.input_index = 0
         self.move_combo = []
         self.input_values = []
-        self.move_damage = char_damage[self.character]
+        self.move_damage = FIGHTER_DATA[self.character]["damage"].values()
 
         # flags
         self.hit = False
@@ -80,12 +80,6 @@ class Fighter():
                                self.arrow_locy, self.arrow_size)
 
     def import_character_assets(self):
-        match self.character:
-            case "Homusubi":
-                self.animations = Homusubi_Anims
-            case "Raijin":
-                self.animations = Raijin_Anims
-
         self.animations = {'idle':[],'run':[],'jump':[],'fall':[],'crouch':[],'hit':[],'LP':[],'MP':[],'HP':[],'LK':[],'MK':[],'HK':[],'2LP':[],'2MP':[],'2HP':[],'2LK':[]} 
         for animation in self.animations:
             full_path = f'./assets/characters/{self.character}/{animation}/'
@@ -213,63 +207,70 @@ class Fighter():
             '''ATTACKS'''
             # crouching normals
             if self.crouching:
-                if event.key == LP:
-                    self.attack_status = '2LP'
-                    self.attack_type = 7
-                    self.attacking = True
-                elif event.key == MP:
-                    self.attack_status = '2MP'
-                    self.attack_type = 8
-                    self.attacking = True
-                elif event.key == HP:
-                    self.attack_status = '2HP'
-                    self.attacking = True
-                    self.attack_type = 9
-                
-                elif event.key == LK:
-                    self.attack_status = '2LK'
-                    self.attacking = True
-                    self.attack_type = 10
+                match event.key:
+                    case Actions.LP:
+                        self.attack_status = '2LP'
+                        self.attack_type = 7
+                        self.attacking = True
+                    case Actions.MP:
+                        self.attack_status = '2MP'
+                        self.attack_type = 8
+                        self.attacking = True
+                    case Actions.HP:
+                        self.attack_status = '2HP'
+                        self.attacking = True
+                        self.attack_type = 9
+                    
+                    case Actions.LK:
+                        self.attack_status = '2LK'
+                        self.attacking = True
+                        self.attack_type = 10
             
-            # punches
-            elif event.key == LP and self.on_ground:
-                self.attack_status = 'LP'
-                self.attack_type = 1
-                self.attacking = True
-            elif event.key == MP and self.on_ground:
-                self.attack_status = 'MP'
-                self.attack_type = 2
-                self.attacking = True
-            elif event.key == HP and self.on_ground:
-                self.attack_status = 'HP'
-                self.attack_type = 3
-                self.attacking = True
+            match event.key:
+                # punches
+                case Actions.LP: 
+                    if self.on_ground:
+                        self.attack_status = 'LP'
+                        self.attack_type = 1
+                        self.attacking = True
+                case Actions.MP: 
+                    if self.on_ground:
+                        self.attack_status = 'MP'
+                        self.attack_type = 2
+                        self.attacking = True
+                case Actions.HP: 
+                    if self.on_ground:
+                        self.attack_status = 'HP'
+                        self.attack_type = 3
+                        self.attacking = True
 
-            # kicks
-            elif event.key == pg.K_k and self.on_ground:
-                self.attack_status = 'LK'
-                self.attack_type = 4
-                self.attacking = True
-            elif event.key == pg.K_l and self.on_ground:
-                self.attack_status = 'MK'
-                #if self.character == "Homusubi":
-                    #self.rect.x += 40
-                self.attack_type = 5
-                self.attacking = True
-            elif event.key == pg.K_SEMICOLON and self.on_ground:
-                self.attack_status = 'HK'
-                self.attack_type = 6
-                self.attacking = True
+                # kicks
+                case Actions.LK:
+                    if self.on_ground:
+                        self.attack_status = 'LK'
+                        self.attack_type = 4
+                        self.attacking = True
+                case Actions.MK: 
+                    if self.on_ground:
+                        self.attack_status = 'MK'
+                    #if self.character == "Homusubi":
+                        #self.rect.x += 40
+                        self.attack_type = 5
+                        self.attacking = True
+                case Actions.HK: 
+                    if self.on_ground:
+                        self.attack_status = 'HK'
+                        self.attack_type = 6
+                        self.attacking = True
 
-            elif self.dashing:
+            if self.dashing:
                 self.dX = 0
-
                 if event.key == pg.K_w:
                     self.dY = 0
                 elif event.key == pg.K_a:
                     self.dX = 0
                 elif event.key == pg.K_d:
                     self.dX = 0
-            
+        
             if self.attacking:
                 self.attacked = False
