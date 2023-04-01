@@ -24,17 +24,21 @@ class Fighter():
         self.super_meter = 0
         self.blast_meter = 0
         self.speed = 10
+        self.offset = [120,150]
+        self.image_scale = FIGHTER_DATA[char]["scale"]
 
         # animations
         self.import_character_assets()
         self.animation = Animator(game, self.animations["idle"], ANIMATION_SPEEDS["idle"], loop=True)
-        # self.AI = self == self.game.players[1]
+        self.AI = 0
+        #  self.AI = self == self.game.players[0]
         # if self.AI:
         #     img = pg.transform.flip(self.image, True, False)
         #     # if in AI mode, init a pressed_keys dict for the AI to keep track of
         #     self.pressed_keys = {'UP': False, 'DOWN': False, 'LEFT': False, 'RIGHT': False}
-
         self.status = 'idle'
+        self.frame_index = self.animation.frame_index
+        self.image = self.animations[self.status][self.frame_index]
         self.rect = pg.Rect(x, y, 80, 180)
         self.particle = ParticlePrinciple()
         self.alive = True
@@ -45,6 +49,7 @@ class Fighter():
         self.attack_status = 'LP'
         self.attack_type = 0
         self.attack_cooldown = 0
+        self.blast_cooldown = 0
         self.frames_without_combo = 0
         self.input_index = 0
         self.move_combo = []
@@ -93,6 +98,7 @@ class Fighter():
         which is updated after all key presses are handled.
     '''
     def update(self, target):
+        self.draw()
         if self.AI:
             pressed_keys = self.pressed_keys
         else:
@@ -105,34 +111,34 @@ class Fighter():
         if not self.attacking and not self.throwing_proj:
 
             #basic movements
-            if pressed_keys[LEFT]:
+            if pressed_keys[Actions.BACK]:
                 self.walking = True
                 self.dX = - self.speed
 
-            elif pressed_keys[RIGHT]:
+            elif pressed_keys[Actions.FORWARD]:
                 self.walking = True
                 self.dX = self.speed
 
-            if pressed_keys[UP] and self.on_ground and not self.jumping:
+            if pressed_keys[Actions.UP] and self.on_ground and not self.jumping:
                 self.vel_y = -30
                 self.jumping = True
                 self.on_ground = False
 
-            elif pressed_keys[DOWN] and self.on_ground:
+            elif pressed_keys[Actions.DOWN] and self.on_ground:
                 self.crouching = True
                 self.dX = 0
 
                 # cancel movement
-                if key[pg.K_w]:
+                if pressed_keys[pg.K_w]:
                     self.dY = 0
-                if key[pg.K_a]:
+                if pressed_keys[pg.K_a]:
                     self.dX = 0
-                if key[pg.K_d]:
+                if pressed_keys[pg.K_d]:
                     self.dX = 0
             else:
                 self.crouching = False
 
-        self.jump()
+        # self.jump()
 
         if self.proj is not None:
             # check if 50 ms has passed since proj spawning
@@ -154,7 +160,7 @@ class Fighter():
                 self.proj = None
                 self.fireball = False
                 self.throwing_proj = False
-                self.attack(target, damage)
+                # self.attack(target, damage)
 
             elif self.proj.off_screen:
                 self.proj = None
@@ -193,7 +199,7 @@ class Fighter():
         self.rect.y += self.dY
         self.dashing = False
 
-        self.update_status()
+        # self.update_status()
         self.image = self.animation.update()
 
     ''' Processes a single event from any event source.
@@ -209,6 +215,7 @@ class Fighter():
             if self.crouching:
                 match event.key:
                     case Actions.LP:
+                        prtin("LP")
                         self.attack_status = '2LP'
                         self.attack_type = 7
                         self.attacking = True
@@ -274,3 +281,33 @@ class Fighter():
         
             if self.attacking:
                 self.attacked = False
+
+    def draw(self):
+        self.particle.emit()
+        # print(self.super_meter)
+
+        if self.super_meter >= 250:
+            self.super_meter = 250
+        if self.super_meter <= 0:
+            self.super_meter = 0
+        
+        # if self.dashing:
+        #     self.applyGravityDash()
+        # else:
+        #     self.applyGravity()
+        
+        # if self.proj is not None:
+        #     self.proj.move()
+        #     self.proj.draw(pg.display.get_surface())
+        # if not self.game.paused:
+        #     self.animate()
+        # self.getInputs(self.character)
+        # if self.move_combo:
+        #     self.checkMoveCombo()
+        
+        self.hit_box = pg.Rect(self.rect.x, self.rect.y - 100, 120, 280)
+        # pg.draw.rect(self.game.screen, "red", self.rect)
+        # pg.draw.rect(self.game.screen, "blue", self.hit_box)
+        self.game.screen.blit(self.image, (self.rect.x - (self.offset[0] * self.image_scale), self.rect.y - (self.offset[1] * self.image_scale)))
+        if self.super_meter > 250:
+            self.super_meter = 250
