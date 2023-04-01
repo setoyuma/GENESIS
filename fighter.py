@@ -28,7 +28,12 @@ class Fighter():
         # animations
         self.import_character_assets()
         self.animation = Animator(game, self.animations["idle"], ANIMATION_SPEEDS["idle"], loop=True)
-        if self == self.game.player_2: img = pg.transform.flip(self.image, True, False)
+        self.AI = self == self.game.player_2
+        if self.AI:
+            img = pg.transform.flip(self.image, True, False)
+            # if in AI mode, init a pressed_keys dict for the AI to keep track of
+            self.pressed_keys = {'UP': False, 'DOWN': False, 'LEFT': False, 'RIGHT': False}
+
         self.status = 'idle'
         self.rect = pg.Rect(x, y, 80, 180)
         self.particle = ParticlePrinciple()
@@ -88,52 +93,40 @@ class Fighter():
             scaled_images = scale_images(original_images, (self.size, self.size))
             self.animations[animation] = scaled_images
 
-    ''' Updates things not related to input '''
+    ''' Updates things not related to frame-dependant input eg
+        moving, gravity, jumping, launching, animations, etc.
+        Animation is controlled by the player's animation status,
+        which is updated after all key presses are handled.
+    '''
     def update(self, target):
+        if self.AI:
+            pressed_keys = self.pressed_keys
+        else:
+            pressed_keys = pg.key.get_pressed()
+
         self.walking = False
         self.dX = 0
         self.dY = 0
-        if self == self.game.player_1:
-            key = pg.key.get_pressed()
-        else:
-            key = [False]*300
 
         if not self.attacking and not self.throwing_proj:
-            #movement
-            if key[pg.K_a]:
-                self.dir = "back"
+
+            #basic movements
+            if pressed_keys[LEFT]:
                 self.walking = True
                 self.dX = - self.speed
 
-                if self.mode == "Train":
-                    self.arrow = Arrow(self.dir, self.arrow_locx, self.arrow_locy, self.arrow_size)
-
-            if key[pg.K_d]:
-                self.dir = "forward"
+            elif pressed_keys[RIGHT]:
                 self.walking = True
                 self.dX = self.speed
 
-                if self.mode == "Train":
-                    self.arrow = Arrow(self.dir, self.arrow_locx, self.arrow_locy, self.arrow_size)
-
-            #jump
-            if key[pg.K_w] and self.on_ground and not self.jumping:
-                self.dir = "up"
+            if pressed_keys[UP] and self.on_ground and not self.jumping:
                 self.vel_y = -30
                 self.jumping = True
                 self.on_ground = False
 
-                if self.mode == "Train":
-                    self.arrow = Arrow(self.dir, self.arrow_locx, self.arrow_locy, self.arrow_size)
-
-
-            if key[pg.K_s] and self.on_ground:
-                self.dir = "down"
+            elif pressed_keys[DOWN] and self.on_ground:
                 self.crouching = True
                 self.dX = 0
-                
-                if self.mode == "Train":
-                    self.arrow = Arrow(self.dir, self.arrow_locx, self.arrow_locy, self.arrow_size)
 
                 # cancel movement
                 if key[pg.K_w]:
@@ -144,35 +137,6 @@ class Fighter():
                     self.dX = 0
             else:
                 self.crouching = False
-
-            '''DIAGONALS'''
-            if key[pg.K_a] and key[pg.K_w]:
-                self.dir = "up-back"
-
-                if self.mode == "Train":
-                    self.arrow = Arrow(self.dir, self.arrow_locx, self.arrow_locy, self.arrow_size)
-
-            if key[pg.K_a] and key[pg.K_s]:
-                self.dir = "down-back"
-
-                if self.mode == "Train":
-                    self.arrow = Arrow(self.dir, self.arrow_locx, self.arrow_locy, self.arrow_size)
-
-            if key[pg.K_d] and key[pg.K_w]:
-                self.dir = "up-forward"
-
-                if self.mode == "Train":
-                    self.arrow = Arrow(self.dir, self.arrow_locx, self.arrow_locy, self.arrow_size)
-
-
-            if key[pg.K_d] and key[pg.K_s]:
-                self.dir = "down-forward"
-
-                if self.mode == "Train":
-                    self.arrow = Arrow(self.dir, self.arrow_locx, self.arrow_locy, self.arrow_size)
-
-        if self.mode == "Train":
-            self.arrow.update()
 
         self.jump()
 
@@ -235,6 +199,77 @@ class Fighter():
         self.rect.y += self.dY
         self.dashing = False
 
-    ''' Processes a single event from any event source '''
+        self.update_status()
+        self.image = self.animation.update()
+
+    ''' Processes a single event from any event source.
+        Updates single-press inputs like basic attacks,
+        updates the player's move combo, then checks for
+        valid combos and clears it if necessary.
+    '''
     def handle_event(self, event):
-        pass
+        # check current action
+        if not self.attacking and self.attack_cooldown == 0:
+            '''ATTACKS'''
+            # crouching normals
+            if self.crouching:
+                if event.key == LP:
+                    self.attack_status = '2LP'
+                    self.attack_type = 7
+                    self.attacking = True
+                elif event.key == MP:
+                    self.attack_status = '2MP'
+                    self.attack_type = 8
+                    self.attacking = True
+                elif event.key == HP:
+                    self.attack_status = '2HP'
+                    self.attacking = True
+                    self.attack_type = 9
+                
+                elif event.key == LK:
+                    self.attack_status = '2LK'
+                    self.attacking = True
+                    self.attack_type = 10
+            
+            # punches
+            elif event.key == LP and self.on_ground:
+                self.attack_status = 'LP'
+                self.attack_type = 1
+                self.attacking = True
+            elif event.key == MP and self.on_ground:
+                self.attack_status = 'MP'
+                self.attack_type = 2
+                self.attacking = True
+            elif event.key == HP and self.on_ground:
+                self.attack_status = 'HP'
+                self.attack_type = 3
+                self.attacking = True
+
+            # kicks
+            elif event.key == pg.K_k and self.on_ground:
+                self.attack_status = 'LK'
+                self.attack_type = 4
+                self.attacking = True
+            elif event.key == pg.K_l and self.on_ground:
+                self.attack_status = 'MK'
+                #if self.character == "Homusubi":
+                    #self.rect.x += 40
+                self.attack_type = 5
+                self.attacking = True
+            elif event.key == pg.K_SEMICOLON and self.on_ground:
+                self.attack_status = 'HK'
+                self.attack_type = 6
+                self.attacking = True
+
+            elif self.dashing:
+                self.dX = 0
+
+                if event.key == pg.K_w:
+                    self.dY = 0
+                elif event.key == pg.K_a:
+                    self.dX = 0
+                elif event.key == pg.K_d:
+                    self.dX = 0
+            
+            if self.attacking:
+                self.attacked = False
