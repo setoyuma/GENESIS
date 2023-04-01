@@ -64,18 +64,18 @@ class Fighter():
         self.walking = False
         self.jumping = False
         self.proj = None
-        self.throwing_proj = False
         self.animated_text = None
         self.attacked = False
         self.attacking = False
         self.dashing = False
-        self.facing_right = True
 
         # world
         self.dashGravity = 0.5
         self.dashLength = 40
         self.vel_y = 0
-        self.GRAVITY = 2
+        self.gravity = 1000  # pps
+        self.jump_force = -500  # pps
+        self.move_speed = 300  # pps
         self.dir = "forward"
         self.arrow_locx = self.game.settings["screen_width"]/2-50
         self.arrow_locy = 200
@@ -97,19 +97,32 @@ class Fighter():
         Animation is controlled by the player's animation status,
         which is updated after all key presses are handled.
     '''
-    def update(self, target):
+    def update(self, dt):
         self.draw()
         if self.AI:
             pressed_keys = self.pressed_keys
         else:
             pressed_keys = pg.key.get_pressed()
 
-        self.walking = False
-        self.dX = 0
-        self.dY = 0
+        # Update y_velocity based on gravity
+        self.dy += self.gravity * dt
+
+        # Update character's y position based on y_velocity
+        self.rect.y += self.dy * dt
+
+        # Check if the character is on the ground
+        if self.y >= 0:
+            self.y = 0
+            self.on_ground = True
+            self.jumping = False
+            self.dy = 0
+        else:
+            self.on_ground = False
+
+        # Update animations
+        # self.animation.update(dt)
 
         if not self.attacking and not self.throwing_proj:
-
             #basic movements
             if pressed_keys[Actions.BACK]:
                 self.walking = True
@@ -211,6 +224,7 @@ class Fighter():
         # check current action
         if not self.attacking and self.attack_cooldown == 0:
             '''ATTACKS'''
+            if any()
             # crouching normals
             if self.crouching:
                 match event.key:
