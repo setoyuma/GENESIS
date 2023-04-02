@@ -131,7 +131,7 @@ FRAME_DURATIONS = {
     'idle': 0.09,
     'run': 0.07,
     'jump': 0.1,
-    'crouch': 0.01,
+    'crouch': 0.02,
     'hit': 0.02
 }
 

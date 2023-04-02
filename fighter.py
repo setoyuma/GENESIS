@@ -21,21 +21,10 @@ walk
 idle
 """
 
-'''
-BUGS:
-PLAYER RECT
-CROUCH RESET
-JUMP RESET
-MOVE WHILE SELF.CROUCHING
-JUMP CYCLE
-
-'''
-
 
 class Fighter():
     def __init__(self, game, num, x, y, char, mode="Play"):
         self.game = game
-        self.rect = pg.Rect(x, y, 80, 180)
         self.character = char
         self.mode = mode
 
@@ -49,9 +38,9 @@ class Fighter():
 
         # animations
         self.import_character_assets()
-        self.animation = Animator(game, self.animations["idle"], FRAME_DURATIONS["idle"], loop=True)
         self.status = 'idle'
         self.image = self.animations[self.status].animation[0]
+        self.rect = pg.Rect(x, y, 150, 320)
         self.AI = num - 1
         if self.AI:
             img = pg.transform.flip(self.image, True, False)
@@ -84,6 +73,7 @@ class Fighter():
         self.dY = 0
         self.gravity = 1400  # pps
         self.jump_force = -700  # pps
+        self.jump_cooldown = 0
         self.move_speed = 300  # pps
 
 
@@ -140,7 +130,8 @@ class Fighter():
 
         if not self.attacking:
             # basic movements
-            if pressed_keys[Actions.UP] and self.on_ground and not self.jumping:
+            if pressed_keys[Actions.UP] and not self.jump_cooldown:
+                self.jump_cooldown = 1.2
                 self.dY += self.jump_force
                 self.jumping = True
                 self.on_ground = False
@@ -151,16 +142,18 @@ class Fighter():
 
             else:
                 self.crouching = False
+                self.animations["crouch"].reset()
 
-            if pressed_keys[Actions.BACK]:
-                self.rect.x -= self.move_speed * dt
-                if self.on_ground:
-                    walking = True
+            if not self.crouching:
+                if pressed_keys[Actions.BACK]:
+                    self.rect.x -= self.move_speed * dt
+                    if self.on_ground:
+                        walking = True
 
-            elif pressed_keys[Actions.FORWARD]:
-                self.rect.x += self.move_speed * dt
-                if self.on_ground:
-                    walking = True
+                elif pressed_keys[Actions.FORWARD]:
+                    self.rect.x += self.move_speed * dt
+                    if self.on_ground:
+                        walking = True
 
         if self.jumping:
             status = "jump"
@@ -180,6 +173,12 @@ class Fighter():
             if self.attack_cooldown < 0:
                 self.attack_cooldown = 0
 
+        # apply jump cooldown
+        if self.jump_cooldown > 0:
+            self.jump_cooldown -= dt
+            if self.jump_cooldown < 0:
+                self.jump_cooldown = 0
+
         # update dY based on gravity
         self.dY += self.gravity * dt
 
@@ -194,10 +193,11 @@ class Fighter():
             self.rect.right = self.game.settings["screen_width"]
 
         # check y // if the character is on the ground
-        if self.rect.bottom >= 540:  # floor height
-            self.rect.bottom = 540
+        if self.rect.bottom >= 780:  # floor height
+            self.rect.bottom = 780
             self.on_ground = True
             self.jumping = False
+            self.animations["jump"].reset()
             self.dY = 0
         else:
             self.on_ground = False
@@ -218,11 +218,12 @@ class Fighter():
                 self.animation.reset()
                 self.attacking = False
                 self.status = "idle"
-            elif self.status == "crouch" and self.animation.done:
-                self.image = self.animation.animation[3]
+            #elif self.status == "crouch" and self.animation.done:
+            #    self.image = self.animation.animation[-1]
 
     def draw(self):
-        self.game.screen.blit(self.image, self.rect.center)
+        pygame.draw.rect(self.game.screen, (0,255,0), self.rect)
+        self.game.screen.blit(self.image, (self.rect.x - 90, self.rect.y - 15))
 
 
     def update_projectile(self):
