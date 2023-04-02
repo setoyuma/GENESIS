@@ -79,17 +79,17 @@ class Game:
 		pg.mixer.music.set_volume(self.volume)
 
 		# display
-		self.screen = pg.display.set_mode((self.settings["screen_width"], self.settings["screen_height"]), )
+		self.screen = pg.display.set_mode((self.settings["screen_width"], self.settings["screen_height"]), pg.SCALED)
 		self.clock = pg.time.Clock()
 		pg.display.set_icon(pg.image.load('./assets/icons/main/gameicon.ico'))
 		pg.display.set_caption("Kami No Ken: GENESIS")
-		self.background = Animator(self, self.bg_animations["ogre-gate"], ANIMATION_SPEEDS["bg"], loop=True)
+		self.background = Animator(self, self.bg_animations["ogre-gate"], FRAME_DURATIONS["bg"], loop=True)
 
 	def import_assets(self):
 		''' Load, scale, and store all primary assets in the game object '''
 
 		# hud
-		hud = get_image("./assets/ui/HUD/HUD.png")
+		hud = get_image("./assets/ui/HUD/HUD4.png")
 		self.hud = pg.transform.scale(hud, (self.settings["screen_width"],  self.settings["screen_height"]/3))
 		self.hud_bg_surf = pg.Surface((self.settings["screen_width"], self.settings["screen_height"]/2), pygame.SRCALPHA)
 
@@ -285,6 +285,9 @@ class Game:
 			particle1.emit()
 			self.send_frame()
 	
+	def scale_window(self):
+		pg.display.toggle_fullscreen()
+
 	def options(self):
 		pg.display.set_caption("Kami No Ken: OPTIONS")
 		mainMenuBG = get_image("./assets/backgrounds/main-menu/KnK.png")
@@ -294,8 +297,8 @@ class Game:
 		buttons = [
 			Button(self.settings["screen_width"]//2, 480, 200, 100, 30, "BACK", self.home_screen),
 			Button(self.settings["screen_width"]//2, 320, 200, 100, 30, "SOUND", self.sound_settings),
-			Button(self.settings["screen_width"]//2, 400, 200, 100, 30, "VIDEO", self.home_screen),
-			Button(self.settings["screen_width"] - 100, 0 - 10, 200, 100, 30, "QUIT", pg.QUIT),
+			Button(self.settings["screen_width"]//2, 400, 200, 100, 30, "FULLSCREEN", self.scale_window),
+			Button(self.settings["screen_width"] - 100, 0 - 10, 200, 100, 30, "QUIT", pg.quit),
 		]
 		while True:
 			self.screen.fill('black')

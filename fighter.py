@@ -21,6 +21,16 @@ walk
 idle
 """
 
+'''
+BUGS:
+PLAYER RECT
+CROUCH RESET
+JUMP RESET
+MOVE WHILE SELF.CROUCHING
+JUMP CYCLE
+
+'''
+
 
 class Fighter():
     def __init__(self, game, num, x, y, char, mode="Play"):
@@ -39,7 +49,7 @@ class Fighter():
 
         # animations
         self.import_character_assets()
-        self.animation = Animator(game, self.animations["idle"], ANIMATION_SPEEDS["idle"], loop=True)
+        self.animation = Animator(game, self.animations["idle"], FRAME_DURATIONS["idle"], loop=True)
         self.status = 'idle'
         self.image = self.animations[self.status].animation[0]
         self.AI = num - 1
@@ -72,14 +82,14 @@ class Fighter():
         # world
         self.dX = 0
         self.dY = 0
-        self.gravity = 1000  # pps
-        self.jump_force = -600  # pps
+        self.gravity = 1400  # pps
+        self.jump_force = -700  # pps
         self.move_speed = 300  # pps
 
 
     def import_character_assets(self):
         self.animations = {}
-        self.animation_keys = {'idle':[],'run':[],'jump':[],'fall':[],'crouch':[],'hit':[],'LP':[],'MP':[],'HP':[],'LK':[],'MK':[],'HK':[],'2LP':[],'2MP':[],'2HP':[],'2LK':[]} 
+        self.animation_keys = {'idle':[],'run':[],'jump':[],'crouch':[],'hit':[],'LP':[],'MP':[],'HP':[],'LK':[],'MK':[],'HK':[],'2LP':[],'2MP':[],'2HP':[],'2LK':[], '2MK':[]} 
         for key in self.animation_keys:
             full_path = f'./assets/characters/{self.character}/{key}/'
             original_images = import_folder(full_path)
@@ -88,7 +98,7 @@ class Fighter():
                 loop = True
             else:
                 loop = False
-            animation = Animator(self.game, scaled_images, ANIMATION_SPEEDS[key], loop)
+            animation = Animator(self.game, scaled_images, FRAME_DURATIONS[key], loop)
             self.animations[key] = animation
 
 
@@ -102,7 +112,7 @@ class Fighter():
             attack_key = None
 
             if self.crouching:
-                if event.key in (Actions.LP, Actions.MP, Actions.HP, Actions.LK):#, Actions.MK, Actions.HK):
+                if event.key in (Actions.LP, Actions.MP, Actions.HP, Actions.LK, Actions.MK):#, Actions.HK):
                     attack_key = '2' + self.game.settings["attacks"][str(event.key)]
             elif self.on_ground:
                 if str(event.key) in self.game.settings["attacks"]:
@@ -110,7 +120,7 @@ class Fighter():
 
             if attack_key is not None:
                 self.status = attack_key
-            self.status
+
         self.move_combo.append(event.key)
         self.check_combos()
 

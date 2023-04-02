@@ -47,6 +47,7 @@ FIGHTER_DATA = {
             "2MP": 8,
             "2HP": 15,
             "2LK": 5,
+            "2MK": 5,
         },
         "hitboxes": {
             "0": [0, (0,0,0,0)],
@@ -114,24 +115,24 @@ FIGHTER_DATA = {
     # }
 }
 
-ANIMATION_SPEEDS = {
+FRAME_DURATIONS = {
     'LP': 0.02,
     'MP': 0.02,
     'HP': 0.02,
-    'LK': 0.02,
-    'MK': 0.02,
-    'HK': 0.02,
-    '2LP': 0.02,
+    'LK': 0.05,
+    'MK': 0.045,
+    'HK': 0.05,
+    '2LP': 0.05,
     '2MP': 0.02,
     '2HP': 0.02,
-    '2LK': 0.02,
-    'bg': 0.05,
-    'idle': 0.08,
-    'run': 0.08,
+    '2LK': 0.04,
+    '2MK': 0.05,
+    'bg': 0.04,
+    'idle': 0.09,
+    'run': 0.07,
     'jump': 0.1,
     'crouch': 0.01,
-    'fall': 0.1,
-    'hit': 0.1
+    'hit': 0.02
 }
 
 UNUSED_INPUTS = {
@@ -175,7 +176,8 @@ ACTIONS = [
     '2LP',
     '2MP',
     '2HP',
-    '2LK'
+    '2LK',
+    '2MK'
     ]
 
 '''(UN-USED) CHARACTER INPUTS'''
