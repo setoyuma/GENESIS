@@ -47,7 +47,6 @@ class Fighter():
         self.time_without_combo = 0
         self.hit_stun = None
         self.projectile = None
-        self.launch_target = None
         self.throwing_proj = False
         self.animated_text = None
         self.frames_without_combo = 0
@@ -273,9 +272,10 @@ class Fighter():
             if damage is None:
                 fireball = False
                 damage = self.char_data["damage"][self.status]
+                self.super_meter += damage * 2
             else:
                 fireball = True
-            self.super_meter += damage * 2
+                self.super_meter += damage * 2
             if target.alive:
                 target.hit = True
                 target.max_hp -= self.char_data["damage"][self.status]
@@ -369,20 +369,19 @@ class Fighter():
                 '''DP'S'''
                 if "LDP" in list(self.inputs):
                     if move_combo == list(self.inputs["LDP"]):
-                        self.launch_target = Launch(self, 500, 6)
+                        self.dY -= 20
                         self.move_combo = []
                         print("LDP")
                     elif move_combo == list(self.inputs["MDP"]):
-                        self.launch_target = Launch(self, 500, 6)
+                        self.dY -= 20
                         self.move_combo = []
                         print("MDP")
                     elif move_combo == list(self.inputs["HDP"]):
-                        self.launch_target = Launch(self, 500, 6)
+                        self.dY -= 20
                         self.move_combo = []
                         print("HDP")
                     elif move_combo == list(self.inputs["EXDP"]):
-                        self.launch_target = Launch(self, 500, 6)
-
+                        self.dY -= 20
                         self.move_combo = []
                         print("EXDP")
                 else:
