@@ -1,4 +1,6 @@
 import pygame as pg
+
+from animation import Animator
 from support import *
 
 class Projectile():
@@ -10,7 +12,6 @@ class Projectile():
         self.player = player
         self.game = game
         self.speed = 10
-        self.animation_speed = 0.25
         self.frame_index = 0
         self.frames_passed = 0
         self.off_screen = False
@@ -18,23 +19,16 @@ class Projectile():
         self.rect = pg.Rect(spawn_pos[0], spawn_pos[1], self.size, self.size)
         if not facing_right:
             self.speed *= -1
-            self.animation = [pg.transform.flip(image, True, False) for image in self.animation]
+            self.animation.animation = [pg.transform.flip(image, True, False) for image in self.animation.animation]
+        self.image = self.animation.update(0)
     
     def import_assets(self):
         path = f'./assets/fireballs/{self.name}/'
         self.animation = []
         full_path = path
         original_images = import_folder(full_path)
-        scaled_images = scale_images(original_images, (self.size, self.size))
-        self.animation = scaled_images
-
-    def animate(self):
-		# loop over frame index
-        self.frame_index += self.animation_speed
-        if self.frame_index >= len(self.animation):
-            self.frame_index = 0
-        self.image = self.animation[int(self.frame_index)]
-        self.frame_index += 1
+        scaled_images = scale_images(original_images, (100, 40))
+        self.animation = Animator(self.game, scaled_images, 0.05, loop=True)
 
     def move(self):
         if self.type == "LFB":
@@ -48,5 +42,4 @@ class Projectile():
             self.off_screen = True
 
     def draw(self, surf):
-        self.animate()
         surf.blit(self.image, (self.rect.x, self.rect.y))

@@ -19,15 +19,20 @@ class Fighter():
         self.max_hp = FIGHTER_DATA[char]["max hp"]
         self.size = FIGHTER_DATA[char]["size"]
         self.scale = FIGHTER_DATA[char]["scale"]
+        self.inputs = FIGHTER_DATA[char]["combos"]
+        self.input_values = self.inputs.values()
         self.super_meter = 0
         self.blast_meter = 0
         self.speed = 10
+
+        self.attack_rect = None
 
         # animations
         self.import_character_assets()
         self.status = 'idle'
         self.image = self.animations[self.status].animation[0]
         self.rect = pg.Rect(x, y, 150, 320)
+        self.hit_box = pg.Rect(self.rect.x, self.rect.y - 100, 120, 280)
         self.AI = num - 1
         if self.AI:
             img = pg.transform.flip(self.image, True, False)
@@ -37,7 +42,6 @@ class Fighter():
 
         # attacks
         self.move_combo = []
-        self.input_values = []
         self.blast_cooldown = 0
         self.attack_cooldown = 0
         self.time_without_combo = 0
@@ -46,6 +50,7 @@ class Fighter():
         self.launch_target = None
         self.throwing_proj = False
         self.animated_text = None
+        self.frames_without_combo = 0
 
         # flags
         self.alive = True
@@ -64,7 +69,7 @@ class Fighter():
         self.gravity = 2000  # pps
         self.jump_force = -800  # pps
         self.jump_cooldown = 0
-        self.move_speed = 400  # pps
+        self.move_speed = 500  # pps
 
 
     def import_character_assets(self):
@@ -124,10 +129,11 @@ class Fighter():
         if not self.attacking:
             # basic movements
             if pressed_keys[Actions.UP] and not self.jump_cooldown:
-                self.jump_cooldown = 1.2
+                self.jump_cooldown = 0.9
                 self.dY += self.jump_force
                 self.jumping = True
                 self.on_ground = False
+                self.move_combo = []
 
             elif pressed_keys[Actions.DOWN] and self.on_ground:
                 self.crouching = True
@@ -158,7 +164,12 @@ class Fighter():
             status = "idle"
 
         if self.projectile is not None:
-            self.update_projectile()
+            self.update_projectile(dt, target)
+
+        self.frames_without_combo += 1
+        if self.frames_without_combo > 26 or len(self.move_combo) > 9:
+            self.frames_without_combo = 0
+            self.move_combo = []
 
         # apply attack cooldown
         if self.attack_cooldown > 0:
@@ -178,6 +189,7 @@ class Fighter():
         # update character's position based on deltas
         self.rect.x += self.dX * dt
         self.rect.y += self.dY * dt
+        self.hit_box.center = self.rect.center
 
         # check x // walls
         if self.rect.left < 0:
@@ -194,6 +206,12 @@ class Fighter():
             self.dY = 0
         else:
             self.on_ground = False
+
+        # keep players facing each other
+        if target.rect.centerx > self.rect.centerx:
+            self.facing_right = True
+        else:
+            self.facing_right = False
 
         # update animation status and image
         if not self.attacking:
@@ -214,6 +232,9 @@ class Fighter():
 
         self.image = self.animation.update(dt)
 
+        if not self.facing_right:
+            self.image = pg.transform.flip(self.image, True, False)
+
         if self.animation.done and not self.animation.loop:
             if self.status in ACTIONS:
                 self.animation.reset()
@@ -225,16 +246,18 @@ class Fighter():
                 self.hit = False
 
     def draw(self):
-        self.hit_box = pg.Rect(self.rect.x, self.rect.y - 100, 120, 280)
-        # pygame.draw.rect(self.game.screen, (0,255,0), self.rect)
+        pygame.draw.rect(self.game.screen, (0,0,255), self.rect)
+        pygame.draw.rect(self.game.screen, (0,255,0), self.hit_box)
         self.game.screen.blit(self.image, (self.rect.x - 90, self.rect.y - 15))
+        self.particle.emit()
+        if self.projectile is not None:
+            pygame.draw.rect(self.game.screen, (0,255,0), self.projectile.rect)
+            self.projectile.draw(self.game.screen)
 
     def attack(self, target, damage=None):
         # get hitbox attributes for the active frame
         hitbox_attrs = self.char_data["hitboxes"]
-        
         offset_x, offset_y, w, h = hitbox_attrs[self.status][1]
-        
         # calculate hitbox position using hitbox attributes and player rect
         flip_hit_box = self.rect.w
         if not self.facing_right:
@@ -244,7 +267,7 @@ class Fighter():
         y = self.hit_box.centery + offset_y
         # create the hitbox from all the attributes together
         attack_rect = pg.Rect(x, y, w, h)
-        # pg.draw.rect(pg.display.get_surface(), "green", attack_rect)
+        self.attack_rect = attack_rect
         # detect collision on the active frame
         if (attack_rect.colliderect(target.hit_box) and not self.throwing_proj) or damage is not None:
             if damage is None:
@@ -256,14 +279,12 @@ class Fighter():
             if target.alive:
                 target.hit = True
                 target.max_hp -= self.char_data["damage"][self.status]
-
             '''LAUNCH MOVES'''
             match self.character:
                 case "Homusubi":
                     if self.status == "2HP" and target.hit:
                         target.dY -= 800
             self.hitspark(attack_rect, flip_hit_box, fireball, target)
-    
             self.animated_text = TextAnimation("", 60, 0, target. hit_box.topright, "white", 30, self.game.screen)
             self.animated_text.damage = damage
             # hit stun
@@ -295,35 +316,80 @@ class Fighter():
         for x in range(15):
             self.particle.addParticles(target_x, target_y, color="white")
 
-    def launch(self, target):
-        target.rect.y -= 100
+    def update_projectile(self, dt, target):
+        self.projectile.animation.update(dt)
+        self.projectile.move()
 
-    def update_projectile(self):
-        # check if 50 ms has passed since proj spawning
-        self.proj.frames_passed += 1
-        if self.proj.frames_passed >= 10:
+        # check if 50 ms has passed since projectile spawning
+        self.projectile.frames_passed += 1
+        if self.projectile.frames_passed >= 10:
             self.throwing_proj = False
 
         # check projectile collision with opponent
-        if self.proj.rect.collidepoint(target.rect.centerx, target.rect.centery-10):
+        if self.projectile.rect.collidepoint(target.rect.centerx, target.rect.centery+10):
 
-            if self.proj.type == "LFB":
+            if self.projectile.type == "LFB":
                 damage = 5
-            elif self.proj.type == "MFB":
+            elif self.projectile.type == "MFB":
                 damage = 7
-            elif self.proj.type == "HFB":
+            elif self.projectile.type == "HFB":
                 damage = 14
 
             target.hit = True
-            self.proj = None
-            self.fireball = False
+            self.projectile = None
             self.throwing_proj = False
             # self.attack(target, damage)
 
-        elif self.proj.off_screen:
-            self.proj = None
-            self.fireball = False
+        elif self.projectile.off_screen:
+            self.projectile = None
             self.throwing_proj = False
 
     def check_combos(self):
-        pass
+        move_combo = self.move_combo
+        if not self.facing_right:
+            move_combo = [pg.K_a if key == pg.K_d else pg.K_d if key == pg.K_a else key for key in move_combo]
+
+        for i in range(len(self.input_values)):
+            if self.projectile is None:
+                
+                '''FIREBALLS'''
+                if move_combo == list(self.inputs["LFireball"]):# and self.super_meter >= 50:
+                    self.projectile = Projectile("FSTECH", "LFB", 40, self.rect.center, self, self.facing_right, self.game)
+                    self.super_meter -= 50
+
+                elif move_combo == list(self.inputs["MFireball"]) and self.super_meter >= 50:
+                    self.projectile = Projectile("FSTECH", "MFB", 98, self.rect.center, self, self.facing_right, self.game)
+                    self.super_meter -= 50
+
+                elif move_combo == list(self.inputs["HFireball"]) and self.super_meter >= 50:
+                    self.projectile = Projectile("FSTECH", "HFB", 98, self.rect.center, self, self.facing_right, self.game)
+                    self.super_meter -= 50
+
+
+                '''DP'S'''
+                if "LDP" in list(self.inputs):
+                    if move_combo == list(self.inputs["LDP"]):
+                        self.launch_target = Launch(self, 500, 6)
+                        self.move_combo = []
+                        print("LDP")
+                    elif move_combo == list(self.inputs["MDP"]):
+                        self.launch_target = Launch(self, 500, 6)
+                        self.move_combo = []
+                        print("MDP")
+                    elif move_combo == list(self.inputs["HDP"]):
+                        self.launch_target = Launch(self, 500, 6)
+                        self.move_combo = []
+                        print("HDP")
+                    elif move_combo == list(self.inputs["EXDP"]):
+                        self.launch_target = Launch(self, 500, 6)
+
+                        self.move_combo = []
+                        print("EXDP")
+                else:
+                    print("character has no dp")
+
+                # check if a fireball has been created just now
+                if self.projectile is not None:
+                    self.projectile.frames_passed = 0
+                    self.throwing_proj = True
+                    self.move_combo = []

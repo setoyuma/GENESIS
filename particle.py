@@ -69,5 +69,3 @@ class ParticlePrinciple:
         # remove particles after a certain time
         particleCopy = [particle for particle in self.particles if particle[1] > 0]
         self.particles = particleCopy
-
-    
