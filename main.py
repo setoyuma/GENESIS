@@ -50,13 +50,15 @@ class Game:
 		self.import_assets()
 		self.setup_pygame()
 
-		self.hit_stun = None
+		self.hit_stun = None	
 
 		# Game BG + BG Animation
 		self.bg = BACKGROUNDS["carnival"]
 		self.animation = Animator(self, self.bg, 0.25)
 		self.frame_index = 0
 		self.animation_speed = 0.25
+		self.stun_frames = 0
+		self.max_stun_frames = 0
 
 	def load_settings(self):
 		with open('settings.json', 'r') as f:
@@ -380,6 +382,10 @@ class Game:
 		self.time_accumulator = 0
 
 		while True:
+			if self.stun_frames >= self.max_stun_frames:
+				self.hit_stun = False
+			else:
+				self.stun_frames += 0.5
 			# process client events
 			for event in pg.event.get():
 				check_for_quit(event)
@@ -400,8 +406,8 @@ class Game:
 						pause = Pause(self)
 						pause.update()
 			
-			self.player_1.update(self.dt)
-			self.player_2.update(self.dt)
+			self.player_1.update(self.dt, self.player_2)
+			self.player_2.update(self.dt, self.player_1)
 
 			# environment
 			self.screen.fill('black')

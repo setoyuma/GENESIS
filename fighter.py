@@ -7,20 +7,6 @@ from animation import Animator
 from constants import *
 from support import *
 
-"""
-Animation update order:
-attacks
-crouch attacks
-crouch
-
-status update order:
-attacks
-jump
-crouch
-walk
-idle
-"""
-
 
 class Fighter():
     def __init__(self, game, num, x, y, char, mode="Play"):
@@ -29,6 +15,7 @@ class Fighter():
         self.mode = mode
 
         # stats
+        self.char_data = FIGHTER_DATA[char]
         self.max_hp = FIGHTER_DATA[char]["max hp"]
         self.size = FIGHTER_DATA[char]["size"]
         self.scale = FIGHTER_DATA[char]["scale"]
@@ -57,24 +44,27 @@ class Fighter():
         self.hit_stun = None
         self.projectile = None
         self.launch_target = None
+        self.throwing_proj = False
         self.animated_text = None
 
         # flags
         self.alive = True
         self.on_ground = True
+        self.attacked = False
         self.attacking = False
         self.crouching = False
         self.walking = False
+        self.facing_right = True
         self.jumping = False
         self.hit = False
 
         # world
         self.dX = 0
         self.dY = 0
-        self.gravity = 1400  # pps
-        self.jump_force = -700  # pps
+        self.gravity = 2000  # pps
+        self.jump_force = -800  # pps
         self.jump_cooldown = 0
-        self.move_speed = 300  # pps
+        self.move_speed = 400  # pps
 
 
     def import_character_assets(self):
@@ -100,7 +90,6 @@ class Fighter():
     def handle_event(self, event):
         if not self.attacking and self.attack_cooldown == 0:
             attack_key = None
-
             if self.crouching:
                 if event.key in (Actions.LP, Actions.MP, Actions.HP, Actions.LK, Actions.MK):#, Actions.HK):
                     attack_key = '2' + self.game.settings["attacks"][str(event.key)]
@@ -111,6 +100,7 @@ class Fighter():
             if attack_key is not None:
                 self.status = attack_key
 
+
         self.move_combo.append(event.key)
         self.check_combos()
 
@@ -120,7 +110,10 @@ class Fighter():
         Animation is controlled by the player's animation status,
         which is updated after all key presses are handled.
     '''
-    def update(self, dt):
+    def update(self, dt, target):
+        if self.super_meter >= 250:
+            self.super_meter = 250
+
         if self.AI:
             pressed_keys = self.pressed_keys
         else:
@@ -204,27 +197,106 @@ class Fighter():
 
         # update animation status and image
         if not self.attacking:
-            if self.status in ACTIONS:
+            if self.status in ACTIONS :
                 self.attacking = True
                 self.attack_cooldown = 50 / 1000  # ms
             else:
                 self.status = status
+        elif self.status in ACTIONS and self.char_data["hitboxes"][self.status][0] == self.animation.frame_index:
+            if not self.attacked:
+                self.attacked = True
+                self.attack(target)
+
+        if self.hit == True:
+           self.status = 'hit'
 
         self.animation = self.animations[self.status]
+
         self.image = self.animation.update(dt)
 
         if self.animation.done and not self.animation.loop:
             if self.status in ACTIONS:
                 self.animation.reset()
                 self.attacking = False
+                self.attacked = False
                 self.status = "idle"
-            #elif self.status == "crouch" and self.animation.done:
-            #    self.image = self.animation.animation[-1]
+            if self.hit:
+                self.animation.reset()
+                self.hit = False
 
     def draw(self):
-        pygame.draw.rect(self.game.screen, (0,255,0), self.rect)
+        self.hit_box = pg.Rect(self.rect.x, self.rect.y - 100, 120, 280)
+        # pygame.draw.rect(self.game.screen, (0,255,0), self.rect)
         self.game.screen.blit(self.image, (self.rect.x - 90, self.rect.y - 15))
 
+    def attack(self, target, damage=None):
+        # get hitbox attributes for the active frame
+        hitbox_attrs = self.char_data["hitboxes"]
+        
+        offset_x, offset_y, w, h = hitbox_attrs[self.status][1]
+        
+        # calculate hitbox position using hitbox attributes and player rect
+        flip_hit_box = self.rect.w
+        if not self.facing_right:
+            flip_hit_box *= -1
+            offset_x = (offset_x * -1) - w
+        x = self.hit_box.centerx + offset_x + flip_hit_box
+        y = self.hit_box.centery + offset_y
+        # create the hitbox from all the attributes together
+        attack_rect = pg.Rect(x, y, w, h)
+        # pg.draw.rect(pg.display.get_surface(), "green", attack_rect)
+        # detect collision on the active frame
+        if (attack_rect.colliderect(target.hit_box) and not self.throwing_proj) or damage is not None:
+            if damage is None:
+                fireball = False
+                damage = self.char_data["damage"][self.status]
+            else:
+                fireball = True
+            self.super_meter += damage * 2
+            if target.alive:
+                target.hit = True
+                target.max_hp -= self.char_data["damage"][self.status]
+
+            '''LAUNCH MOVES'''
+            match self.character:
+                case "Homusubi":
+                    if self.status == "2HP" and target.hit:
+                        target.dY -= 800
+            self.hitspark(attack_rect, flip_hit_box, fireball, target)
+    
+            self.animated_text = TextAnimation("", 60, 0, target. hit_box.topright, "white", 30, self.game.screen)
+            self.animated_text.damage = damage
+            # hit stun
+            if not fireball:
+                self.game.hit_stun = True
+                self.game.stun_frames = 0
+                self.game.max_stun_frames = 3
+            # knockback
+            if self.attacking:
+                if self.facing_right:
+                    self.rect.x -= 20
+                else:
+                    self.rect.x += 20
+
+    def hitspark(self, attack_rect, flip_hit_box, fireball=False, target=None):
+        # calculate hitspark position based on attack_rect
+        if not fireball:
+            offset_x = 40
+            target_x = attack_rect.x
+            if self.facing_right:
+                offset_x *= -1
+                target_x += flip_hit_box
+            target_x += offset_x
+            target_y = attack_rect.centery
+            if self.crouching:
+                target_y += 70
+        else:
+            target_x, target_y = target.hit_box.center
+        for x in range(15):
+            self.particle.addParticles(target_x, target_y, color="white")
+
+    def launch(self, target):
+        target.rect.y -= 100
 
     def update_projectile(self):
         # check if 50 ms has passed since proj spawning
