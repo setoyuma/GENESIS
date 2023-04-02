@@ -83,3 +83,18 @@ def get_image(path):
         image = pygame.image.load(canonicalized_path)
         _image_library[path] = image
     return image
+
+_sound_library = {}
+def play_sound(path, stop=None):
+    global _sound_library
+    sound = _sound_library.get(path)
+    if sound == None:
+        canonicalized_path = path.replace('/', os.sep).replace('\\', os.sep)
+        sound = pygame.mixer.Sound(canonicalized_path)
+        _sound_library[path] = sound
+    if stop is None:
+        sound.play()
+    elif stop:
+        sound.stop()
+    else:
+        sound.play(10)

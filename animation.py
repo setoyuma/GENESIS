@@ -15,16 +15,24 @@ class Animator:
         # when cumulative time reaches the frame_duration
         if self.current_time > self.frame_duration:
 
-            # add 1 to the frame_index and mod it with the number of frames.
-            # this uses the remainder to loop the frame_index repeatedly
-            self.frame_index = (self.frame_index + 1) % len(self.animation)
+            if self.frame_index >= len(self.animation) - 1:
+
+                # set the flag for an animation that should not repeat
+                if not self.loop:
+                    self.done = True
+                else:
+                    self.frame_index = 0
+
+            else:
+                self.frame_index += 1
 
             # reset the cumulative time for the next frame
             self.current_time = 0
 
-            # set the flag for an animation that should not repeat
-            if not self.loop:
-                self.done = True
-
         # return the current frame of the animation list
         return self.animation[self.frame_index]
+
+    def reset(self):
+        self.current_time = 0
+        self.frame_index = 0
+        self.done = False

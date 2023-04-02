@@ -1,4 +1,5 @@
 import pygame as pg
+import sys
 # from settings import FONT
 
 class Button():
@@ -34,6 +35,8 @@ class Button():
 
                     if self.onClickFunction != None:
                         self.onClickFunction()
+                        if self.onClickFunction == pg.quit:
+                            sys.exit()
 
     def draw(self):
         self.buttonSurface.blit(self.buttonSurf, (

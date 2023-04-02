@@ -7,6 +7,20 @@ from animation import Animator
 from constants import *
 from support import *
 
+"""
+Animation update order:
+attacks
+crouch attacks
+crouch
+
+status update order:
+attacks
+jump
+crouch
+walk
+idle
+"""
+
 
 class Fighter():
     def __init__(self, game, num, x, y, char, mode="Play"):
@@ -27,7 +41,7 @@ class Fighter():
         self.import_character_assets()
         self.animation = Animator(game, self.animations["idle"], ANIMATION_SPEEDS["idle"], loop=True)
         self.status = 'idle'
-        self.image = self.animations[self.status][0]
+        self.image = self.animations[self.status].animation[0]
         self.AI = num - 1
         if self.AI:
             img = pg.transform.flip(self.image, True, False)
@@ -64,12 +78,18 @@ class Fighter():
 
 
     def import_character_assets(self):
-        self.animations = {'idle':[],'run':[],'jump':[],'fall':[],'crouch':[],'hit':[],'LP':[],'MP':[],'HP':[],'LK':[],'MK':[],'HK':[],'2LP':[],'2MP':[],'2HP':[],'2LK':[]} 
-        for animation in self.animations:
-            full_path = f'./assets/characters/{self.character}/{animation}/'
+        self.animations = {}
+        self.animation_keys = {'idle':[],'run':[],'jump':[],'fall':[],'crouch':[],'hit':[],'LP':[],'MP':[],'HP':[],'LK':[],'MK':[],'HK':[],'2LP':[],'2MP':[],'2HP':[],'2LK':[]} 
+        for key in self.animation_keys:
+            full_path = f'./assets/characters/{self.character}/{key}/'
             original_images = import_folder(full_path)
             scaled_images = scale_images(original_images, (self.size, self.size))
-            self.animations[animation] = scaled_images
+            if key in ["idle", "run"]:
+                loop = True
+            else:
+                loop = False
+            animation = Animator(self.game, scaled_images, ANIMATION_SPEEDS[key], loop)
+            self.animations[key] = animation
 
 
     ''' Processes a single event from any event source.
@@ -83,22 +103,12 @@ class Fighter():
 
             if self.crouching:
                 if event.key in (Actions.LP, Actions.MP, Actions.HP, Actions.LK):#, Actions.MK, Actions.HK):
-                    attack_key = "2" + ATTACKS[str(event.key)]
-                    self.update_status(attack_key)
-                    print(attack_key)
-                    # attack_key = '2' + self.game.settings["attacks"][str(event.key.name)]
-            
+                    attack_key = '2' + self.game.settings["attacks"][str(event.key)]
             elif self.on_ground:
-                if event.key in (Actions.LP, Actions.MP, Actions.HP, Actions.LK, Actions.MK, Actions.HK):
-                    attack_key = ATTACKS[str(event.key)]
-                    self.update_status(attack_key)
-                    print(attack_key)
-                    # attack_key = self.game.settings["attacks"][Actions.LP]
-                    #[str(event.key.name)]
+                if str(event.key) in self.game.settings["attacks"]:
+                    attack_key = self.game.settings["attacks"][str(event.key)]
 
             if attack_key is not None:
-                self.attacking = True
-                self.attack_cooldown = 50  # ms
                 self.status = attack_key
             self.status
         self.move_combo.append(event.key)
@@ -111,39 +121,45 @@ class Fighter():
         which is updated after all key presses are handled.
     '''
     def update(self, dt):
-        status = self.status
-
         if self.AI:
             pressed_keys = self.pressed_keys
         else:
             pressed_keys = pg.key.get_pressed()
 
+        walking = False
+
         if not self.attacking:
-
-            #basic movements
-            if pressed_keys[Actions.BACK]:
-                self.rect.x -= self.move_speed * dt
-                status = "run"
-
-            elif pressed_keys[Actions.FORWARD]:
-                self.rect.x += self.move_speed * dt
-                status = "run"
-
+            # basic movements
             if pressed_keys[Actions.UP] and self.on_ground and not self.jumping:
                 self.dY += self.jump_force
                 self.jumping = True
                 self.on_ground = False
-                status = "jump"
 
             elif pressed_keys[Actions.DOWN] and self.on_ground:
                 self.crouching = True
-                status = "crouch"
                 self.dX = 0
 
             else:
-                if not self.jumping and status == self.status:
-                    status = "idle"
                 self.crouching = False
+
+            if pressed_keys[Actions.BACK]:
+                self.rect.x -= self.move_speed * dt
+                if self.on_ground:
+                    walking = True
+
+            elif pressed_keys[Actions.FORWARD]:
+                self.rect.x += self.move_speed * dt
+                if self.on_ground:
+                    walking = True
+
+        if self.jumping:
+            status = "jump"
+        elif self.crouching:
+            status = "crouch"
+        elif walking:
+            status = "run"
+        else:
+            status = "idle"
 
         if self.projectile is not None:
             self.update_projectile()
@@ -177,17 +193,23 @@ class Fighter():
             self.on_ground = False
 
         # update animation status and image
-        self.update_status(status)
+        if not self.attacking:
+            if self.status in ACTIONS:
+                self.attacking = True
+                self.attack_cooldown = 50 / 1000  # ms
+            else:
+                self.status = status
+
+        self.animation = self.animations[self.status]
         self.image = self.animation.update(dt)
 
-
-    def update_status(self, new_status):
-        # print(f"NEW STATUS:{new_status}")
-        if new_status != self.status:
-            self.status = new_status
-            # self.animation = Animator(self.game, ATTACKS[new_status], ANIMATION_SPEEDS[new_status])
-            self.animation = Animator(self.game, self.animations[new_status], ANIMATION_SPEEDS[new_status])
-
+        if self.animation.done and not self.animation.loop:
+            if self.status in ACTIONS:
+                self.animation.reset()
+                self.attacking = False
+                self.status = "idle"
+            elif self.status == "crouch" and self.animation.done:
+                self.image = self.animation.animation[3]
 
     def draw(self):
         self.game.screen.blit(self.image, self.rect.center)

@@ -217,7 +217,7 @@ class Game:
 		bg_pos = bg.get_rect().center # wouldnt line up in center for some reason
 		buttons = [
 			Button(self.settings["screen_width"]/2, self.settings["screen_height"]/2, 200, 100, 30, "PLAY", self.home_screen),
-			Button(self.settings["screen_width"] - 100, 0 - 10, 200, 100, 30, "QUIT", pg.QUIT),
+			Button(self.settings["screen_width"] - 100, 0 - 10, 200, 100, 30, "QUIT", pg.quit),
 		]
 
 		# mouse fx
@@ -256,7 +256,7 @@ class Game:
 			Button(70, 200, 200, 100, 30, "BACK", self.main_menu),
 			#Button(70, 120, 200, 100, 30, "TRAINING", self.training),
 			Button(70, 280, 200, 100, 30, "OPTIONS", self.options),
-			Button(self.settings["screen_width"] - 100, 0 - 10, 200, 100, 30, "QUIT", pg.QUIT),
+			Button(self.settings["screen_width"] - 100, 0 - 10, 200, 100, 30, "QUIT", pg.quit),
 		]
 		while True:
 			self.screen.fill('black')
