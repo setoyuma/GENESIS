@@ -59,7 +59,7 @@ class Fighter():
         self.dX = 0
         self.dY = 0
         self.gravity = 1000  # pps
-        self.jump_force = -500  # pps
+        self.jump_force = -600  # pps
         self.move_speed = 300  # pps
 
 
@@ -83,16 +83,24 @@ class Fighter():
 
             if self.crouching:
                 if event.key in (Actions.LP, Actions.MP, Actions.HP, Actions.LK):#, Actions.MK, Actions.HK):
-                    attack_key = '2' + self.game.settings["attacks"][str(event.key.name)]
+                    attack_key = "2" + ATTACKS[str(event.key)]
+                    self.update_status(attack_key)
+                    print(attack_key)
+                    # attack_key = '2' + self.game.settings["attacks"][str(event.key.name)]
+            
             elif self.on_ground:
                 if event.key in (Actions.LP, Actions.MP, Actions.HP, Actions.LK, Actions.MK, Actions.HK):
-                    attack_key = self.game.settings["attacks"][str(event.key.name)]
+                    attack_key = ATTACKS[str(event.key)]
+                    self.update_status(attack_key)
+                    print(attack_key)
+                    # attack_key = self.game.settings["attacks"][Actions.LP]
+                    #[str(event.key.name)]
 
             if attack_key is not None:
                 self.attacking = True
                 self.attack_cooldown = 50  # ms
                 self.status = attack_key
-        
+            self.status
         self.move_combo.append(event.key)
         self.check_combos()
 
@@ -174,8 +182,10 @@ class Fighter():
 
 
     def update_status(self, new_status):
+        # print(f"NEW STATUS:{new_status}")
         if new_status != self.status:
             self.status = new_status
+            # self.animation = Animator(self.game, ATTACKS[new_status], ANIMATION_SPEEDS[new_status])
             self.animation = Animator(self.game, self.animations[new_status], ANIMATION_SPEEDS[new_status])
 
 

@@ -421,7 +421,6 @@ class Game:
 
 	def end_match(self):
 		pass
-
 if __name__ == '__main__':
 	game = Game()
 	game.main_menu()
