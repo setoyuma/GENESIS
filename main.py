@@ -373,8 +373,8 @@ class Game:
 						pause = Pause(self)
 						pause.update()
 			
-			self.player_1.update(self.dt, self.player_2)
-			self.player_2.update(self.dt, self.player_1)
+			self.player_1.update(self.dt, self.player_2, event)
+			self.player_2.update(self.dt, self.player_1, event)
 
 			# environment
 			self.screen.fill('black')

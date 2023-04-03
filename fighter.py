@@ -64,8 +64,8 @@ class Fighter():
         # world
         self.dX = 0
         self.dY = 0
-        self.gravity = 2000  # pps
-        self.jump_force = -800  # pps
+        self.gravity = 5000  # pps
+        self.jump_force = -1500  # pps
         self.jump_cooldown = 0
         self.move_speed = 500  # pps
 
@@ -99,7 +99,7 @@ class Fighter():
 
             if attack_key is not None:
                 self.status = attack_key
-
+            
         self.move_combo.append(event.key)
         self.check_combos()
 
@@ -107,11 +107,16 @@ class Fighter():
         Animation is controlled by the player's status,
         which is updated after all key presses are handled.
     '''
-    def update(self, dt, target):
+    def update(self, dt, target, event):
         if self.super_meter >= 250:
             self.super_meter = 250
 
-        print(self.move_combo)
+        if self.current_hp <= 0:
+            self.current_hp = 0
+            self.alive = False
+        if target.current_hp <= 0:
+            target.current_hp = 0
+            target.alive = False
 
         if self.AI:
             pressed_keys = self.pressed_keys
@@ -216,7 +221,6 @@ class Fighter():
                 self.status = status
         elif self.status in ACTIONS and self.char_data["hitboxes"][self.status][0] == self.animation.frame_index:
             if not self.attacked:
-                self.attacked = True
                 self.attack(target)
 
         if self.hit == True:
@@ -271,22 +275,34 @@ class Fighter():
                 fireball = False
                 damage = self.char_data["damage"][status]
                 self.super_meter += damage * 2
-                print(damage)
                 if target.alive:
                     target.hit = True
+                    self.attacked = True
+                    if "L" in status:
+                        play_sound('./assets/sfx/hit_1.wav')
+                    if "M" in status:
+                        play_sound('./assets/sfx/hit_1.wav')
+                    if "H" in status:
+                        play_sound('./assets/sfx/hit_2.wav')
                     target.current_hp -= damage
                     # target.max_hp -= self.char_data["damage"][status]
-            else:
+            elif damage:
                 fireball = True
                 self.super_meter += damage * 2
                 if target.alive:
                     target.hit = True
                     target.current_hp -= damage
+                    play_sound('./assets/sfx/hit_1.wav')
+
+            else:
+                play_sound('./assets/sfx/whiff_1.wav')
+
+
             '''LAUNCH MOVES'''
             match self.character:
                 case "Homusubi":
                     if status == "2HP" and target.hit:
-                        target.dY -= 800
+                        target.dY -= 1800
             self.hitspark(attack_rect, flip_hit_box, fireball, target)
             self.animated_text = TextAnimation("", 60, 0, target. hit_box.topright, "white", 30, self.game.screen)
             self.animated_text.damage = damage
