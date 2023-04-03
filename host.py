@@ -1,11 +1,14 @@
-import json
-
-from server import Server
-
 """
-This class turns a basic client into a host
-server. An instance of this is created when
-a player creates a session using the lobby.
+NETCODE DOCS
+
+An instance of Client is created when the user
+goes into the online menu. The client initially
+connects to t he central lobby server and
+requests the session list.
+
+Client
+ - initially connects to the central lobby
+ - 
 
 1. Player starts the game
 2. Game creates an instance of Client
@@ -19,17 +22,5 @@ a player creates a session using the lobby.
 9b (OPTIONAL) If a direct connection is not possible, use the lobby server as a relay
 10a. The player 2 client sends events to the host
 10b. The player 1 client manages the gamestate and sends it to player 2
+
 """
-
-class Host(Server):
-    def __init__(self):
-        super().__init__()
-
-    def handle_message(self, data, client):
-        decoded_data = json.loads(data.decode('utf-8'))
-
-        match decoded_data["type"]:
-
-            # gamestate update from server
-            case 'UPDATE':
-                pass

@@ -416,8 +416,8 @@ class Game:
 		data = {
 			"type": "register_session",
 			"session_info": {
-				"name": "Test session",
-				"id": 4
+				"name": "Test session 2",
+				"id": 5
 			}
 		}
 		self.client.send_message(data)

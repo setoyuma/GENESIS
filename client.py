@@ -40,6 +40,7 @@ class Client:
         match decoded_data["type"]:
 
             case 'session_list':
+                print(decoded_data["sessions"])
                 self.game.session_buttons = []
                 for i, session in enumerate(decoded_data["sessions"]):
                     button = Button(100,40*i+30,100,50,30,session)
