@@ -15,11 +15,7 @@ a hosting service.
 class Lobby(Server):
     def __init__(self, ip, port):
         super().__init__(ip, port)
-        self.sessions = {
-            "Name": "1",
-            "McDonalds": "2",
-            "Burger King": "3"
-        }
+        self.sessions = {}
 
     def handle_message(self, data, client):
         decoded_data = json.loads(data.decode('utf-8'))

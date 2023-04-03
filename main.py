@@ -12,9 +12,12 @@ from slider import Slider
 from pause import Pause
 from constants import * 
 from support import *
+
+# Networking
 from lobby import Lobby
-from server import *
+from server import Server
 from client import Client
+from host import Host
 
 health_bar_colors = ColorGradient((0,255,0), (255,0,0)).generate_gradient()
 blast_polygon_colors = ColorGradient((255,255,255), (255,255,0)).generate_gradient()
@@ -29,8 +32,8 @@ class Game:
 		self.import_assets()
 		self.setup_pygame()
 
-		self.hit_stun = None	
-		self.client = Client(self, "73.247.171.208", 8001, "10.0.0.111", 5000)
+		self.hit_stun = None
+		self.client = Client(self, "73.247.171.208", 8001)  # client sends data to lobby server by default
 
 		# Game BG + BG Animation
 		self.bg = BACKGROUNDS["carnival"]
@@ -221,10 +224,10 @@ class Game:
 
 				for button in buttons:
 					button.Process(event)
-			
+
 			for button in buttons:
 				button.draw()
-			
+
 			particle1.emit()
 			self.send_frame()
 
@@ -248,11 +251,11 @@ class Game:
 
 			for event in pg.event.get():
 				check_for_quit(event)
-	
+
 				if event.type == PARTICLE_EVENT:
 					mouse_pos = pg.mouse.get_pos()
 					particle1.addParticles(mouse_pos[0], mouse_pos[1])
-            
+
 				for button in buttons:
 					button.Process(event)
 
@@ -319,7 +322,7 @@ class Game:
 
 			for event in pg.event.get():
 				check_for_quit(event)
-				
+
 				if event.type == PARTICLE_EVENT:
 					mouse_pos = pg.mouse.get_pos()
 					particle1.addParticles(mouse_pos[0], mouse_pos[1])
@@ -380,7 +383,7 @@ class Game:
 						self.paused = True
 						pause = Pause(self)
 						pause.update()
-			
+
 			self.player_1.update(self.dt, self.player_2)
 			self.player_2.update(self.dt, self.player_1)
 			self.camera.update(self.player_1, self.player_2)
@@ -408,10 +411,14 @@ class Game:
 
 	def create_lobby(self):
 		# turn client into host
-		# sefl.client = Host()
-		# send a registration request to lobby
+		self.client = Host()
+		# send a registration request to central lobby
 		data = {
-			"type" : "register_session",
+			"type": "register_session",
+			"session_info": {
+				"name": "Test session",
+				"id": 4
+			}
 		}
 		self.client.send_message(data)
 		# if connected draw the session creation screen
@@ -434,7 +441,7 @@ class Game:
 
 			for event in pg.event.get():
 				check_for_quit(event)
-				
+
 				if event.type == PARTICLE_EVENT:
 					mouse_pos = pg.mouse.get_pos()
 					particle1.addParticles(mouse_pos[0], mouse_pos[1])
@@ -449,17 +456,6 @@ class Game:
 			self.send_frame()
 
 	def lobby_view(self):
-		self.sessions = {
-			
-		}
-		# send a list_sessions message to lobby
-		data = {
-			"type" : 'list_sessions',
-
-		}
-		self.client.send_message(data)
-		
-		# allow join or create  
 		pg.display.set_caption("Kami No Ken: LOBBY PLAY")
 		mainMenuBG = get_image("./assets/backgrounds/main-menu/KnK.png")
 		particle1 = ParticlePrinciple()
@@ -470,40 +466,43 @@ class Game:
 			Button(self.screen.get_width()/4, self.screen.get_height()/2, 200, 100, 30, "JOIN SESSION", self.create_lobby),
 		]
 
+		self.session_buttons = []
+		# request the session list from lobby server
+		data = {"type" : 'list_sessions'}
+		self.client.send_message(data)
 
 		while True:
 			self.screen.fill('black')
 			self.screen.blit(mainMenuBG,(480,115))
 
-
 			for event in pg.event.get():
 				check_for_quit(event)
-	
+
 				if event.type == PARTICLE_EVENT:
 					mouse_pos = pg.mouse.get_pos()
 					particle1.addParticles(mouse_pos[0], mouse_pos[1])
             
 				for button in self.buttons:
 					button.Process(event)
+				for session_button in self.session_buttons:
+					session_button.Process(event)
 
+			for session_button in self.session_buttons:
+				session_button.draw()
 			for button in self.buttons:
 				button.draw()
 			
 			particle1.emit()
 			self.send_frame()
 
-
 	def play_online(self):
 		pg.display.set_caption("Kami No Ken: GENESIS")
 		pg.mixer.music.load(f"./assets/music/{SONGS[2]}.wav")
 		pg.mixer.music.play(-1)
 
-		
 		self.player_1 = Fighter(self, 1, 200, 510, "Homusubi", "Play")
 		self.player_2 = Fighter(self, 2, 1000, 570, "Homusubi", "Play")
 		self.players = [self.player_2, self.player_1]  # reversed for client draw order
-		# assumes this client is a guest of a session
-		self.player = self.player_2
 
 		COUNT_DOWN = pg.USEREVENT + 1
 		self.match_time = 99
@@ -545,7 +544,7 @@ class Game:
 						self.paused = True
 						pause = Pause(self)
 						pause.update()
-			
+
 			self.player_1.update(self.dt, self.player_2)
 			self.player_2.update(self.dt, self.player_1)
 			self.camera.update(self.player_1, self.player_2)
