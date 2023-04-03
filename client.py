@@ -1,6 +1,7 @@
 import socket
 import threading
 import json
+from button import Button
 
 class Client:
     def __init__(self, game, server_ip, server_port, local_ip, local_port):
@@ -26,7 +27,10 @@ class Client:
 
             case 'session_list':
                 self.game.sessions = decoded_data["sessions"]
-                
+                for session in self.game.sessions:
+                    button = Button(100,00,100,50,30,"session")
+                    self.game.buttons.append(button)
+
                 
 
         print(data)

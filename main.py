@@ -30,8 +30,7 @@ class Game:
 		self.setup_pygame()
 
 		self.hit_stun = None	
-		self.client = Client(self)
-		
+		self.client = Client(self, "73.247.171.208", 8001, "10.0.0.29", 5000)
 
 		# Game BG + BG Animation
 		self.bg = BACKGROUNDS["carnival"]
@@ -420,7 +419,7 @@ class Game:
 		# sefl.client = Host()
 		# send a registration request to lobby
 		data = {
-			"register_session" : '',
+			"type" : "register_session",
 		}
 		self.client.send_message(data)
 		# if connected draw the session creation screen
@@ -458,29 +457,32 @@ class Game:
 			self.send_frame()
 
 	def lobby_view(self):
-		self.sessions = {}
+		self.sessions = {
+			
+		}
 		# send a list_sessions message to lobby
 		data = {
-			"list_sessions" : '',
+			"type" : 'list_sessions',
+
 		}
 		self.client.send_message(data)
+		
 		# allow join or create  
 		pg.display.set_caption("Kami No Ken: LOBBY PLAY")
 		mainMenuBG = get_image("./assets/backgrounds/main-menu/KnK.png")
 		particle1 = ParticlePrinciple()
 		PARTICLE_EVENT = pg.USEREVENT + 1
 		pg.time.set_timer(PARTICLE_EVENT,5)
-		buttons = [
-			Button(self.screen.get_width()/2, self.screen.get_height()/2, 200, 100, 30, "CREATE LOBBY", self.create_lobby),
-			Button(self.screen.get_width()/4, self.screen.get_height()/2, 200, 100, 30, "JOIN LOBBY", self.create_lobby),
+		self.buttons = [
+			Button(self.screen.get_width()/2, self.screen.get_height()/2, 200, 100, 30, "CREATE SESSION", self.create_lobby),
+			Button(self.screen.get_width()/4, self.screen.get_height()/2, 200, 100, 30, "JOIN SESSION", self.create_lobby),
 		]
+
 
 		while True:
 			self.screen.fill('black')
 			self.screen.blit(mainMenuBG,(480,115))
 
-			for i, session in enum(self.sessions):
-				draw_text(self.screen, f"Session {i+1}", (500, (i*50) + 20))
 
 			for event in pg.event.get():
 				check_for_quit(event)
@@ -489,12 +491,16 @@ class Game:
 					mouse_pos = pg.mouse.get_pos()
 					particle1.addParticles(mouse_pos[0], mouse_pos[1])
             
-				for button in buttons:
+				for button in self.buttons:
 					button.Process(event)
 
-			for button in buttons:
+			for button in self.buttons:
 				button.draw()
-
+			
+			for i, session in enumerate(self.sessions):
+				print(session)
+				button_text = draw_text(self.screen, f"Session {i+1}", (500, (i*50) + 20))
+			
 			particle1.emit()
 			self.send_frame()
 
