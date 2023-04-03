@@ -6,6 +6,7 @@ from fighter import Fighter
 from particle import ParticlePrinciple
 from color_animation import ColorGradient
 from animation import Animator
+from camera import Camera
 from button import Button
 from slider import Slider
 from pause import Pause
@@ -29,6 +30,8 @@ class Game:
 
 		# Game BG + BG Animation
 		self.bg = BACKGROUNDS["carnival"]
+		# Instantiate the camera with the size of the window
+		self.camera = Camera(self.settings["screen_width"], self.settings["screen_height"])
 		self.animation = Animator(self, self.bg, 0.25)
 		self.frame_index = 0
 		self.animation_speed = 0.25
@@ -373,12 +376,18 @@ class Game:
 						pause = Pause(self)
 						pause.update()
 			
+<<<<<<< Updated upstream
 			self.player_1.update(self.dt, self.player_2, event)
 			self.player_2.update(self.dt, self.player_1, event)
+=======
+			self.player_1.update(self.dt, self.player_2)
+			self.player_2.update(self.dt, self.player_1)
+			self.camera.update(self.player_1, self.player_2)
+>>>>>>> Stashed changes
 
 			# environment
 			self.screen.fill('black')
-			self.screen.blit(self.background.update(self.dt), (0,0))
+			self.screen.blit(self.background.update(self.dt), (-self.camera.rect.x, -self.camera.rect.y))
 			self.draw_HUD()
 			self.show_fps()
 			#if self.player_1.attack_rect is not None:
