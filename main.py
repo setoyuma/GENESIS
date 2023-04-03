@@ -414,8 +414,8 @@ class Game:
 			self.screen.blit(self.background.update(self.dt), (0,0))
 			self.draw_HUD()
 			self.show_fps()
-			if self.player_1.attack_rect is not None:
-				pg.draw.rect(self.screen, "green", self.player_1.attack_rect)
+			#if self.player_1.attack_rect is not None:
+			#	pg.draw.rect(self.screen, "green", self.player_1.attack_rect)
 
 			# srpites
 			for player in self.players:

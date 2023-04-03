@@ -25,7 +25,7 @@ class Fighter():
         self.blast_meter = 0
         self.speed = 10
 
-        self.attack_rect = None
+        self.attack_rect = None  # for debug
 
         # animations
         self.import_character_assets()
@@ -245,18 +245,21 @@ class Fighter():
                 self.hit = False
 
     def draw(self):
-        pygame.draw.rect(self.game.screen, (0,0,255), self.rect)
-        pygame.draw.rect(self.game.screen, (0,255,0), self.hit_box)
+        #pygame.draw.rect(self.game.screen, (0,0,255), self.rect)
+        #pygame.draw.rect(self.game.screen, (0,255,0), self.hit_box)
         self.game.screen.blit(self.image, (self.rect.x - 90, self.rect.y - 15))
         self.particle.emit()
         if self.projectile is not None:
-            pygame.draw.rect(self.game.screen, (0,255,0), self.projectile.rect)
             self.projectile.draw(self.game.screen)
+            #pygame.draw.rect(self.game.screen, (0,255,0), self.projectile.rect)
 
     def attack(self, target, damage=None):
         # get hitbox attributes for the active frame
         hitbox_attrs = self.char_data["hitboxes"]
-        offset_x, offset_y, w, h = hitbox_attrs[self.status][1]
+        status = self.status
+        if damage is not None:
+            status = "0"  # fireball doesnt need offset
+        offset_x, offset_y, w, h = hitbox_attrs[status][1]
         # calculate hitbox position using hitbox attributes and player rect
         flip_hit_box = self.rect.w
         if not self.facing_right:
@@ -271,18 +274,18 @@ class Fighter():
         if (attack_rect.colliderect(target.hit_box) and not self.throwing_proj) or damage is not None:
             if damage is None:
                 fireball = False
-                damage = self.char_data["damage"][self.status]
+                damage = self.char_data["damage"][status]
                 self.super_meter += damage * 2
             else:
                 fireball = True
                 self.super_meter += damage * 2
-            if target.alive:
+            if target.alive and damage is None:
                 target.hit = True
-                target.max_hp -= self.char_data["damage"][self.status]
+                target.max_hp -= self.char_data["damage"][status]
             '''LAUNCH MOVES'''
             match self.character:
                 case "Homusubi":
-                    if self.status == "2HP" and target.hit:
+                    if status == "2HP" and target.hit:
                         target.dY -= 800
             self.hitspark(attack_rect, flip_hit_box, fireball, target)
             self.animated_text = TextAnimation("", 60, 0, target. hit_box.topright, "white", 30, self.game.screen)
@@ -338,7 +341,7 @@ class Fighter():
             target.hit = True
             self.projectile = None
             self.throwing_proj = False
-            # self.attack(target, damage)
+            self.attack(target, damage)
 
         elif self.projectile.off_screen:
             self.projectile = None
@@ -353,7 +356,7 @@ class Fighter():
             if self.projectile is None:
                 
                 '''FIREBALLS'''
-                if move_combo == list(self.inputs["LFireball"]):# and self.super_meter >= 50:
+                if move_combo == list(self.inputs["LFireball"]) and self.super_meter >= 50:
                     self.projectile = Projectile("FSTECH", "LFB", 40, self.rect.center, self, self.facing_right, self.game)
                     self.super_meter -= 50
 
