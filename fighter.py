@@ -19,13 +19,11 @@ class Fighter():
         self.max_hp = FIGHTER_DATA[char]["max hp"]
         self.size = FIGHTER_DATA[char]["size"]
         self.scale = FIGHTER_DATA[char]["scale"]
-        self.inputs = FIGHTER_DATA[char]["combos"]
-        self.input_values = self.inputs.values()
+        self.inputs = FIGHTER_DATA[char]["combos"]  # combo names
+        self.input_values = self.inputs.values() # combo moves
         self.super_meter = 0
         self.blast_meter = 0
         self.speed = 10
-
-        self.attack_rect = None  # for debug
 
         # animations
         self.import_character_assets()
@@ -50,6 +48,7 @@ class Fighter():
         self.throwing_proj = False
         self.animated_text = None
         self.frames_without_combo = 0
+        self.attack_rect = None  # for debug
 
         # flags
         self.alive = True
@@ -70,7 +69,6 @@ class Fighter():
         self.jump_cooldown = 0
         self.move_speed = 500  # pps
 
-
     def import_character_assets(self):
         self.animations = {}
         self.animation_keys = {'idle':[],'run':[],'jump':[],'crouch':[],'hit':[],'LP':[],'MP':[],'HP':[],'LK':[],'MK':[],'HK':[],'2LP':[],'2MP':[],'2HP':[],'2LK':[], '2MK':[]} 
@@ -85,11 +83,9 @@ class Fighter():
             animation = Animator(self.game, scaled_images, FRAME_DURATIONS[key], loop)
             self.animations[key] = animation
 
-
-    ''' Processes a single event from any event source.
-        Updates single-press inputs like basic attacks,
-        updates the player's move combo, then checks for
-        valid combos and clears it if necessary.
+    ''' Processes a single event. Updates single-press 
+        inputs like basic attacks, updates the player's 
+        input combo, then checks for valid combos.
     '''
     def handle_event(self, event):
         if not self.attacking and self.attack_cooldown == 0:
@@ -104,14 +100,11 @@ class Fighter():
             if attack_key is not None:
                 self.status = attack_key
 
-
         self.move_combo.append(event.key)
         self.check_combos()
 
-
-    ''' Updates things not related to frame-dependant input eg
-        moving, gravity, jumping, launching, animations, etc.
-        Animation is controlled by the player's animation status,
+    ''' Updates things not related to frame-dependant
+        Animation is controlled by the player's status,
         which is updated after all key presses are handled.
     '''
     def update(self, dt, target):
@@ -367,7 +360,6 @@ class Fighter():
                 elif move_combo == list(self.inputs["HFireball"]) and self.super_meter >= 50:
                     self.projectile = Projectile("FSTECH", "HFB", 98, self.rect.center, self, self.facing_right, self.game)
                     self.super_meter -= 50
-
 
                 '''DP'S'''
                 if "LDP" in list(self.inputs):

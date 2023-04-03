@@ -12,31 +12,6 @@ from pause import Pause
 from constants import * 
 from support import *
 
-"""
-Refactor notes
-
-All animations should use the same parent class and will have its own
-frame_index variable, and the current time in ms since the last 
-frame will be stored in game.dt
-
-Each animation will have a speed parameter based on a dictionary containing
-the values for each animation.
-
-Fighter class will have an update method and a handle_event method. update
-deals with non-input events like gravity, collision checks, etc.
-handle_event is passed events from either the pygame event queue, the AI
-action space, or the server data, but will all be handled the same way.
-
-The handle_event method will also use self.combo and self.game.dt to determine
-if any valid combinations of input have been made in a valid amount of time.
-This method will also call an update to the current animation if there is one.
-
-AI Mode
- - Player1 inputs from pygame event queue
- - Player2 inputs from AI model
- - 
-
-"""
 health_bar_colors = ColorGradient((0,255,0), (255,0,0)).generate_gradient()
 blast_polygon_colors = ColorGradient((255,255,255), (255,255,0)).generate_gradient()
 
@@ -174,8 +149,7 @@ class Game:
 		if player.super_meter >= 50 and player.blast_cooldown == 0:
 			if player.blast_meter < len(blast_polygon_colors)-2:
 				player.blast_meter += 2
-
-		elif player.blast_cooldown > 0:
+		else:
 			player.blast_meter = 0
 
 		pg.draw.polygon(self.screen, blast_polygon_colors[player.blast_meter], points)
@@ -193,13 +167,13 @@ class Game:
 		self.screen.blit(portrait, pos)
 
 	def show_match_time(self):
-		if self.time_accumulator >= 1:  # If 1 or more seconds have passed
+		if self.time_accumulator >= 1:
 			self.match_time -= 1
-			self.time_accumulator -= 1  # Subtract 1 second from the accumulator
+			self.time_accumulator -= 1
 
 			if self.match_time <= 0:
 				self.match_time = 0
-				self.end_match()  # End the match when the timer reaches 0
+				self.end_match()
 
 		time = str(self.match_time)
 		for i, char in enumerate(time):
@@ -263,20 +237,13 @@ class Game:
 		while True:
 			self.screen.fill('black')
 			self.screen.blit(mainMenuBG,(480,115))
+
 			for event in pg.event.get():
 				check_for_quit(event)
 	
 				if event.type == PARTICLE_EVENT:
 					mouse_pos = pg.mouse.get_pos()
 					particle1.addParticles(mouse_pos[0], mouse_pos[1])
-				
-				elif event.type == pg.KEYDOWN:
-					if event.key == pg.K_SPACE:
-						self.Play()
-
-					match event.key:
-						case pg.K_a, pg.K_w:
-							print("up-back")
             
 				for button in buttons:
 					button.Process(event)
@@ -286,9 +253,6 @@ class Game:
 
 			particle1.emit()
 			self.send_frame()
-	
-	def scale_window(self):
-		pg.display.toggle_fullscreen()
 
 	def options(self):
 		pg.display.set_caption("Kami No Ken: OPTIONS")
@@ -299,7 +263,7 @@ class Game:
 		buttons = [
 			Button(self.settings["screen_width"]//2, 480, 200, 100, 30, "BACK", self.home_screen),
 			Button(self.settings["screen_width"]//2, 320, 200, 100, 30, "SOUND", self.sound_settings),
-			Button(self.settings["screen_width"]//2, 400, 200, 100, 30, "FULLSCREEN", self.scale_window),
+			Button(self.settings["screen_width"]//2, 400, 200, 100, 30, "FULLSCREEN", pg.display.toggle_fullscreen),
 			Button(self.settings["screen_width"] - 100, 0 - 10, 200, 100, 30, "QUIT", pg.quit),
 		]
 		while True:
@@ -337,32 +301,34 @@ class Game:
 		while True:
 			self.screen.fill('black')
 			self.screen.blit(mainMenuBG,(480,115))
+
 			slider.draw(self.screen)
 			mouse_pos = pg.mouse.get_pos()
 			if slider.active:
 				slider.handle_event(self.screen, mouse_pos[0])
 				self.volume = slider.get_volume()
 				pg.mixer.music.set_volume(self.volume / 100)
+
 			for event in pg.event.get():
 				check_for_quit(event)
 				
 				if event.type == PARTICLE_EVENT:
 					mouse_pos = pg.mouse.get_pos()
 					particle1.addParticles(mouse_pos[0], mouse_pos[1])
-				
-				elif event.type == pg.KEYDOWN:
-					if event.key == pg.K_SPACE:
-						self.Play()
+
 				elif event.type == pg.MOUSEBUTTONDOWN and event.button == 1 and slider.on_slider(mouse_pos[0], mouse_pos[1]):
 					#slider.on_slider_hold(mouse_pos[0], mouse_pos[1])
 					slider.active = True
 					slider.handle_event(self.screen, mouse_pos[0])
 					self.volume = slider.get_volume()
 					pg.mixer.music.set_volume(self.volume/100)
+
 				elif event.type == pg.MOUSEBUTTONUP:
 					slider.active = False
+
 				volume_button.Process(event)
 				back_button.Process(event)
+
 			volume_button.draw()
 			back_button.draw()
 			particle1.emit()
@@ -386,6 +352,7 @@ class Game:
 				self.hit_stun = False
 			else:
 				self.stun_frames += 0.5
+
 			# process client events
 			for event in pg.event.get():
 				check_for_quit(event)
@@ -436,4 +403,3 @@ class Game:
 if __name__ == '__main__':
 	game = Game()
 	game.main_menu()
-	# game.play_local()

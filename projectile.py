@@ -5,7 +5,6 @@ from support import *
 
 class Projectile():
     def __init__(self, name, type, size, spawn_pos, player, facing_right, game):
-        # self.image = anim_list[0]
         self.name = name
         self.type = type
         self.size = size

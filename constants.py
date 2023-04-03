@@ -1,8 +1,5 @@
 import pygame as pg
 
-'''ACTIONS'''  
-# A variable name in a case clause is treated as a name capture pattern.
-# so i added them to a class namespace and it works
 class Actions:
     UP = pg.K_w
     DOWN = pg.K_s
@@ -14,9 +11,6 @@ class Actions:
     LK = pg.K_k
     MK = pg.K_l
     HK = pg.K_SEMICOLON
-
-
-
 
 SONGS = [
     "main",
@@ -153,10 +147,7 @@ UNUSED_INPUTS = {
     "LTATSU":(Actions.DOWN, Actions.BACK, Actions.LK)
 }
 
-
-
 '''NON-COMBO ACTIONS'''
-
 ATTACKS =  {
        "105" : "LP",
         "111" : "MP",
@@ -165,7 +156,6 @@ ATTACKS =  {
         "108" : "MK",
         "59" : "HK",
     }
-
 
 ACTIONS = [
     'LP',
