@@ -114,7 +114,7 @@ class Game:
 		self.screen.blit(self.hud_bg_surf, (0,0))
 
 	def drawHealthBar(self, player):
-		ratio = player.max_hp / FIGHTER_DATA[player.character]["max hp"]
+		ratio = player.current_hp / FIGHTER_DATA[player.character]["max hp"]
 		screen_width = self.settings["screen_width"]
 		right_x = screen_width - 33
 

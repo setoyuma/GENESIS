@@ -16,7 +16,7 @@ class Fighter():
 
         # stats
         self.char_data = FIGHTER_DATA[char]
-        self.max_hp = FIGHTER_DATA[char]["max hp"]
+        self.current_hp = FIGHTER_DATA[char]["max hp"]
         self.size = FIGHTER_DATA[char]["size"]
         self.scale = FIGHTER_DATA[char]["scale"]
         self.inputs = FIGHTER_DATA[char]["combos"]  # combo names
@@ -71,7 +71,7 @@ class Fighter():
 
     def import_character_assets(self):
         self.animations = {}
-        self.animation_keys = {'idle':[],'run':[],'jump':[],'crouch':[],'hit':[],'LP':[],'MP':[],'HP':[],'LK':[],'MK':[],'HK':[],'2LP':[],'2MP':[],'2HP':[],'2LK':[], '2MK':[]} 
+        self.animation_keys = {'idle':[],'run':[],'jump':[],'crouch':[],'hit':[],'LP':[],'MP':[],'HP':[],'LK':[],'MK':[],'HK':[],'2LP':[],'2MP':[],'2HP':[],'2LK':[],'2MK':[],'2HK':[]} 
         for key in self.animation_keys:
             full_path = f'./assets/characters/{self.character}/{key}/'
             original_images = import_folder(full_path)
@@ -91,7 +91,7 @@ class Fighter():
         if not self.attacking and self.attack_cooldown == 0:
             attack_key = None
             if self.crouching:
-                if event.key in (Actions.LP, Actions.MP, Actions.HP, Actions.LK, Actions.MK):#, Actions.HK):
+                if event.key in (Actions.LP, Actions.MP, Actions.HP, Actions.LK, Actions.MK, Actions.HK):
                     attack_key = '2' + self.game.settings["attacks"][str(event.key)]
             elif self.on_ground:
                 if str(event.key) in self.game.settings["attacks"]:
@@ -110,6 +110,8 @@ class Fighter():
     def update(self, dt, target):
         if self.super_meter >= 250:
             self.super_meter = 250
+
+        print(self.move_combo)
 
         if self.AI:
             pressed_keys = self.pressed_keys
@@ -269,12 +271,17 @@ class Fighter():
                 fireball = False
                 damage = self.char_data["damage"][status]
                 self.super_meter += damage * 2
+                print(damage)
+                if target.alive:
+                    target.hit = True
+                    target.current_hp -= damage
+                    # target.max_hp -= self.char_data["damage"][status]
             else:
                 fireball = True
                 self.super_meter += damage * 2
-            if target.alive and damage is None:
-                target.hit = True
-                target.max_hp -= self.char_data["damage"][status]
+                if target.alive:
+                    target.hit = True
+                    target.current_hp -= damage
             '''LAUNCH MOVES'''
             match self.character:
                 case "Homusubi":

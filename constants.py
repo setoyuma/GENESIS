@@ -42,6 +42,7 @@ FIGHTER_DATA = {
             "2HP": 15,
             "2LK": 5,
             "2MK": 5,
+            "2HK": 8,
         },
         "hitboxes": {
             "0": [0, (0,0,0,0)],
@@ -56,6 +57,7 @@ FIGHTER_DATA = {
             "2HP": [2, (-10, 0, 100, 150)],
             "2LK": [2, (-10, 0, 100, 150)],
             "2MK": [2, (-10, 0, 100, 150)],
+            "2HK": [2, (-10, 0, 100, 150)],
         },
         "combos": {
             "LFireball":(Actions.DOWN, Actions.FORWARD, Actions.LP),
@@ -114,7 +116,7 @@ FRAME_DURATIONS = {
     'LP': 0.02,
     'MP': 0.02,
     'HP': 0.02,
-    'LK': 0.06,
+    'LK': 0.04,
     'MK': 0.05,
     'HK': 0.06,
     '2LP': 0.03,
@@ -122,8 +124,9 @@ FRAME_DURATIONS = {
     '2HP': 0.06,
     '2LK': 0.04,
     '2MK': 0.05,
+    '2HK': 0.03,
     'bg': 0.07,
-    'idle': 0.09,
+    'idle': 0.07,
     'run': 0.07,
     'jump': 0.1,
     'crouch': 0.02,
@@ -168,7 +171,8 @@ ACTIONS = [
     '2MP',
     '2HP',
     '2LK',
-    '2MK'
+    '2MK',
+    '2HK',
     ]
 
 '''(UN-USED) CHARACTER INPUTS'''
