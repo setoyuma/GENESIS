@@ -21,19 +21,23 @@ class Client:
             self.handle_message(data, addr)
 
     def handle_message(self, data, addr):
-        decoded_data = json.loads(data)
+        decoded_data = json.loads(data.decode('utf-8'))
 
         match decoded_data["type"]:
 
             case 'session_list':
                 self.game.sessions = decoded_data["sessions"]
-                for session in self.game.sessions:
-                    button = Button(100,00,100,50,30,"session")
+                for i, session in enumerate(self.game.sessions):
+                    button = Button(100,40*i+30,100,50,30,"session")
                     self.game.buttons.append(button)
 
-                
+            # gamestate update from server
+            case 'UPDATE':
+                pass
 
-        print(data)
+            # server no longer active
+            case 'DISCONNECT':
+                pass
 
     def send_message(self, message):
         self.sock.sendto(json.dumps(message).encode('utf-8'), (self.server_ip, self.server_port))

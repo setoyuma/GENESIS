@@ -30,7 +30,7 @@ class Game:
 		self.setup_pygame()
 
 		self.hit_stun = None	
-		self.client = Client(self, "73.247.171.208", 8001, "10.0.0.29", 5000)
+		self.client = Client(self, "73.247.171.208", 8001, "10.0.0.111", 5000)
 
 		# Game BG + BG Animation
 		self.bg = BACKGROUNDS["carnival"]
@@ -92,14 +92,6 @@ class Game:
 			original_images = import_folder(full_path)
 			scaled_images = scale_images(original_images, (self.settings["screen_width"], self.settings["screen_height"]))
 			self.bg_animations[animation] = scaled_images
-
-	''' This function is called when entering online play.
-		If no server currently exists, create one and wait
-		for a connection. Else, connect to the already
-		existing server.
-	'''
-	def setup_server(self):
-		pass
 
 	def draw_HUD(self):
 		self.draw_hud_bg()
@@ -497,10 +489,6 @@ class Game:
 			for button in self.buttons:
 				button.draw()
 			
-			for i, session in enumerate(self.sessions):
-				print(session)
-				button_text = draw_text(self.screen, f"Session {i+1}", (500, (i*50) + 20))
-			
 			particle1.emit()
 			self.send_frame()
 
@@ -514,6 +502,8 @@ class Game:
 		self.player_1 = Fighter(self, 1, 200, 510, "Homusubi", "Play")
 		self.player_2 = Fighter(self, 2, 1000, 570, "Homusubi", "Play")
 		self.players = [self.player_2, self.player_1]  # reversed for client draw order
+		# assumes this client is a guest of a session
+		self.player = self.player_2
 
 		COUNT_DOWN = pg.USEREVENT + 1
 		self.match_time = 99

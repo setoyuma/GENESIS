@@ -1,15 +1,29 @@
 import socket
 import threading
 import json
-from server import Host 
 
-class Lobby(Host):
+from server import Server
+
+"""
+This class represents the central Lobby server that
+player can connect to at any time from the menu.
+The game client will never create an instance of lobby;
+rather, Lobby would be hosted on a dev's computer or via 
+a hosting service.
+"""
+
+class Lobby(Server):
     def __init__(self, ip, port):
         super().__init__(ip, port)
-        self.sessions = {}
+        self.sessions = {
+            "Name": "1",
+            "McDonalds": "2",
+            "Burger King": "3"
+        }
 
-    def handle_messages(self, client, data):
-        decoded_data = json.loads(data)
+    def handle_message(self, data, client):
+        decoded_data = json.loads(data.decode('utf-8'))
+        print(decoded_data["type"])
 
         match decoded_data["type"]:
 
@@ -38,9 +52,9 @@ class Lobby(Host):
             "type": "session_list",
             "sessions": sessions_list,
         }
-        self.send_message(json.dumps(response), client)
+        self.send_message(response, client)
 
 if __name__ == "__main__":
     lobby = Lobby("0.0.0.0", 8001)
-    lobby_thread = threading.Thread(target=lobby.start)
+    lobby_thread = threading.Thread(target=lobby.listen)
     lobby_thread.start()
