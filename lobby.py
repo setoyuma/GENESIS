@@ -1,8 +1,9 @@
 import socket
 import threading
 import json
+from server import Host 
 
-class Lobby(Server):
+class Lobby(Host):
     def __init__(self, ip, port):
         super().__init__(ip, port)
         self.sessions = {}
@@ -37,7 +38,7 @@ class Lobby(Server):
             "type": "session_list",
             "sessions": sessions_list,
         }
-        self.send_to_client(client, json.dumps(response))
+        self.send_message(json.dumps(response), client)
 
 if __name__ == "__main__":
     lobby = Lobby("0.0.0.0", 8001)

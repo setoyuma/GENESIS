@@ -12,6 +12,9 @@ from slider import Slider
 from pause import Pause
 from constants import * 
 from support import *
+from lobby import Lobby
+from server import *
+from client import Client
 
 health_bar_colors = ColorGradient((0,255,0), (255,0,0)).generate_gradient()
 blast_polygon_colors = ColorGradient((255,255,255), (255,255,0)).generate_gradient()
@@ -27,6 +30,8 @@ class Game:
 		self.setup_pygame()
 
 		self.hit_stun = None	
+		self.client = Client(self)
+		
 
 		# Game BG + BG Animation
 		self.bg = BACKGROUNDS["carnival"]
@@ -240,6 +245,7 @@ class Game:
 		pg.time.set_timer(PARTICLE_EVENT,5)
 		buttons = [
 			Button(70, 40, 200, 100, 30, "LOCAL", self.play_local),
+			Button(70, 120, 200, 100, 30, "ONLINE", self.lobby_view),
 			Button(70, 200, 200, 100, 30, "BACK", self.main_menu),
 			#Button(70, 120, 200, 100, 30, "TRAINING", self.training),
 			Button(70, 280, 200, 100, 30, "OPTIONS", self.options),
@@ -409,11 +415,96 @@ class Game:
 			self.send_frame()
 			self.time_accumulator += self.dt
 
+	def create_lobby(self):
+		# turn client into host
+		# sefl.client = Host()
+		# send a registration request to lobby
+		data = {
+			"register_session" : '',
+		}
+		self.client.send_message(data)
+		# if connected draw the session creation screen
+		pg.display.set_caption("Kami No Ken: CREATE SESSION")
+		bg = get_image("./assets/backgrounds/main-menu/KnK.png")
+		bg_pos = bg.get_rect().center # wouldnt line up in center for some reason
+		buttons = [
+			Button(self.settings["screen_width"]/2, self.settings["screen_height"]/2, 200, 100, 30, "PLAY"),
+			Button(self.settings["screen_width"] - 100, 0 - 10, 200, 100, 30, "QUIT", pg.quit),
+		]
+
+		# mouse fx
+		particle1 = ParticlePrinciple()
+		PARTICLE_EVENT = pg.USEREVENT + 1
+		pg.time.set_timer(PARTICLE_EVENT,5)
+
+		while True:
+			self.screen.fill('black')
+			self.screen.blit(bg, (480,115))
+
+			for event in pg.event.get():
+				check_for_quit(event)
+				
+				if event.type == PARTICLE_EVENT:
+					mouse_pos = pg.mouse.get_pos()
+					particle1.addParticles(mouse_pos[0], mouse_pos[1])
+
+				for button in buttons:
+					button.Process(event)
+			
+			for button in buttons:
+				button.draw()
+			
+			particle1.emit()
+			self.send_frame()
+
+	def lobby_view(self):
+		self.sessions = {}
+		# send a list_sessions message to lobby
+		data = {
+			"list_sessions" : '',
+		}
+		self.client.send_message(data)
+		# allow join or create  
+		pg.display.set_caption("Kami No Ken: LOBBY PLAY")
+		mainMenuBG = get_image("./assets/backgrounds/main-menu/KnK.png")
+		particle1 = ParticlePrinciple()
+		PARTICLE_EVENT = pg.USEREVENT + 1
+		pg.time.set_timer(PARTICLE_EVENT,5)
+		buttons = [
+			Button(self.screen.get_width()/2, self.screen.get_height()/2, 200, 100, 30, "CREATE LOBBY", self.create_lobby),
+			Button(self.screen.get_width()/4, self.screen.get_height()/2, 200, 100, 30, "JOIN LOBBY", self.create_lobby),
+		]
+
+		while True:
+			self.screen.fill('black')
+			self.screen.blit(mainMenuBG,(480,115))
+
+			for i, session in enum(self.sessions):
+				draw_text(self.screen, f"Session {i+1}", (500, (i*50) + 20))
+
+			for event in pg.event.get():
+				check_for_quit(event)
+	
+				if event.type == PARTICLE_EVENT:
+					mouse_pos = pg.mouse.get_pos()
+					particle1.addParticles(mouse_pos[0], mouse_pos[1])
+            
+				for button in buttons:
+					button.Process(event)
+
+			for button in buttons:
+				button.draw()
+
+			particle1.emit()
+			self.send_frame()
+
+
 	def play_online(self):
 		pg.display.set_caption("Kami No Ken: GENESIS")
 		pg.mixer.music.load(f"./assets/music/{SONGS[2]}.wav")
 		pg.mixer.music.play(-1)
 
+		
 		self.player_1 = Fighter(self, 1, 200, 510, "Homusubi", "Play")
 		self.player_2 = Fighter(self, 2, 1000, 570, "Homusubi", "Play")
 		self.players = [self.player_2, self.player_1]  # reversed for client draw order
