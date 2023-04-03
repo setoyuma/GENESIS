@@ -14,7 +14,8 @@ class Client:
         self.sock.bind((self.local_ip, self.local_port))
         self.listen_thread = threading.Thread(target=self.listen, daemon=True)
         self.listen_thread.start()
-
+        self.is_host = False 
+        
     def get_ip(self):
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.settimeout(0)

@@ -22,8 +22,8 @@ a player creates a session using the lobby.
 """
 
 class Host(Server):
-    def __init__(self, ip, port):
-        super().__init__(ip, port)
+    def __init__(self):
+        super().__init__()
 
     def handle_message(self, data, client):
         decoded_data = json.loads(data.decode('utf-8'))

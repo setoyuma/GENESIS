@@ -411,7 +411,7 @@ class Game:
 
 	def create_lobby(self):
 		# turn client into host
-		self.client = Host()
+		self.client.is_host = True
 		# send a registration request to central lobby
 		data = {
 			"type": "register_session",
