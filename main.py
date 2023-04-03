@@ -89,6 +89,14 @@ class Game:
 			scaled_images = scale_images(original_images, (self.settings["screen_width"], self.settings["screen_height"]))
 			self.bg_animations[animation] = scaled_images
 
+	''' This function is called when entering online play.
+		If no server currently exists, create one and wait
+		for a connection. Else, connect to the already
+		existing server.
+	'''
+	def setup_server(self):
+		pass
+
 	def draw_HUD(self):
 		self.draw_hud_bg()
 		for player in self.players:
@@ -376,14 +384,84 @@ class Game:
 						pause = Pause(self)
 						pause.update()
 			
-<<<<<<< Updated upstream
-			self.player_1.update(self.dt, self.player_2, event)
-			self.player_2.update(self.dt, self.player_1, event)
-=======
 			self.player_1.update(self.dt, self.player_2)
 			self.player_2.update(self.dt, self.player_1)
 			self.camera.update(self.player_1, self.player_2)
->>>>>>> Stashed changes
+
+			# environment
+			self.screen.fill('black')
+			self.screen.blit(self.background.update(self.dt), (-self.camera.rect.x, -self.camera.rect.y))
+			self.draw_HUD()
+			self.show_fps()
+			#if self.player_1.attack_rect is not None:
+			#	pg.draw.rect(self.screen, "green", self.player_1.attack_rect)
+
+			# srpites
+			for player in self.players:
+				player.draw()
+
+			# damage text
+			for player in self.players:
+				if player.animated_text is not None:
+					if player.animated_text.update():
+						player.animated_text = None
+
+			self.send_frame()
+			self.time_accumulator += self.dt
+
+	def play_online(self):
+		pg.display.set_caption("Kami No Ken: GENESIS")
+		pg.mixer.music.load(f"./assets/music/{SONGS[2]}.wav")
+		pg.mixer.music.play(-1)
+
+		self.player_1 = Fighter(self, 1, 200, 510, "Homusubi", "Play")
+		self.player_2 = Fighter(self, 2, 1000, 570, "Homusubi", "Play")
+		self.players = [self.player_2, self.player_1]  # reversed for client draw order
+
+		COUNT_DOWN = pg.USEREVENT + 1
+		self.match_time = 99
+		self.time_accumulator = 0
+
+		while True:
+			if self.stun_frames >= self.max_stun_frames:
+				self.hit_stun = False
+			else:
+				self.stun_frames += 0.5
+
+			if self.server_is_me:
+				pass
+				# recieve events from client
+				# update gamestate
+				# broadcast gamestate
+			else:
+				pass
+				# send events to server
+				# recieve gamstate from server
+				# update gamestate according to server
+
+			# process client events
+			for event in pg.event.get():
+				check_for_quit(event)
+
+				if event.type == pg.KEYDOWN:
+					if not self.hit_stun:
+						self.player_1.handle_event(event)
+
+						if event.key == pg.K_r:
+							self.__init__()
+							self.main_menu()
+
+						if event.key == pg.K_h:
+							pg.draw.rect(self.screen, "green", self.player_1.hit_box)
+
+					if event.key == pg.K_ESCAPE:
+						self.paused = True
+						pause = Pause(self)
+						pause.update()
+			
+			self.player_1.update(self.dt, self.player_2)
+			self.player_2.update(self.dt, self.player_1)
+			self.camera.update(self.player_1, self.player_2)
 
 			# environment
 			self.screen.fill('black')

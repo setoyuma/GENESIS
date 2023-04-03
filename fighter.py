@@ -48,6 +48,7 @@ class Fighter():
         self.throwing_proj = False
         self.animated_text = None
         self.frames_without_combo = 0
+        self.whiffed = False
         self.attack_rect = None  # for debug
 
         # flags
@@ -107,7 +108,7 @@ class Fighter():
         Animation is controlled by the player's status,
         which is updated after all key presses are handled.
     '''
-    def update(self, dt, target, event):
+    def update(self, dt, target):
         if self.super_meter >= 250:
             self.super_meter = 250
 
@@ -238,6 +239,7 @@ class Fighter():
                 self.animation.reset()
                 self.attacking = False
                 self.attacked = False
+                self.whiffed = False
                 self.status = "idle"
             if self.hit:
                 self.animation.reset()
@@ -294,10 +296,6 @@ class Fighter():
                     target.current_hp -= damage
                     play_sound('./assets/sfx/hit_1.wav')
 
-            else:
-                play_sound('./assets/sfx/whiff_1.wav')
-
-
             '''LAUNCH MOVES'''
             match self.character:
                 case "Homusubi":
@@ -317,6 +315,10 @@ class Fighter():
                     self.rect.x -= 20
                 else:
                     self.rect.x += 20
+
+        elif not self.whiffed:
+            self.whiffed = True
+            play_sound('./assets/sfx/whiff_1.wav')
 
     def hitspark(self, attack_rect, flip_hit_box, fireball=False, target=None):
         # calculate hitspark position based on attack_rect
