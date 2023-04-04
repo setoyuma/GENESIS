@@ -18,17 +18,17 @@ then have the option of leaving the session, or
 starting the match once another player connects.
 
 When the match is started, the clients exchange info
-with each other through the lobby server using STUN
-to initiate a direct connection before loading into the
-online_play scene.
+with each other through the lobby server to initiate 
+a direct connection using hole-punching before loading 
+into the online_play scene.
 
-The host is assigned player_1 and client is assigned 
-player_2. Once the client sends the host a 'READY' 
-message, a countdown begins and the match starts.
+The host is player_1 and the guest is player_2. Once 
+the guest sends the host a 'ready' message, a 
+countdown begins and the match starts.
 
 The host processes its own events as well as the 
-client's events. The host sends a gamestate update 
-to the client every frame.
+guest's events. The host sends a gamestate update 
+to the guest every frame.
 
 1. Player starts the game
 2. Game creates an instance of Client
@@ -42,6 +42,41 @@ to the client every frame.
 9b (OPTIONAL) If a direct connection is not possible, use the lobby server as a relay
 10a. The player 2 client sends events to the host
 10b. The player 1 client manages the gamestate and sends it to player 2
+
+NAT HOLE-PUNCHING
+------------------
+Normally, to receive messages from the internet, a client needs to forward a port on their router, which directs 
+incoming packets to the correct computer on the network. Hole-punching is a technique that establishes a direct 
+connection between two clients without port forwarding.
+
+1. Clients exchange their public IPs and ports via a lobby server.
+2. Client_1 sends an initial packet to Client_2's public IP. Although this packet doesn't reach Client_2 due to the lack of port forwarding, Client_1's router now associates Client_1's private IP with Client_2's public IP.
+3. Client_2 sends a response packet to Client_1. Thanks to the previous association, this packet reaches Client_1, and a similar association is created on Client_2's router.
+4. As long as messages are sent periodically to maintain the associations on both clients' routers, the connection is maintained.
+
+This is our implementation of hole-punching:
+
+1. Host sends a 'start_match' message to the Lobby.
+2. Lobby sends a 'client_info' message to both clients, containing each other's IPs and ports.
+3. Host sends an initial packet to Guest (doesn't reach Guest but creates a mapping between Host and Guest on Host's router).
+4. Host sends a 'handshake' message to the Lobby (indicating the first part of the handshake is complete).
+5. Lobby forwards the 'handshake' message to Guest (informing Guest that Host initiated a handshake and requires a response).
+6. Guest sends a response packet to Host, completing the hole-punch (creates a mapping between Guest and Host on Guest's router).
+7. A direct connection is established, and Host begins the match start countdown.
+
+STUN and TURN
+--------------
+A STUN server is an intermediary server that helps clients exchange their public IPs and ports, enabling them to 
+establish a hole-punch connection. In this game, the lobby server will function as the STUN server.
+
+A TURN server is another type of intermediary server or relay that clients can use for communication when 
+hole-punching fails. If necessary, the lobby server can also act as a TURN server.
+
+ICE
+----
+ICE (Interactive Connectivity Establishment) is a framework that combines the above techniques (STUN and TURN) 
+along with other fallback protocols. While these more complex protocols may not be necessary for this game, ICE 
+ensures that the best possible connection method is used for communication between clients.
 
 """
 
@@ -92,6 +127,11 @@ class Client:
             # a specific session's info from lobby server
             case 'session_info':
                 self.game.session = decoded_data["session"]
+
+            # Host has initiated a handshake
+            case 'handshake':
+                # finishes the hole-punch connection
+                self.send_message(b'0')  # at this point the server has been set to the Host
 
             # event from player 2 client
             case 'event':
