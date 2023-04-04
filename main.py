@@ -292,7 +292,7 @@ class Game:
 				elif event.type == pg.KEYDOWN:
 					if event.key == pg.K_SPACE:
 						self.Play()
-            
+					
 				for button in buttons:
 					button.update(event)
 
@@ -688,12 +688,28 @@ class Game:
 		pass
 
 	def change_controls(self):
-		for event in pg.event.get():
-			if event == pg.KEYDOWN:
-				self.new_key = event.key
-				print(self.new_key)		
+		with open('settings.json', "r") as f:
+			data = json.loads(f.read())
+			
+			#prompt for key
+			print(data["controls"])
+			key_to_change = input("what key do you wanna change: ")
+			
+
+			if key_to_change.upper() in data["controls"].keys():
+				print('key found')
+				for event in pg.event.get():
+					if event.type == pg.KEYDOWN:
+						data["controls"][key_to_change.upper()] = event.key
+			else:
+				print("key not found")
+
+
+			#update settings json with new key
+
 
 
 if __name__ == '__main__':
 	game = Game()
-	game.main_menu()
+	# game.main_menu()
+	game.change_controls()

@@ -173,8 +173,8 @@ class Client:
         p2 = self.game.player_2
         gamestate = {
             "type": "update",
-            "player_1": {self.game.player_1.to_dict()},
-            "player_2": {self.game.player_2.to_dict()},
+            "player_1": self.game.player_1.to_dict(),
+            "player_2": self.game.player_2.to_dict(),
             "match_time": self.game.match_time
         }
         self.send_message(gamestate)
