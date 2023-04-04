@@ -597,11 +597,12 @@ class Game:
 			return
 		# send a packet to Guest
 		guest_client = self.session["clients"][1]
-		self.client.sock.sendto(b'0', guest_client)
+		self.client.sock.sendto(b'0', (guest_client[0], guest_client[1]))
 		# tell Lobby you started a handshake
 		self.client.send_message({"type": "handshake", "id": self.session["id"]})
 		# host no longer needs to interact with lobby (assuming hole-punch goes well)
 		self.client.set_server(guest_client)
+		self.play_online()
 
 	def play_online(self):
 		pg.display.set_caption("Kami No Ken: GENESIS")
@@ -620,7 +621,7 @@ class Game:
 		self.match_started = False
 
 		while not self.match_started:
-			self.client.send_message(b'0')  # heartbeat
+			self.client.send_message(b'0', serialize=False)  # heartbeat
 			self.screen.fill("black")
 			# environment
 			self.screen.fill('black')

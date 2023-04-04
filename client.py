@@ -132,7 +132,7 @@ class Client:
             # Host has initiated a handshake
             case 'handshake':
                 # set server to host client
-                self.client.set_server(self.game.session["clients"][0])
+                self.set_server(self.game.session["clients"][0])
                 # finishes the hole-punch connection
                 self.send_message({"type": "ready"})  # at this point the server has been set to the Host
                 self.game.start_countdown = True
@@ -170,5 +170,8 @@ class Client:
         }
         self.send_message(gamestate)
 
-    def send_message(self, message):
-        self.sock.sendto(json.dumps(message).encode('utf-8'), (self.server_ip, self.server_port))
+    def send_message(self, message, serialize=True):
+        if serialize:
+            self.sock.sendto(json.dumps(message).encode('utf-8'), (self.server_ip, self.server_port))
+        else:
+            self.sock.sendto(message, (self.server_ip, self.server_port))
