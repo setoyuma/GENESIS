@@ -32,8 +32,8 @@ class Lobby(Server):
             self.unregister_session(client)
         
         elif decoded_data["type"] == "join_session":
-            for session in self.sessions:
-                if self.sessions["id"] == decoded_data["id"]:
+            for session in self.sessions.values():
+                if session["id"] == decoded_data["id"]:
                     session_info = session
             data = {
                 "type": "session_info",

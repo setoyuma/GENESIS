@@ -455,7 +455,8 @@ class Game:
 			data["type"] = "disconnect"
 		self.client.send_message(data)
 		self.session = None
-		self.buttons = [Button(self, self.screen.get_width()/2+600, 670, 200, 100, 30, "CREATE", self.create_session)]
+		self.buttons = [Button(self, self.screen.get_width()/2+610, 670, 200, 100, 30, "CREATE", self.create_session)]
+		self.get_session_list()
 
 	def lobby_view(self):
 		pg.display.set_caption("Kami No Ken: LOBBY PLAY")
@@ -463,7 +464,7 @@ class Game:
 		particle1 = ParticlePrinciple()
 		PARTICLE_EVENT = pg.USEREVENT + 1
 		pg.time.set_timer(PARTICLE_EVENT,5)
-		self.buttons = [Button(self, self.screen.get_width()/2+600, 670, 200, 100, 30, "CREATE", self.create_session)]
+		self.buttons = [Button(self, self.screen.get_width()/2+610, 670, 200, 100, 30, "CREATE", self.create_session)]
 		self.session_buttons = []
 		self.session = None
 		self.get_session_list()
