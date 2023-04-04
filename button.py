@@ -3,7 +3,7 @@ from support import *
 import sys
 
 class Button:
-    def __init__(self, game, text, pos, function, base=(0,0,300,81), hovered=(0,0,300,81), base_color=(77,77,255,50), hover_color=(77, 77, 80), text_color=(255,255,255), text_size=64, hovered_pos=None):
+    def __init__(self, game, text, pos, function, base=(0,0,300,81), hovered=(0,0,300,81), base_color=(77,77,255,50), hover_color=(77, 77, 80), text_color=(255,255,255), text_size=35, hovered_pos=None):
         self.game = game
         self.text = text
         self.pos = pos

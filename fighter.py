@@ -129,6 +129,7 @@ class Fighter:
         if not self.attacking:
             # basic movements
             if pressed_keys[Actions.UP] and not self.jump_cooldown:
+                self.dir = "UP"
                 self.jump_cooldown = 0.9
                 self.dY += self.jump_force
                 self.jumping = True
@@ -136,6 +137,7 @@ class Fighter:
                 self.move_combo = []
 
             elif pressed_keys[Actions.DOWN] and self.on_ground:
+                self.dir = "DOWN"
                 self.crouching = True
                 self.dX = 0
 
@@ -145,11 +147,13 @@ class Fighter:
 
             if not self.crouching:
                 if pressed_keys[Actions.BACK]:
+                    self.dir = "BACK"
                     self.rect.x -= self.move_speed * dt
                     if self.on_ground:
                         walking = True
 
                 elif pressed_keys[Actions.FORWARD]:
+                    self.dir = "FORWARD"
                     self.rect.x += self.move_speed * dt
                     if self.on_ground:
                         walking = True

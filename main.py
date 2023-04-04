@@ -12,6 +12,7 @@ from slider import Slider
 from pause import Pause
 from constants import * 
 from support import *
+from show_inputs import *
 
 # Networking
 from lobby import Lobby
@@ -237,12 +238,13 @@ class Game:
 		PARTICLE_EVENT = pg.USEREVENT + 1
 		pg.time.set_timer(PARTICLE_EVENT,5)
 		buttons = [
-			Button(self, 70, 40, 200, 100, 30, "LOCAL", self.play_local),
-			Button(self, 70, 120, 200, 100, 30, "ONLINE", self.lobby_view),
-			Button(self, 70, 200, 200, 100, 30, "BACK", self.main_menu),
+			Button(self, "LOCAL",(70,40), self.play_local,"assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png"),
+			Button(self, "ONLINE",(70,120), self.play_online,"assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png"),
+			Button(self, "BACK",(70,200), self.main_menu,"assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png"),
+			Button(self, "OPTIONS",(70,280), self.options,"assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png"),
+			Button(self, "TRAINING",(70,360), self.training,"assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png"),
+			Button(self, "QUIT",(self.settings["screen_width"] - 100 , -10), self.lobby_view,"assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png"),
 			#Button(self, 70, 120, 200, 100, 30, "TRAINING", self.training),
-			Button(self, 70, 280, 200, 100, 30, "OPTIONS", self.options),
-			Button(self, self.settings["screen_width"] - 100, 0 - 10, 200, 100, 30, "QUIT", pg.quit),
 		]
 		while True:
 			self.screen.fill('black')
@@ -256,7 +258,7 @@ class Game:
 					particle1.addParticles(mouse_pos[0], mouse_pos[1])
 
 				for button in buttons:
-					button.Process(event)
+					button.update(event)
 
 			for button in buttons:
 				button.draw()
@@ -271,10 +273,11 @@ class Game:
 		PARTICLE_EVENT = pg.USEREVENT + 1
 		pg.time.set_timer(PARTICLE_EVENT,5)
 		buttons = [
-			Button(self, self.settings["screen_width"]//2, 480, 200, 100, 30, "BACK", self.home_screen),
-			Button(self, self.settings["screen_width"]//2, 320, 200, 100, 30, "SOUND", self.sound_settings),
-			Button(self, self.settings["screen_width"]//2, 400, 200, 100, 30, "FULLSCREEN", pg.display.toggle_fullscreen),
-			Button(self, self.settings["screen_width"] - 100, 0 - 10, 200, 100, 30, "QUIT", pg.quit),
+			Button(self, "SOUND", (self.settings["screen_width"]//2, 320), self.sound_settings, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png", text_size=30),
+			Button(self, "FULLSCREEN", (self.settings["screen_width"]//2, 400), pg.display.toggle_fullscreen, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png", text_size=30),
+			Button(self, "CONTROLS", (self.settings["screen_width"]//2, 480), self.change_controls, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png", text_size=30),
+			Button(self, "BACK", (self.settings["screen_width"]//2, 560), self.home_screen, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png", text_size=30),
+			Button(self, "QUIT", (self.settings["screen_width"] - 100, 50), pg.quit, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png", text_size=30),
 		]
 		while True:
 			self.screen.fill('black')
@@ -291,7 +294,7 @@ class Game:
 						self.Play()
             
 				for button in buttons:
-					button.Process(event)
+					button.update(event)
 
 			for button in buttons:
 				button.draw()
@@ -306,8 +309,11 @@ class Game:
 		PARTICLE_EVENT = pg.USEREVENT + 1
 		pg.time.set_timer(PARTICLE_EVENT,5)
 		slider = Slider(self.settings["screen_width"]/2 - 95, 145, 200, 10, self.volume)
-		volume_button = Button(self, self.settings["screen_width"]/2, 40, 200, 100, 30, "VOLUME", None)
-		back_button = Button(self, self.settings["screen_width"]/2, 160, 200, 100, 30,"BACK", self.options)
+		buttons = [
+			Button(self, "VOLUME", (self.settings["screen_width"]//2, 40), None, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png", text_size=30),
+			Button(self, "BACK", (self.settings["screen_width"]//2, 260), self.options, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png", text_size=30),
+			
+		]
 		while True:
 			self.screen.fill('black')
 			self.screen.blit(mainMenuBG,(480,115))
@@ -336,11 +342,11 @@ class Game:
 				elif event.type == pg.MOUSEBUTTONUP:
 					slider.active = False
 
-				volume_button.Process(event)
-				back_button.Process(event)
+				for button in buttons:
+					button.update(event)
+			for button in buttons:
+				button.draw()
 
-			volume_button.draw()
-			back_button.draw()
 			particle1.emit()
 			self.send_frame()
 
@@ -392,6 +398,74 @@ class Game:
 			self.screen.blit(self.background.update(self.dt), (-self.camera.rect.x, -self.camera.rect.y))
 			self.draw_HUD()
 			self.show_fps()
+			#if self.player_1.attack_rect is not None:
+			#	pg.draw.rect(self.screen, "green", self.player_1.attack_rect)
+
+			# srpites
+			for player in self.players:
+				player.draw()
+
+			# damage text
+			for player in self.players:
+				if player.animated_text is not None:
+					if player.animated_text.update():
+						player.animated_text = None
+
+			self.send_frame()
+			self.time_accumulator += self.dt
+	
+	def training(self):
+		pg.display.set_caption("Kami No Ken: TRAINING")
+		pg.mixer.music.load(f"./assets/music/{SONGS[2]}.wav")
+		pg.mixer.music.play(-1)
+
+		self.player_1 = Fighter(self, 1, 200, 510, "Homusubi", "Play")
+		self.player_2 = Fighter(self, 2, 1000, 570, "Homusubi", "Play")
+		self.players = [self.player_2, self.player_1]  # reversed for client draw order
+
+		COUNT_DOWN = pg.USEREVENT + 1
+		self.match_time = 99
+		self.time_accumulator = 0
+
+		user_buttons = User_Inputs(self.settings["screen_width"]//2, 200, 30, self.player_1)
+
+		while True:
+			
+			if self.stun_frames >= self.max_stun_frames:
+				self.hit_stun = False
+			else:
+				self.stun_frames += 0.5
+
+			# process client events
+			for event in pg.event.get():
+				check_for_quit(event)
+
+				if event.type == pg.KEYDOWN:
+					if not self.hit_stun:
+						self.player_1.handle_event(event)
+
+						if event.key == pg.K_r:
+							self.__init__()
+							self.main_menu()
+
+						if event.key == pg.K_h:
+							pg.draw.rect(self.screen, "green", self.player_1.hit_box)
+
+					if event.key == pg.K_ESCAPE:
+						self.paused = True
+						pause = Pause(self)
+						pause.update()
+
+			self.player_1.update(self.dt, self.player_2)
+			self.player_2.update(self.dt, self.player_1)
+			self.camera.update(self.player_1, self.player_2)
+
+			# environment
+			self.screen.fill('black')
+			self.screen.blit(self.background.update(self.dt), (-self.camera.rect.x, -self.camera.rect.y))
+			self.draw_HUD()
+			self.show_fps()
+			user_buttons.update()
 			#if self.player_1.attack_rect is not None:
 			#	pg.draw.rect(self.screen, "green", self.player_1.attack_rect)
 
@@ -583,6 +657,14 @@ class Game:
 
 	def end_match(self):
 		pass
+
+	def change_controls(self):
+		for event in pg.event.get():
+			if event == pg.KEYDOWN:
+				self.new_key = event.key
+				print(self.new_key)		
+
+
 
 if __name__ == '__main__':
 	game = Game()
