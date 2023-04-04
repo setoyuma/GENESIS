@@ -670,10 +670,10 @@ class Game:
 						{
 						"type": "pressed_keys",
 						"pressed_keys": {
-							"UP": pressed_keys[Actions.UP],
-							"DOWN": pressed_keys[Actions.DOWN],
-							"BACK": pressed_keys[Actions.BACK],
-							"FORWARD": pressed_keys[Actions.FORWARD]
+							Actions.UP: pressed_keys[Actions.UP],
+							Actions.DOWN: pressed_keys[Actions.DOWN],
+							Actions.BACK: pressed_keys[Actions.BACK],
+							Actions.FORWARD: pressed_keys[Actions.FORWARD]
 						}
 					}
 				)
