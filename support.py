@@ -7,7 +7,6 @@ import re
 def natural_key(string_):
     return [int(s) if s.isdigit() else s for s in re.split(r'(\d+)', string_)]
 
-
 def import_folder(path):
     surface_list = []
     for _, __, image_files in walk(path):
@@ -18,7 +17,6 @@ def import_folder(path):
             surface_list.append(image_surf)
 
     return surface_list
-
 
 def import_cut_graphics(path):
     surface = pygame.image.load(path).convert_alpha()
@@ -38,14 +36,12 @@ def import_cut_graphics(path):
 
     return cut_tiles
 
-
 def scale_images(images: list, size: tuple):
     """ returns scaled image assets """
     scaled_images = []
     for image in images:
         scaled_images.append(pygame.transform.scale(image, size))
     return scaled_images
-
 
 def check_for_quit(event):
     quit = False
@@ -61,7 +57,6 @@ def check_for_quit(event):
         print('\nGame Closed\n')
         pygame.quit()
         sys.exit()
-
 
 _text_library = {}
 def draw_text(surf, text, pos, size=30, color=(255,255,255), bg_color=None):

@@ -2,11 +2,6 @@ import socket
 import threading
 import json
 
-"""
-This class provides the base capabilities for
-sending and receiving messages over the internet.
-"""
-
 class Server:
     def __init__(self):
         self.ip =  self.get_ip() #local_ip
@@ -46,7 +41,7 @@ class Server:
     def send_message(self, message, addr):
         self.sock.sendto(json.dumps(message).encode('utf-8'), addr)
 
+
 if __name__ == "__main__":
-    # server public ip "73.247.171.208"
     server = Host("0.0.0.0", 8001)
     server.listen()

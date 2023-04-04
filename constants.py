@@ -1,16 +1,14 @@
-import pygame as pg
-
 class Actions:
-    UP = pg.K_w
-    DOWN = pg.K_s
-    BACK = pg.K_a
-    FORWARD = pg.K_d
-    LP = pg.K_i
-    MP = pg.K_o
-    HP = pg.K_p
-    LK = pg.K_k
-    MK = pg.K_l
-    HK = pg.K_SEMICOLON
+    UP = 119  # w
+    DOWN = 115  # s
+    BACK = 97  #  a
+    FORWARD = 100  # d
+    LP = 105  # i
+    MP = 111  # o
+    HP = 112  # p
+    LK = 107  # k
+    MK = 108  # l
+    HK = 59  # ;
 
 SONGS = [
     "main",

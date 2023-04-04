@@ -408,47 +408,49 @@ class Game:
 			self.send_frame()
 			self.time_accumulator += self.dt
 
-	def create_lobby(self):
+	def get_session_list(self):
+		# refresh the session list
+		data = {"type" : 'list_sessions'}
+		self.client.send_message(data)
+
+	def create_session(self):
 		# turn client into host
 		self.client.is_host = True
 		# send a registration request to central lobby
-		data = {
+		self.session = {
 			"type": "register_session",
 			"session_info": {
 				"name": "Test session"
 			}
 		}
-		self.client.send_message(data)
-
-		# refresh the session list
-		data = {"type" : 'list_sessions'}
-		self.client.send_message(data)
+		self.client.send_message(self.session)
 
 		self.buttons = [
 			Button(self, self.screen.get_width()/3+650, 700, 200, 100, 30, "Leave", self.leave_session)
 		]
 
+	def join_session(self, id):
+		# request a session's info from lobby server
+		data = {
+			"type": "join_session",
+			"session": id
+		}
+		self.client.send_message(data)
+
 	def leave_session(self):
-		self.session_id = 2
 		if self.client.is_host:
 			# delete the session
 			data = {
 				"type": "unregister_session",
-				"session": self.session_id
+				"session": self.session["id"]
 			}
 		else:
 			# leave the session
 			data = {
 				"type": "disconnect",
-				"session": self.session_id
+				"session": self.session["id"]
 			}
 		self.client.send_message(data)
-
-	def join_session(self, id):
-		data = {
-			"type": "session_join",
-			"session": id
-		}
 
 	def lobby_view(self):
 		pg.display.set_caption("Kami No Ken: LOBBY PLAY")
@@ -457,14 +459,13 @@ class Game:
 		PARTICLE_EVENT = pg.USEREVENT + 1
 		pg.time.set_timer(PARTICLE_EVENT,5)
 		self.buttons = [
-			Button(self, self.screen.get_width()/2+650, 700, 200, 100, 30, "CREATE", self.create_lobby),
-			Button(self, self.screen.get_width()/3+650, 700, 200, 100, 30, "JOIN"),
+			Button(self, self.screen.get_width()/2+650, 700, 200, 100, 30, "CREATE", self.create_session),
+			Button(self, self.screen.get_width()/3+650, 700, 200, 100, 30, "JOIN", self.join_session),
 		]
 
 		self.session_buttons = []
-		# request the session list from lobby server
-		data = {"type" : 'list_sessions'}
-		self.client.send_message(data)
+		self.session = None
+		self.get_session_list()
 
 		while True:
 			self.screen.fill('black')
@@ -482,17 +483,41 @@ class Game:
 				for session_button in self.session_buttons:
 					session_button.Process(event)
 
-			draw_text(self.screen, "Online sessions", (1400, 100), 40)
+			# session view
 			pg.draw.rect(self.screen, (0,155,0), (1250, 150, 300, 500), width=2, border_radius=1)
-
-			for session_button in self.session_buttons:
-				session_button.draw()
+			if self.session is None:
+				# list sessions to join
+				draw_text(self.screen, "Online sessions", (1400, 100), 40)
+				for session_button in self.session_buttons:
+					session_button.draw()
+			else:
+				# draw the session information
+				for i in range(len(self.session["clients"])):
+					draw_text(self.screen, f"Player {i+1}", (1260, 160+(i*20)))
 
 			for button in self.buttons:
 				button.draw()
 			
 			particle1.emit()
 			self.send_frame()
+
+	def send_gamestate(self):
+		gamestate = {
+			"type": "update",
+			"players": self.players,
+			"match_time": self.match_time
+		}
+		self.client.send_message(gamestate)
+
+	def handle_event(self, event):
+		if self.client.is_host:
+			self.player_1.handle_event(event)
+		else:  # send event to host
+			data = {
+				"type": "event",
+				"event": event
+			}
+			self.client.send_message(data)
 
 	def play_online(self):
 		pg.display.set_caption("Kami No Ken: GENESIS")
@@ -513,48 +538,28 @@ class Game:
 			else:
 				self.stun_frames += 0.5
 
-			if self.server_is_me:
-				pass
-				# recieve events from client
-				# update gamestate
-				# broadcast gamestate
-			else:
-				pass
-				# send events to server
-				# recieve gamstate from server
-				# update gamestate according to server
-
-			# process client events
 			for event in pg.event.get():
 				check_for_quit(event)
 
 				if event.type == pg.KEYDOWN:
 					if not self.hit_stun:
-						self.player_1.handle_event(event)
+						self.handle_event(event)
 
-						if event.key == pg.K_r:
-							self.__init__()
-							self.main_menu()
+						if event.key == pg.K_ESCAPE:
+							# create confirmation dialog for leaving the match
+							pass
 
-						if event.key == pg.K_h:
-							pg.draw.rect(self.screen, "green", self.player_1.hit_box)
-
-					if event.key == pg.K_ESCAPE:
-						self.paused = True
-						pause = Pause(self)
-						pause.update()
-
-			self.player_1.update(self.dt, self.player_2)
-			self.player_2.update(self.dt, self.player_1)
-			self.camera.update(self.player_1, self.player_2)
+			if self.client.is_host:
+				self.player_1.update(self.dt, self.player_2)
+				self.player_2.update(self.dt, self.player_1)
+				self.send_gamestate()  # update player 2's gamestate
 
 			# environment
 			self.screen.fill('black')
+			#self.camera.update(self.player_1, self.player_2)
 			self.screen.blit(self.background.update(self.dt), (-self.camera.rect.x, -self.camera.rect.y))
 			self.draw_HUD()
 			self.show_fps()
-			#if self.player_1.attack_rect is not None:
-			#	pg.draw.rect(self.screen, "green", self.player_1.attack_rect)
 
 			# srpites
 			for player in self.players:

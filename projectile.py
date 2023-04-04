@@ -3,7 +3,7 @@ import pygame as pg
 from animation import Animator
 from support import *
 
-class Projectile():
+class Projectile:
     def __init__(self, name, type, size, spawn_pos, player, facing_right, game):
         self.name = name
         self.type = type

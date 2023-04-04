@@ -31,6 +31,16 @@ class Lobby(Server):
         elif decoded_data["type"] == "unregister_session":
             self.unregister_session(client)
         
+        elif decoded_data["type"] == "join_session":
+            for session in self.sessions:
+                if self.sessions["id"] == decoded_data["id"]:
+                    session_info = session
+            data = {
+                "type": "session_info",
+                "session": session_info
+            }
+            self.send_message(data, client)
+
         elif decoded_data["type"] == "disconnect":
             self.disconnect(client)
 
@@ -38,6 +48,9 @@ class Lobby(Server):
         # give the session an id
         session_info["id"] = self.id_counter
         self.id_counter += 1
+
+        # add host to the client list
+        session_info["clients"] = client
 
         # add it to the sessions dict
         self.sessions[client] = session_info
