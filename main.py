@@ -239,7 +239,7 @@ class Game:
 		pg.time.set_timer(PARTICLE_EVENT,5)
 		buttons = [
 			Button(self, "LOCAL",(70,40), self.play_local,"assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png"),
-			Button(self, "ONLINE",(70,120), self.play_online,"assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png"),
+			Button(self, "ONLINE",(70,120), self.lobby_view,"assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png"),
 			Button(self, "BACK",(70,200), self.main_menu,"assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png"),
 			Button(self, "OPTIONS",(70,280), self.options,"assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png"),
 			Button(self, "TRAINING",(70,360), self.training,"assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png"),
@@ -505,8 +505,8 @@ class Game:
 
 		# reinitialize buttons list with leave option
 		self.buttons = [
-			Button(self, self.screen.get_width()/3+750, 690, 175, 75, 25, "Leave", self.leave_session),
-			Button(self, self.screen.get_width()/3+950, 690, 175, 75, 25, "Start", self.start_match)
+			Button(self, "Start", (self.settings["screen_width"]/3+950, 690), self.start_match, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png", text_size=30),
+			Button(self, "Leave", (self.settings["screen_width"]/3+750, 690), self.leave_session, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png", text_size=30),
 		]
 
 	def join_session(self, id):
@@ -530,7 +530,10 @@ class Game:
 			data["type"] = "disconnect"
 		self.client.send_message(data)
 		self.session = None
-		self.buttons = [Button(self, self.screen.get_width()/2+605, 670, 200, 100, 30, "CREATE", self.create_session)]
+		self.buttons = [
+			Button(self, "CREATE", (self.settings["screen_width"]/2+605, 690), self.create_session, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png", text_size=30),
+
+			]
 		self.get_session_list()
 
 	def lobby_view(self):
@@ -539,7 +542,10 @@ class Game:
 		particle1 = ParticlePrinciple()
 		PARTICLE_EVENT = pg.USEREVENT + 1
 		pg.time.set_timer(PARTICLE_EVENT,5)
-		self.buttons = [Button(self, self.screen.get_width()/2+605, 670, 200, 100, 30, "CREATE", self.create_session)]
+		self.buttons = [
+			Button(self, "CREATE", (self.settings["screen_width"]/2+605, 690), self.create_session, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png", text_size=30),
+			
+			]
 		self.session_buttons = []
 		self.session = None
 		self.get_session_list()
@@ -556,9 +562,9 @@ class Game:
 					particle1.addParticles(mouse_pos[0], mouse_pos[1])
             
 				for button in self.buttons:
-					button.Process(event)
+					button.update(event)
 				for session_button in self.session_buttons:
-					session_button.Process(event)
+					session_button.update(event)
 
 			# session view
 			pg.draw.rect(self.screen, (0,155,0), (1250, 150, 300, 500), width=2, border_radius=1)
@@ -663,7 +669,6 @@ class Game:
 			if event == pg.KEYDOWN:
 				self.new_key = event.key
 				print(self.new_key)		
-
 
 
 if __name__ == '__main__':
