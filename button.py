@@ -43,7 +43,7 @@ class Button():
                         elif self.onClickFunction == self.game.join_session:
                             self.game.join_session(self.id)
                         elif self.onClickFunction == self.game.leave_session:
-                            self.game.join_session(self.id)
+                            self.game.leave_session()
                         else:
                             self.onClickFunction()
 

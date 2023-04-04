@@ -416,17 +416,23 @@ class Game:
 	def create_session(self):
 		# turn client into host
 		self.client.is_host = True
-		# send a registration request to central lobby
 		self.session = {
-			"type": "register_session",
-			"session_info": {
-				"name": "Test session"
-			}
+			"name": "Test session",
+			"clients": [self.client.local_ip],
+			"id": None
 		}
-		self.client.send_message(self.session)
 
+		# send a registration request to the lobby server
+		data = {
+			"type": "register_session",
+			"session_info": self.session
+		}
+		self.client.send_message(data)
+
+		# reinitialize buttons list with leave option
 		self.buttons = [
-			Button(self, self.screen.get_width()/3+650, 700, 200, 100, 30, "Leave", self.leave_session)
+			Button(self, self.screen.get_width()/3+750, 690, 175, 75, 25, "Leave", self.leave_session),
+			Button(self, self.screen.get_width()/3+950, 690, 175, 75, 25, "Start", self.start_match)
 		]
 
 	def join_session(self, id):
@@ -438,18 +444,15 @@ class Game:
 		self.client.send_message(data)
 
 	def leave_session(self):
+		data = {
+			"id": self.session["id"]
+		}
 		if self.client.is_host:
 			# delete the session
-			data = {
-				"type": "unregister_session",
-				"session": self.session["id"]
-			}
+			data["type"] = "unregister_session"
 		else:
 			# leave the session
-			data = {
-				"type": "disconnect",
-				"session": self.session["id"]
-			}
+			data["type"] = "disconnect"
 		self.client.send_message(data)
 
 	def lobby_view(self):
@@ -459,8 +462,7 @@ class Game:
 		PARTICLE_EVENT = pg.USEREVENT + 1
 		pg.time.set_timer(PARTICLE_EVENT,5)
 		self.buttons = [
-			Button(self, self.screen.get_width()/2+650, 700, 200, 100, 30, "CREATE", self.create_session),
-			Button(self, self.screen.get_width()/3+650, 700, 200, 100, 30, "JOIN", self.join_session),
+			Button(self, self.screen.get_width()/2+600, 670, 200, 100, 30, "CREATE", self.create_session)
 		]
 
 		self.session_buttons = []
@@ -492,8 +494,9 @@ class Game:
 					session_button.draw()
 			else:
 				# draw the session information
+				draw_text(self.screen, self.session["name"], (1400, 100), 40)
 				for i in range(len(self.session["clients"])):
-					draw_text(self.screen, f"Player {i+1}", (1260, 160+(i*20)))
+					draw_text(self.screen, f"Player {i+1}", (1320, 175+(i*40)))
 
 			for button in self.buttons:
 				button.draw()
@@ -518,6 +521,9 @@ class Game:
 				"event": event
 			}
 			self.client.send_message(data)
+
+	def start_match(self):
+		pass
 
 	def play_online(self):
 		pg.display.set_caption("Kami No Ken: GENESIS")

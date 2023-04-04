@@ -87,7 +87,7 @@ class Client:
         match decoded_data["type"]:
             # session list from lobby server
             case 'session_list':
-                self.populate_session_list(decoded_data)
+                self.populate_session_list(decoded_data["sessions"])
 
             # a specific session's info from lobby server
             case 'session_info':
