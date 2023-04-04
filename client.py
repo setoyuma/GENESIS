@@ -2,6 +2,7 @@ import socket
 import threading
 import json
 from button import Button
+from fighter import Event
 
 """
 NETCODE DOCS
@@ -137,23 +138,37 @@ class Client:
                 self.set_server(self.game.session["clients"][0])
                 # finishes the hole-punch connection
                 self.send_message({"type": "ready"})  # at this point the server has been set to the Host
-                print("Direct connection established. Countdown started.")
                 self.game.start_countdown = True
 
             # Guest has established a direct connection and is ready to start
             case 'ready':
-                print("host recieved ready message")
                 self.game.start_countdown = True
 
             # event from guest
             case 'event':
-                event = decoded_data["event"]
+                key = decoded_data["event"]
+                event = Event(key)
                 self.game.player_2.handle_event(event)
 
             # gamestate update from host
             case 'update':
-                self.game.player_1 = decoded_data["players"][0]
-                self.game.player_2 = decoded_data["players"][1]
+                p1 = self.game.player_1
+                p2 = self.game.player_2
+                p1_data = decoded_data["player_1"]
+                p2_data = decoded_data["player_2"]
+
+                p1.rect.topleft = p1_data["pos"]
+                p1.current_hp = p1_data["hp"]
+                p1.status = p1_data["status"]
+                p1.super_meter = p1_data["super"]
+                p1.blast_meter = p1_data["blast"]
+
+                p2.rect.topleft = p2_data["pos"]
+                p2.current_hp = p2_data["hp"]
+                p2.status = p2_data["status"]
+                p2.super_meter = p2_data["super"]
+                p2.blast_meter = p2_data["blast"]
+
                 self.game.match_time = decoded_data["match_time"]
 
             # connection to host no longer active
@@ -167,9 +182,24 @@ class Client:
             self.game.session_buttons.append(button)
 
     def send_gamestate(self):
+        p1 = self.game.player_1
+        p2 = self.game.player_2
         gamestate = {
             "type": "update",
-            "players": self.game.players,
+            "player_1": {
+                "pos": p1.rect.topleft,
+                "hp": p1.current_hp,
+                "status": p1.status,
+                "super": p1.super_meter,
+                "blast": p1.blast_meter
+            },
+            "player_2": {
+                "pos": p2.rect.topleft,
+                "hp": p2.current_hp,
+                "status": p2.status,
+                "super": p2.super_meter,
+                "blast": p2.blast_meter
+            },
             "match_time": self.game.match_time
         }
         self.send_message(gamestate)

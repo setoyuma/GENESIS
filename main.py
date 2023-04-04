@@ -591,7 +591,7 @@ class Game:
 		else:  # send event to host
 			data = {
 				"type": "event",
-				"event": Event(event.key)
+				"event": event.key
 			}
 			self.client.send_message(data)
 
@@ -602,10 +602,8 @@ class Game:
 		# send a packet to Guest
 		guest_client = self.session["clients"][1]
 		self.client.sock.sendto(b'0', (guest_client[0], guest_client[1]))
-		print("sent packet guest")
 		# tell Lobby you started a handshake
 		self.client.send_message({"type": "handshake"})
-		print("sent handshake message to lobby")
 		# host no longer needs to interact with lobby (assuming hole-punch goes well)
 		self.client.set_server(guest_client)
 
@@ -617,18 +615,15 @@ class Game:
 		self.player_1 = Fighter(self, 1, 200, 510, "Homusubi", "Play")
 		self.player_2 = Fighter(self, 2, 1000, 510, "Homusubi", "Play")
 		self.players = [self.player_2, self.player_1]  # reversed for client draw order
-		print()
 
 		COUNT_DOWN = pg.USEREVENT + 1
 		self.match_time = 99
 		self.time_accumulator = 0
 		self.countdown = 5.0
 		self.match_started = False
-		print("test2")
 
 		# pre-match
 		while self.countdown > 0.0:
-			print("frame")
 			#self.client.send_message(b'0', serialize=False)  # heartbeat
 			# environment
 			self.screen.fill('black')
