@@ -152,8 +152,7 @@ class Client:
 
             # pressed_keys from guest
             case 'pressed_keys':
-                key_states_dict = decoded_data["pressed_keys"]
-                self.game.pressed_keys = tuple(key_states_dict[i] for i in sorted(key_states_dict.keys()))
+                self.game.pressed_keys = decoded_data["pressed_keys"]
 
             # gamestate update from host
             case 'update':
