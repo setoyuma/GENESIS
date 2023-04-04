@@ -711,5 +711,5 @@ class Game:
 
 if __name__ == '__main__':
 	game = Game()
-	# game.main_menu()
-	game.change_controls()
+	game.main_menu()
+	# game.change_controls()
