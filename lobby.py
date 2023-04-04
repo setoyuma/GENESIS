@@ -66,10 +66,9 @@ class Lobby(Server):
         self.send_message(response, client)
 
     def unregister_session(self, client):
-        print(self.sessions)
         if client in self.sessions:
-            del self.sessions[client]
             print(f"Unregistered session: {self.sessions[client]}")
+            del self.sessions[client]
 
 
 if __name__ == "__main__":
