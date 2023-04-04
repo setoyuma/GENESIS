@@ -55,7 +55,7 @@ class Lobby(Server):
         session_info["id"] = self.id_counter
         self.id_counter += 1
         # add host to the client list
-        session_info["clients"] = client
+        session_info["clients"] = [client]
         # add joinable flag
         session_info["joinable"] = True
         # add it to the sessions dict
@@ -80,8 +80,8 @@ class Lobby(Server):
         key, session_info = self.get_session(decoded_data["id"])
         self.sessions[key]["joinable"] = False  # a 2nd player has just joined, filling the session
         self.sessions[key]["clients"].append(client)  # guest client is added to the session clients
-        data = {"type": "session_info", "session": session_info}
-        for client in session_info["clients"]:
+        data = {"type": "session_info", "session": self.sessions[key]}
+        for client in self.sessions[key]["clients"]:
             self.send_message(data, client)  # send the session information to both clients
 
     def disconnect(self, client, decoded_data):
