@@ -439,9 +439,10 @@ class Game:
 		# request a session's info from lobby server
 		data = {
 			"type": "join_session",
-			"session": id
+			"id": id
 		}
 		self.client.send_message(data)
+		self.buttons = [Button(self, self.screen.get_width()/2+605, 670, 200, 100, 30, "Leave", self.leave_session)]
 
 	def leave_session(self):
 		data = {
@@ -455,7 +456,7 @@ class Game:
 			data["type"] = "disconnect"
 		self.client.send_message(data)
 		self.session = None
-		self.buttons = [Button(self, self.screen.get_width()/2+610, 670, 200, 100, 30, "CREATE", self.create_session)]
+		self.buttons = [Button(self, self.screen.get_width()/2+605, 670, 200, 100, 30, "CREATE", self.create_session)]
 		self.get_session_list()
 
 	def lobby_view(self):
@@ -464,7 +465,7 @@ class Game:
 		particle1 = ParticlePrinciple()
 		PARTICLE_EVENT = pg.USEREVENT + 1
 		pg.time.set_timer(PARTICLE_EVENT,5)
-		self.buttons = [Button(self, self.screen.get_width()/2+610, 670, 200, 100, 30, "CREATE", self.create_session)]
+		self.buttons = [Button(self, self.screen.get_width()/2+605, 670, 200, 100, 30, "CREATE", self.create_session)]
 		self.session_buttons = []
 		self.session = None
 		self.get_session_list()
