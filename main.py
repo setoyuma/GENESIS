@@ -666,17 +666,12 @@ class Game:
 				self.client.send_gamestate()  # update player 2's gamestate
 			else:
 				pressed_keys = pg.key.get_pressed()
-				self.client.send_message(
-						{
-						"type": "pressed_keys",
-						"pressed_keys": {
-							Actions.UP: pressed_keys[Actions.UP],
-							Actions.DOWN: pressed_keys[Actions.DOWN],
-							Actions.BACK: pressed_keys[Actions.BACK],
-							Actions.FORWARD: pressed_keys[Actions.FORWARD]
-						}
-					}
-				)
+				pk_data = [False] * 119
+				pk_data[Actions.UP] = pressed_keys[Actions.UP]
+				pk_data[Actions.DOWN] = pressed_keys[Actions.DOWN]
+				pk_data[Actions.BACK] = pressed_keys[Actions.BACK]
+				pk_data[Actions.FORWARD] = pressed_keys[Actions.FORWARD]
+				self.client.send_message({"type": "pressed_keys","pressed_keys": pk_data})
 
 			# environment
 			self.screen.fill('black')
