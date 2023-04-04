@@ -665,7 +665,7 @@ class Game:
 				self.player_2.update(self.dt, self.player_1)
 				self.client.send_gamestate()  # update player 2's gamestate
 			else:
-				self.client.send_message({"type": "pressed_keys", "pressed_keys": pg.key.get_pressed()})
+				self.client.send_message({"type": "pressed_keys", "pressed_keys": {i: state for i, state in enumerate(key_states)}})
 
 			# environment
 			self.screen.fill('black')
