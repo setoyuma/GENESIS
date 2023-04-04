@@ -70,7 +70,7 @@ class Lobby(Server):
             print(f"Unregistered session: {self.sessions[client]}")
             del self.sessions[client]
 
-    def disconnect(self):
+    def disconnect(self, client):
         pass
 
 

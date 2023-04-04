@@ -201,8 +201,8 @@ class Game:
 		bg = get_image("./assets/backgrounds/main-menu/KnK.png")
 		bg_pos = bg.get_rect().center # wouldnt line up in center for some reason
 		buttons = [
-			Button(self, self.settings["screen_width"]/2, self.settings["screen_height"]/2, 200, 100, 30, "PLAY", self.home_screen),
-			Button(self, self.settings["screen_width"] - 100, 0 - 10, 200, 100, 30, "QUIT", pg.quit),
+			Button(self, "PLAY", (self.settings["screen_width"]/2, self.settings["screen_height"]/2), self.home_screen, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png", text_size=30),
+			Button(self, "QUIT", (self.settings["screen_width"] - 100, 0 - 10,), pg.quit, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png", text_size=30)
 		]
 
 		# mouse fx
@@ -222,7 +222,7 @@ class Game:
 					particle1.addParticles(mouse_pos[0], mouse_pos[1])
 
 				for button in buttons:
-					button.Process(event)
+					button.update(event)
 
 			for button in buttons:
 				button.draw()
@@ -372,7 +372,6 @@ class Game:
 						self.player_1.handle_event(event)
 
 						if event.key == pg.K_r:
-							self.client.sock.close()
 							self.__init__()
 							self.main_menu()
 

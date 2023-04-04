@@ -1,54 +1,66 @@
 import pygame as pg
+from support import *
 import sys
-# from settings import FONT
 
-class Button():
-
-    def __init__(self, game, x, y, width, height, size, buttonText="button", onClickFunction=None, id=None):
+class Button:
+    def __init__(self, game, text, pos, function, base=(0,0,300,81), hovered=(0,0,300,81), base_color=(77,77,255,50), hover_color=(77, 77, 80), text_color=(255,255,255), text_size=64, hovered_pos=None):
         self.game = game
-        self.displaySurf = pg.display.get_surface()
-        self.x = x
-        self.y = y
-        self.width = width
-        self.height = height
-        self.onClickFunction = onClickFunction
-        FONT = pg.font.Font('assets/ui/font/minotaur.ttf', size)
-        self.font = FONT
+        self.text = text
+        self.pos = pos
+        self.function = function
 
-        self.fillColors = {
-            'normal': '#ffffff',
-            'hover': '#666666',
-            'pressed': '#333333',
-        }
+        if isinstance(base, str):
+            self.base = get_image(base)
+            self.rect = self.base.get_rect()
+            self.surf = pygame.Surface((self.rect[2], self.rect[3]), pygame.SRCALPHA)
+            self.base_func = self.draw_image
+        else:
+            self.base = pygame.Rect(base)
+            self.rect = self.base.copy()
+            self.surf = pygame.Surface((base[2], base[3]), pygame.SRCALPHA)
+            self.base_func = self.draw_rect
+        self.center = self.surf.get_rect().center
 
-        image = pg.image.load('./assets/ui/buttons/button_plate1.png').convert_alpha()
-        self.buttonSurface = pg.transform.scale(image, (self.width, self.height))
-        #self.buttonRect = pg.Rect(self.x, self.y, self.width, self.height)
-        self.buttonRect = pg.Rect(x, y, self.width, self.height)
-        self.buttonRect.centerx, self.buttonRect.y = x, y
-        self.buttonSurf = self.font.render(buttonText, True, "white")
+        if isinstance(hovered, str):
+            self.hovered = get_image(hovered)
+            self.hover_func = self.draw_image
+        else:
+            self.hovered = pygame.Rect(hovered)
+            self.hover_func = self.draw_rect
 
-        self.id = id
-
-    def Process(self, event):
-        if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
-
-            mousePos = pg.mouse.get_pos()
-            if self.buttonRect.collidepoint(mousePos):
-
-                    if self.onClickFunction != None:
-                        if self.onClickFunction == pg.quit:
-                            self.onClickFunction()
-                            sys.exit()
-                        elif self.onClickFunction == self.game.join_session:
-                            self.game.join_session(self.id)
-                        elif self.onClickFunction == self.game.leave_session:
-                            self.game.leave_session()
-                        else:
-                            self.onClickFunction()
+        self.rect.center = self.pos
+        self.text_color = text_color
+        self.base_color = base_color
+        self.hover_color = hover_color
+        self.size = text_size
+        if hovered_pos is None:
+            self.hovered_pos = pos
+        else:
+            self.hovered_pos = hovered_pos
+        self.is_hovered = False
+    
+    def update(self, event):
+        pos = pygame.mouse.get_pos()
+        if self.rect.collidepoint(pos[0], pos[1]):
+            self.is_hovered = True
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                #play_sound("Assets/sounds/click.mp3")
+                self.function()
+        else:
+            self.is_hovered = False
 
     def draw(self):
-        self.buttonSurface.blit(self.buttonSurf, (self.buttonRect.width/2 - self.buttonSurf.get_rect().width/2, self.buttonRect.height/2 - self.buttonSurf.get_rect().height/2
-        ))
+        self.surf.fill((0,0,0,0))
+        if self.is_hovered:
+            self.hover_func(self.hovered, self.hover_color)
+        else:
+            self.base_func(self.base, self.base_color)
+        if self.text:
+            draw_text(self.surf, self.text, self.center, self.size, self.text_color)
+        self.game.screen.blit(self.surf, self.rect.topleft)
 
-        self.displaySurf.blit(self.buttonSurface, self.buttonRect)
+    def draw_rect(self, rect, color):
+        pygame.draw.rect(self.surf, color, rect)
+
+    def draw_image(self, image, color):
+        self.surf.blit(image, (0,0))
