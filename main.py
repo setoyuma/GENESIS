@@ -17,7 +17,7 @@ from support import *
 from lobby import Lobby
 from server import Server
 from client import Client
-from host import Host
+# from host import Host
 
 health_bar_colors = ColorGradient((0,255,0), (255,0,0)).generate_gradient()
 blast_polygon_colors = ColorGradient((255,255,255), (255,255,0)).generate_gradient()
@@ -421,39 +421,8 @@ class Game:
 			}
 		}
 		self.client.send_message(data)
-		# if connected draw the session creation screen
-		pg.display.set_caption("Kami No Ken: CREATE SESSION")
-		bg = get_image("./assets/backgrounds/main-menu/KnK.png")
-		bg_pos = bg.get_rect().center # wouldnt line up in center for some reason
-		buttons = [
-			Button(self.settings["screen_width"]/2, self.settings["screen_height"]/2, 200, 100, 30, "PLAY"),
-			Button(self.settings["screen_width"] - 100, 0 - 10, 200, 100, 30, "QUIT", pg.quit),
-		]
+		print('registering...')
 
-		# mouse fx
-		particle1 = ParticlePrinciple()
-		PARTICLE_EVENT = pg.USEREVENT + 1
-		pg.time.set_timer(PARTICLE_EVENT,5)
-
-		while True:
-			self.screen.fill('black')
-			self.screen.blit(bg, (480,115))
-
-			for event in pg.event.get():
-				check_for_quit(event)
-
-				if event.type == PARTICLE_EVENT:
-					mouse_pos = pg.mouse.get_pos()
-					particle1.addParticles(mouse_pos[0], mouse_pos[1])
-
-				for button in buttons:
-					button.Process(event)
-			
-			for button in buttons:
-				button.draw()
-			
-			particle1.emit()
-			self.send_frame()
 
 	def lobby_view(self):
 		pg.display.set_caption("Kami No Ken: LOBBY PLAY")
@@ -462,8 +431,8 @@ class Game:
 		PARTICLE_EVENT = pg.USEREVENT + 1
 		pg.time.set_timer(PARTICLE_EVENT,5)
 		self.buttons = [
-			Button(self.screen.get_width()/2, self.screen.get_height()/2, 200, 100, 30, "CREATE SESSION", self.create_lobby),
-			Button(self.screen.get_width()/4, self.screen.get_height()/2, 200, 100, 30, "JOIN SESSION", self.create_lobby),
+			Button(self.screen.get_width()/2, -50, 400, 200, 30, "CREATE", self.create_lobby),
+			Button(self.screen.get_width()/3, -50, 400, 200, 30, "JOIN"),
 		]
 
 		self.session_buttons = []
