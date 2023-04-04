@@ -40,6 +40,7 @@ class Fighter:
         if self.AI:
             img = pg.transform.flip(self.image, True, False)
         self.particle = ParticlePrinciple()
+        self.frame_index = 0  # for guest client
 
         # attacks
         self.move_combo = []
@@ -236,11 +237,6 @@ class Fighter:
 
         self.animation = self.animations[self.status]
 
-        self.image = self.animation.update(dt)
-
-        if not self.facing_right:
-            self.image = pg.transform.flip(self.image, True, False)
-
         if self.animation.done and not self.animation.loop:
             if self.status in ACTIONS:
                 self.animation.reset()
@@ -255,6 +251,11 @@ class Fighter:
     def draw(self):
         #pygame.draw.rect(self.game.screen, (0,0,255), self.rect)
         #pygame.draw.rect(self.game.screen, (0,255,0), self.hit_box)
+        if not self.game.client.is_host:
+            self.animation = self.animations[self.status]
+            self.image = self.animation.animation[self.frame_index]
+            if not self.facing_right:
+                self.image = pg.transform.flip(self.image, True, False)
         self.game.screen.blit(self.image, (self.rect.x - 90, self.rect.y - 15))
         self.particle.emit()
         if self.projectile is not None:
@@ -422,7 +423,7 @@ class Fighter:
 
     def to_dict(self):
         return {
-            'image': self.image,
+            'frame_index': self.animation.frame_index,
             'current_hp': self.current_hp,
             'super_meter': self.super_meter,
             'blast_meter': self.blast_meter,
@@ -441,7 +442,7 @@ class Fighter:
         }
 
     def from_dict(self, data):
-        self.image = data['image']
+        self.frame_index = data['frame_index']
         self.current_hp = data['current_hp']
         self.super_meter = data['super_meter']
         self.blast_meter = data['blast_meter']

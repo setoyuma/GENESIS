@@ -172,15 +172,14 @@ class Client:
             button = Button(self.game, session["name"], (1400, 40*i+150), self.game.join_session, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png", text_size=30, id=session["id"])
             self.game.session_buttons.append(button)
 
-    def send_gamestate(self, pressed_keys):
+    def send_gamestate(self):
         p1 = self.game.player_1
         p2 = self.game.player_2
         gamestate = {
             "type": "update",
             "player_1": self.game.player_1.to_dict(),
             "player_2": self.game.player_2.to_dict(),
-            "match_time": self.game.match_time,
-            "pressed_keys": pressed_keys
+            "match_time": self.game.match_time
         }
         self.send_message(gamestate)
 
