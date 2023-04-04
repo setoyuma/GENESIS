@@ -24,7 +24,7 @@ class Button():
         image = pg.image.load('./assets/ui/buttons/button_plate1.png').convert_alpha()
         self.buttonSurface = pg.transform.scale(image, (self.width, self.height))
         #self.buttonRect = pg.Rect(self.x, self.y, self.width, self.height)
-        self.buttonRect = self.buttonSurface.get_rect()
+        self.buttonRect = pg.Rect(x, y, self.width, self.height)
         self.buttonRect.centerx, self.buttonRect.y = x, y
         self.buttonSurf = self.font.render(buttonText, True, "white")
 
@@ -48,9 +48,7 @@ class Button():
                             self.onClickFunction()
 
     def draw(self):
-        self.buttonSurface.blit(self.buttonSurf, (
-            self.buttonRect.width/2 - self.buttonSurf.get_rect().width/2,
-            self.buttonRect.height/2 - self.buttonSurf.get_rect().height/2
+        self.buttonSurface.blit(self.buttonSurf, (self.buttonRect.width/2 - self.buttonSurf.get_rect().width/2, self.buttonRect.height/2 - self.buttonSurf.get_rect().height/2
         ))
 
         self.displaySurf.blit(self.buttonSurface, self.buttonRect)

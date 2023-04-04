@@ -372,6 +372,7 @@ class Game:
 						self.player_1.handle_event(event)
 
 						if event.key == pg.K_r:
+							self.client.sock.close()
 							self.__init__()
 							self.main_menu()
 
