@@ -159,7 +159,7 @@ class Client:
     def populate_session_list(self, sessions):
         self.game.session_buttons = []
         for i, session in enumerate(sessions):
-            button = Button(self.game.game, session["name"], (1400, 40*i+150), self.game.join_session, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png", text_size=30, id=session["id"])
+            button = Button(self.game, session["name"], (1400, 40*i+150), self.game.join_session, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png", text_size=30, id=session["id"])
             self.game.session_buttons.append(button)
 
     def send_gamestate(self):

@@ -61,6 +61,12 @@ class Lobby(Server):
         # add it to the sessions dict
         self.sessions[client] = session_info
         print(f"Registered session: {session_info}")
+        sessions_list = list(self.sessions.values())
+        data = {
+            "type": "session_list",
+            "sessions": sessions_list,
+        }
+        self.broadcast(data)
 
     def send_sessions(self, client):
         print(f"Session list sent to {client}")
