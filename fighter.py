@@ -8,6 +8,11 @@ from constants import *
 from support import *
 
 
+class Event:
+    def __init__(self, key=None):
+        self.key = key
+
+
 class Fighter:
     def __init__(self, game, num, x, y, char, mode="Play"):
         self.game = game

@@ -2,7 +2,7 @@ import pygame as pg
 import sys
 import json
 
-from fighter import Fighter
+from fighter import Fighter, Event
 from particle import ParticlePrinciple
 from color_animation import ColorGradient
 from animation import Animator
@@ -587,7 +587,7 @@ class Game:
 		else:  # send event to host
 			data = {
 				"type": "event",
-				"event": event
+				"event": Event(event.key)
 			}
 			self.client.send_message(data)
 
@@ -604,7 +604,6 @@ class Game:
 		print("sent handshake message to lobby")
 		# host no longer needs to interact with lobby (assuming hole-punch goes well)
 		self.client.set_server(guest_client)
-		self.play_online()
 
 	def play_online(self):
 		pg.display.set_caption("Kami No Ken: GENESIS")
@@ -612,19 +611,18 @@ class Game:
 		pg.mixer.music.play(-1)
 
 		self.player_1 = Fighter(self, 1, 200, 510, "Homusubi", "Play")
-		self.player_2 = Fighter(self, 2, 1000, 570, "Homusubi", "Play")
+		self.player_2 = Fighter(self, 2, 1000, 510, "Homusubi", "Play")
 		self.players = [self.player_2, self.player_1]  # reversed for client draw order
 
 		COUNT_DOWN = pg.USEREVENT + 1
 		self.match_time = 99
 		self.time_accumulator = 0
-		self.start_countdown = False
 		self.countdown = 5.0
 		self.match_started = False
 
 		# pre-match
 		while self.countdown > 0.0:
-			self.client.send_message(b'0', serialize=False)  # heartbeat
+			#self.client.send_message(b'0', serialize=False)  # heartbeat
 			# environment
 			self.screen.fill('black')
 			#self.camera.update(self.player_1, self.player_2)
@@ -639,8 +637,7 @@ class Game:
 			draw_text(self.screen, str(round(self.countdown, ndigits=2)), (self.HALF_SCREENW, self.HALF_SCREENH))
 
 			self.send_frame()
-			if self.start_countdown:
-				self.countdown -= self.dt
+			self.countdown -= self.dt
 
 		# match
 		while True:
