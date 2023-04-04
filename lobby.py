@@ -44,7 +44,6 @@ class Lobby(Server):
 
         # host has initiated a handshake with guest
         elif decoded_data["type"] == "handshake":
-            print("requested repsonse from guest")
             self.send_message({"type": "handshake"}, self.sessions[client]["clients"][1])  # tells Guest to finish the handshake
 
         # guest has left the session

@@ -424,9 +424,10 @@ class Fighter:
 
     def to_dict(self):
         return {
-            "current_hp": self.current_hp,
-            "super_meter": self.super_meter,
-            "blast_meter": self.blast_meter,
+            'image': self.image,
+            'current_hp': self.current_hp,
+            'super_meter': self.super_meter,
+            'blast_meter': self.blast_meter,
             'speed': self.speed,
             'status': self.status,
             'rect': (self.rect.x, self.rect.y, self.rect.width, self.rect.height),
@@ -442,6 +443,7 @@ class Fighter:
         }
 
     def from_dict(self, data):
+        self.image = data['image']
         self.current_hp = data['current_hp']
         self.super_meter = data['super_meter']
         self.blast_meter = data['blast_meter']
