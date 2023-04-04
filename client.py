@@ -150,6 +150,10 @@ class Client:
                 event = Event(key)
                 self.game.player_2.handle_event(event)
 
+            # pressed_keys from guest
+            case 'pressed_keys':
+                self.game.pressed_keys = decoded_data["pressed_keys"]
+
             # gamestate update from host
             case 'update':
                 p1_data = decoded_data["player_1"]
@@ -168,14 +172,15 @@ class Client:
             button = Button(self.game, session["name"], (1400, 40*i+150), self.game.join_session, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png", text_size=30, id=session["id"])
             self.game.session_buttons.append(button)
 
-    def send_gamestate(self):
+    def send_gamestate(self, pressed_keys):
         p1 = self.game.player_1
         p2 = self.game.player_2
         gamestate = {
             "type": "update",
             "player_1": self.game.player_1.to_dict(),
             "player_2": self.game.player_2.to_dict(),
-            "match_time": self.game.match_time
+            "match_time": self.game.match_time,
+            "pressed_keys": pressed_keys
         }
         self.send_message(gamestate)
 

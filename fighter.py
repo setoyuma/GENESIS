@@ -39,8 +39,6 @@ class Fighter:
         self.AI = num - 1
         if self.AI:
             img = pg.transform.flip(self.image, True, False)
-            # if in AI mode, init a pressed_keys dict for the AI to keep track of
-            self.pressed_keys = pygame.key.get_pressed()
         self.particle = ParticlePrinciple()
 
         # attacks
@@ -124,8 +122,8 @@ class Fighter:
             target.current_hp = 0
             target.alive = False
 
-        if self.AI:
-            pressed_keys = self.pressed_keys
+        if self.AI or not self.game.client.is_host:
+            pressed_keys = self.game.pressed_keys
         else:
             pressed_keys = pg.key.get_pressed()
 

@@ -615,6 +615,7 @@ class Game:
 		self.player_1 = Fighter(self, 1, 200, 510, "Homusubi", "Play")
 		self.player_2 = Fighter(self, 2, 1000, 510, "Homusubi", "Play")
 		self.players = [self.player_2, self.player_1]  # reversed for client draw order
+		self.pressed_keys = pygame.key.get_pressed()
 
 		COUNT_DOWN = pg.USEREVENT + 1
 		self.match_time = 99
@@ -663,6 +664,8 @@ class Game:
 				self.player_1.update(self.dt, self.player_2)
 				self.player_2.update(self.dt, self.player_1)
 				self.client.send_gamestate()  # update player 2's gamestate
+			else:
+				self.client.send_message({"type": "pressed_keys", "pressed_keys": pg.key.get_pressed()})
 
 			# environment
 			self.screen.fill('black')
