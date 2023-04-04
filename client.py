@@ -119,6 +119,8 @@ class Client:
 
     def handle_message(self, data, addr):
         decoded_data = json.loads(data.decode('utf-8'))
+        if isinstance(decoded_data, int):
+            return
 
         match decoded_data["type"]:
             # session list from lobby server
@@ -135,11 +137,13 @@ class Client:
                 self.set_server(self.game.session["clients"][0])
                 # finishes the hole-punch connection
                 self.send_message({"type": "ready"})  # at this point the server has been set to the Host
+                print("Direct connection established. Countdown started.")
                 self.game.start_countdown = True
 
             # Guest has established a direct connection and is ready to start
             case 'ready':
                 self.game.start_countdown = True
+                self.game.play_online()
 
             # event from guest
             case 'event':

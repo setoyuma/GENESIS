@@ -598,8 +598,10 @@ class Game:
 		# send a packet to Guest
 		guest_client = self.session["clients"][1]
 		self.client.sock.sendto(b'0', (guest_client[0], guest_client[1]))
+		print("sent packet guest")
 		# tell Lobby you started a handshake
-		self.client.send_message({"type": "handshake", "id": self.session["id"]})
+		self.client.send_message({"type": "handshake"})
+		print("sent handshake message to lobby")
 		# host no longer needs to interact with lobby (assuming hole-punch goes well)
 		self.client.set_server(guest_client)
 		self.play_online()
@@ -620,9 +622,9 @@ class Game:
 		self.countdown = 5.0
 		self.match_started = False
 
-		while not self.match_started:
+		# pre-match
+		while self.countdown > 0.0:
 			self.client.send_message(b'0', serialize=False)  # heartbeat
-			self.screen.fill("black")
 			# environment
 			self.screen.fill('black')
 			#self.camera.update(self.player_1, self.player_2)
@@ -640,6 +642,7 @@ class Game:
 			if self.start_countdown:
 				self.countdown -= self.dt
 
+		# match
 		while True:
 			if self.stun_frames >= self.max_stun_frames:
 				self.hit_stun = False
@@ -660,7 +663,7 @@ class Game:
 			if self.client.is_host:
 				self.player_1.update(self.dt, self.player_2)
 				self.player_2.update(self.dt, self.player_1)
-				self.send_gamestate()  # update player 2's gamestate
+				self.client.send_gamestate()  # update player 2's gamestate
 
 			# environment
 			self.screen.fill('black')
