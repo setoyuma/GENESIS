@@ -421,3 +421,39 @@ class Fighter:
                     self.projectile.frames_passed = 0
                     self.throwing_proj = True
                     self.move_combo = []
+
+    def to_dict(self):
+        return {
+            "current_hp": self.current_hp,
+            "super_meter": self.super_meter,
+            "blast_meter": self.blast_meter,
+            'speed': self.speed,
+            'status': self.status,
+            'rect': (self.rect.x, self.rect.y, self.rect.width, self.rect.height),
+            'hit_box': (self.hit_box.x, self.hit_box.y, self.hit_box.width, self.hit_box.height),
+            'on_ground': self.on_ground,
+            'alive': self.alive,
+            'facing_right': self.facing_right,
+            'dX': self.dX,
+            'dY': self.dY,
+            'gravity': self.gravity,
+            'jump_force': self.jump_force,
+            'move_speed': self.move_speed
+        }
+
+    def from_dict(self, data):
+        self.current_hp = data['current_hp']
+        self.super_meter = data['super_meter']
+        self.blast_meter = data['blast_meter']
+        self.speed = data['speed']
+        self.status = data['status']
+        self.rect = pg.Rect(data['rect'][0], data['rect'][1], data['rect'][2], data['rect'][3])
+        self.hit_box = pg.Rect(data['hit_box'][0], data['hit_box'][1], data['hit_box'][2], data['hit_box'][3])
+        self.on_ground = data['on_ground']
+        self.alive = data['alive']
+        self.facing_right = data['facing_right']
+        self.dX = data['dX']
+        self.dY = data['dY']
+        self.gravity = data['gravity']
+        self.jump_force = data['jump_force']
+        self.move_speed = data['move_speed']

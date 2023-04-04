@@ -152,23 +152,10 @@ class Client:
 
             # gamestate update from host
             case 'update':
-                p1 = self.game.player_1
-                p2 = self.game.player_2
                 p1_data = decoded_data["player_1"]
                 p2_data = decoded_data["player_2"]
-
-                p1.rect.topleft = p1_data["pos"]
-                p1.current_hp = p1_data["hp"]
-                p1.status = p1_data["status"]
-                p1.super_meter = p1_data["super"]
-                p1.blast_meter = p1_data["blast"]
-
-                p2.rect.topleft = p2_data["pos"]
-                p2.current_hp = p2_data["hp"]
-                p2.status = p2_data["status"]
-                p2.super_meter = p2_data["super"]
-                p2.blast_meter = p2_data["blast"]
-
+                self.game.player_1.from_dict(p1_data)
+                self.game.player_2.from_dict(p2_data)
                 self.game.match_time = decoded_data["match_time"]
 
             # connection to host no longer active
@@ -186,20 +173,8 @@ class Client:
         p2 = self.game.player_2
         gamestate = {
             "type": "update",
-            "player_1": {
-                "pos": p1.rect.topleft,
-                "hp": p1.current_hp,
-                "status": p1.status,
-                "super": p1.super_meter,
-                "blast": p1.blast_meter
-            },
-            "player_2": {
-                "pos": p2.rect.topleft,
-                "hp": p2.current_hp,
-                "status": p2.status,
-                "super": p2.super_meter,
-                "blast": p2.blast_meter
-            },
+            "player_1": {self.game.player_1.to_dict()},
+            "player_2": {self.game.player_2.to_dict()},
             "match_time": self.game.match_time
         }
         self.send_message(gamestate)
