@@ -4,7 +4,8 @@ import sys
 
 class Button():
 
-    def __init__(self, x, y, width, height, size, buttonText="button", onClickFunction=None):
+    def __init__(self, game, x, y, width, height, size, buttonText="button", onClickFunction=None, id=None):
+        self.game = game
         self.displaySurf = pg.display.get_surface()
         self.x = x
         self.y = y
@@ -27,6 +28,8 @@ class Button():
         self.buttonRect.centerx, self.buttonRect.y = x, y
         self.buttonSurf = self.font.render(buttonText, True, "white")
 
+        self.id = id
+
     def Process(self, event):
         if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
 
@@ -34,9 +37,13 @@ class Button():
             if self.buttonRect.collidepoint(mousePos):
 
                     if self.onClickFunction != None:
-                        self.onClickFunction()
                         if self.onClickFunction == pg.quit:
+                            self.onClickFunction()
                             sys.exit()
+                        elif self.onClickFunction == self.game.join_session:
+                            self.game.join_session(self.id)
+                        else:
+                            self.onClickFunction()
 
     def draw(self):
         self.buttonSurface.blit(self.buttonSurf, (

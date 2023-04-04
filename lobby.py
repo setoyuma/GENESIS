@@ -55,7 +55,7 @@ class Lobby(Server):
     def unregister_session(self, client):
         if client in self.sessions:
             del self.sessions[client]
-            print(f"Unregistered session: {client}")
+            print(f"Unregistered session: {self.sessions[client]}")
 
 
 if __name__ == "__main__":

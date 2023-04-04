@@ -43,7 +43,7 @@ class Client:
                 self.game.session_buttons = []
                 for i, session in enumerate(decoded_data["sessions"]):
                     print(session)
-                    button = Button(100,40*i+30,100,50,30,session["name"])
+                    button = Button(self.game, 1400,40*i+160,250,80,30,session["name"], self.game.join_session, session["id"])
                     self.game.session_buttons.append(button)
 
             # gamestate update from server

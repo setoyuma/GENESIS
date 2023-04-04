@@ -201,8 +201,8 @@ class Game:
 		bg = get_image("./assets/backgrounds/main-menu/KnK.png")
 		bg_pos = bg.get_rect().center # wouldnt line up in center for some reason
 		buttons = [
-			Button(self.settings["screen_width"]/2, self.settings["screen_height"]/2, 200, 100, 30, "PLAY", self.home_screen),
-			Button(self.settings["screen_width"] - 100, 0 - 10, 200, 100, 30, "QUIT", pg.quit),
+			Button(self, self.settings["screen_width"]/2, self.settings["screen_height"]/2, 200, 100, 30, "PLAY", self.home_screen),
+			Button(self, self.settings["screen_width"] - 100, 0 - 10, 200, 100, 30, "QUIT", pg.quit),
 		]
 
 		# mouse fx
@@ -237,12 +237,12 @@ class Game:
 		PARTICLE_EVENT = pg.USEREVENT + 1
 		pg.time.set_timer(PARTICLE_EVENT,5)
 		buttons = [
-			Button(70, 40, 200, 100, 30, "LOCAL", self.play_local),
-			Button(70, 120, 200, 100, 30, "ONLINE", self.lobby_view),
-			Button(70, 200, 200, 100, 30, "BACK", self.main_menu),
-			#Button(70, 120, 200, 100, 30, "TRAINING", self.training),
-			Button(70, 280, 200, 100, 30, "OPTIONS", self.options),
-			Button(self.settings["screen_width"] - 100, 0 - 10, 200, 100, 30, "QUIT", pg.quit),
+			Button(self, 70, 40, 200, 100, 30, "LOCAL", self.play_local),
+			Button(self, 70, 120, 200, 100, 30, "ONLINE", self.lobby_view),
+			Button(self, 70, 200, 200, 100, 30, "BACK", self.main_menu),
+			#Button(self, 70, 120, 200, 100, 30, "TRAINING", self.training),
+			Button(self, 70, 280, 200, 100, 30, "OPTIONS", self.options),
+			Button(self, self.settings["screen_width"] - 100, 0 - 10, 200, 100, 30, "QUIT", pg.quit),
 		]
 		while True:
 			self.screen.fill('black')
@@ -271,10 +271,10 @@ class Game:
 		PARTICLE_EVENT = pg.USEREVENT + 1
 		pg.time.set_timer(PARTICLE_EVENT,5)
 		buttons = [
-			Button(self.settings["screen_width"]//2, 480, 200, 100, 30, "BACK", self.home_screen),
-			Button(self.settings["screen_width"]//2, 320, 200, 100, 30, "SOUND", self.sound_settings),
-			Button(self.settings["screen_width"]//2, 400, 200, 100, 30, "FULLSCREEN", pg.display.toggle_fullscreen),
-			Button(self.settings["screen_width"] - 100, 0 - 10, 200, 100, 30, "QUIT", pg.quit),
+			Button(self, self.settings["screen_width"]//2, 480, 200, 100, 30, "BACK", self.home_screen),
+			Button(self, self.settings["screen_width"]//2, 320, 200, 100, 30, "SOUND", self.sound_settings),
+			Button(self, self.settings["screen_width"]//2, 400, 200, 100, 30, "FULLSCREEN", pg.display.toggle_fullscreen),
+			Button(self, self.settings["screen_width"] - 100, 0 - 10, 200, 100, 30, "QUIT", pg.quit),
 		]
 		while True:
 			self.screen.fill('black')
@@ -306,8 +306,8 @@ class Game:
 		PARTICLE_EVENT = pg.USEREVENT + 1
 		pg.time.set_timer(PARTICLE_EVENT,5)
 		slider = Slider(self.settings["screen_width"]/2 - 95, 145, 200, 10, self.volume)
-		volume_button = Button(self.settings["screen_width"]/2, 40, 200, 100, 30, "VOLUME", None)
-		back_button = Button(self.settings["screen_width"]/2, 160, 200, 100, 30,"BACK", self.options)
+		volume_button = Button(self, self.settings["screen_width"]/2, 40, 200, 100, 30, "VOLUME", None)
+		back_button = Button(self, self.settings["screen_width"]/2, 160, 200, 100, 30,"BACK", self.options)
 		while True:
 			self.screen.fill('black')
 			self.screen.blit(mainMenuBG,(480,115))
@@ -425,7 +425,7 @@ class Game:
 		self.client.send_message(data)
 
 		self.buttons = [
-			Button(self.HALF_SCREENW, self.HALF_SCREENH, 200, 60, 30, "Leave", self.leave_session)
+			Button(self, self.screen.get_width()/3+650, 700, 200, 100, 30, "Leave", self.leave_session)
 		]
 
 	def leave_session(self):
@@ -444,6 +444,12 @@ class Game:
 			}
 		self.client.send_message(data)
 
+	def join_session(self, id):
+		data = {
+			"type": "session_join",
+			"session": id
+		}
+
 	def lobby_view(self):
 		pg.display.set_caption("Kami No Ken: LOBBY PLAY")
 		mainMenuBG = get_image("./assets/backgrounds/main-menu/KnK.png")
@@ -451,8 +457,8 @@ class Game:
 		PARTICLE_EVENT = pg.USEREVENT + 1
 		pg.time.set_timer(PARTICLE_EVENT,5)
 		self.buttons = [
-			Button(self.screen.get_width()/2, -50, 400, 200, 30, "CREATE", self.create_lobby),
-			Button(self.screen.get_width()/3, -50, 400, 200, 30, "JOIN"),
+			Button(self, self.screen.get_width()/2+650, 700, 200, 100, 30, "CREATE", self.create_lobby),
+			Button(self, self.screen.get_width()/3+650, 700, 200, 100, 30, "JOIN"),
 		]
 
 		self.session_buttons = []
@@ -476,8 +482,12 @@ class Game:
 				for session_button in self.session_buttons:
 					session_button.Process(event)
 
+			draw_text(self.screen, "Online sessions", (1400, 100), 40)
+			pg.draw.rect(self.screen, (0,155,0), (1250, 150, 300, 500), width=2, border_radius=1)
+
 			for session_button in self.session_buttons:
 				session_button.draw()
+
 			for button in self.buttons:
 				button.draw()
 			
