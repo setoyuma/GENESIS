@@ -3,12 +3,27 @@ NETCODE DOCS
 
 An instance of Client is created when the user
 goes into the online menu. The client initially
-connects to t he central lobby server and
+connects to the central lobby server and
 requests the session list.
 
-Client
- - initially connects to the central lobby
- - 
+If the user chooses to create a session, their
+client will be marked as a host and a session will
+be initiated on the lobby server. The user will 
+then have the option of leaving the session, or
+starting the match once another player connects.
+
+When the match is started, the clients exchange info
+with each other through the lobby server using STUN
+to initiate a direct connection before loading into the
+online_play scene.
+
+The host is assigned player_1 and client is assigned 
+player_2. Once the client sends the host a 'READY' 
+message, a countdown begins and the match starts.
+
+The host processes its own events as well as the 
+client's events. The host sends a gamestate update 
+to the client every frame.
 
 1. Player starts the game
 2. Game creates an instance of Client

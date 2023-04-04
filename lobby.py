@@ -16,6 +16,7 @@ class Lobby(Server):
     def __init__(self):
         super().__init__()
         self.sessions = {}
+        self.id_counter = 1
 
     def handle_message(self, data, client):
         decoded_data = json.loads(data.decode('utf-8'))
@@ -29,15 +30,18 @@ class Lobby(Server):
 
         elif decoded_data["type"] == "unregister_session":
             self.unregister_session(client)
+        
+        elif decoded_data["type"] == "disconnect":
+            self.disconnect(client)
 
     def register_session(self, client, session_info):
+        # give the session an id
+        session_info["id"] = self.id_counter
+        self.id_counter += 1
+
+        # add it to the sessions dict
         self.sessions[client] = session_info
         print(f"Registered session: {session_info}")
-
-    def unregister_session(self, client):
-        if client in self.sessions:
-            del self.sessions[client]
-            print(f"Unregistered session: {client}")
 
     def send_sessions(self, client):
         print(f"Session list sent to {client}")
@@ -47,6 +51,12 @@ class Lobby(Server):
             "sessions": sessions_list,
         }
         self.send_message(response, client)
+
+    def unregister_session(self, client):
+        if client in self.sessions:
+            del self.sessions[client]
+            print(f"Unregistered session: {client}")
+
 
 if __name__ == "__main__":
     lobby = Lobby()

@@ -17,7 +17,6 @@ from support import *
 from lobby import Lobby
 from server import Server
 from client import Client
-# from host import Host
 
 health_bar_colors = ColorGradient((0,255,0), (255,0,0)).generate_gradient()
 blast_polygon_colors = ColorGradient((255,255,255), (255,255,0)).generate_gradient()
@@ -33,7 +32,7 @@ class Game:
 		self.setup_pygame()
 
 		self.hit_stun = None
-		self.client = Client(self, "73.247.171.208", 8001)  # client sends data to lobby server by default
+		self.client = Client(self, "45.56.77.161", 8001)  # client sends data to lobby server by default
 
 		# Game BG + BG Animation
 		self.bg = BACKGROUNDS["carnival"]
@@ -416,13 +415,34 @@ class Game:
 		data = {
 			"type": "register_session",
 			"session_info": {
-				"name": "Test session 2",
-				"id": 5
+				"name": "Test session"
 			}
 		}
 		self.client.send_message(data)
-		print('registering...')
 
+		# refresh the session list
+		data = {"type" : 'list_sessions'}
+		self.client.send_message(data)
+
+		self.buttons = [
+			Button(self.HALF_SCREENW, self.HALF_SCREENH, 200, 60, 30, "Leave", self.leave_session)
+		]
+
+	def leave_session(self):
+		self.session_id = 2
+		if self.client.is_host:
+			# delete the session
+			data = {
+				"type": "unregister_session",
+				"session": self.session_id
+			}
+		else:
+			# leave the session
+			data = {
+				"type": "disconnect",
+				"session": self.session_id
+			}
+		self.client.send_message(data)
 
 	def lobby_view(self):
 		pg.display.set_caption("Kami No Ken: LOBBY PLAY")
