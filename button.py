@@ -3,10 +3,11 @@ from support import *
 import sys
 
 class Button:
-    def __init__(self, game, text, pos, function, base=(0,0,300,81), hovered=(0,0,300,81), base_color=(77,77,255,50), hover_color=(77, 77, 80), text_color=(255,255,255), text_size=35, hovered_pos=None):
+    def __init__(self, game, text, pos, function, base=(0,0,300,81), hovered=(0,0,300,81), base_color=(77,77,255,50), hover_color=(77, 77, 80), text_color=(255,255,255), text_size=35, hovered_pos=None, id=None):
         self.game = game
         self.text = text
         self.pos = pos
+        self.id = id
         self.function = function
 
         if isinstance(base, str):
@@ -45,7 +46,18 @@ class Button:
             self.is_hovered = True
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 #play_sound("Assets/sounds/click.mp3")
-                self.function()
+                
+                if self.function != None:
+                        if self.function == pg.quit:
+                            self.function()
+                            sys.exit()
+                        elif self.function == self.game.join_session:
+                            self.game.join_session(self.id)
+                        elif self.function == self.game.leave_session:
+                            self.game.leave_session()
+                        else:
+                            self.function()                
+                
         else:
             self.is_hovered = False
 
