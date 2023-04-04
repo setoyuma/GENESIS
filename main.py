@@ -516,7 +516,9 @@ class Game:
 			"id": id
 		}
 		self.client.send_message(data)
-		self.buttons = [Button(self, self.screen.get_width()/2+605, 670, 200, 100, 30, "Leave", self.leave_session)]
+		self.buttons = [
+			Button(self, self.screen.get_width()/2+605, 670, 200, 100, 30, "Leave", self.leave_session)
+			]
 
 	def leave_session(self):
 		data = {
