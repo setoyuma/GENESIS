@@ -545,8 +545,12 @@ class Game:
 		self.session_buttons = []
 		self.session = None
 		self.get_session_list()
+		self.start_countdown = False
 
 		while True:
+			if self.start_countdown:
+				self.play_online()
+
 			self.screen.fill('black')
 			self.screen.blit(mainMenuBG,(480,115))
 
@@ -613,15 +617,18 @@ class Game:
 		self.player_1 = Fighter(self, 1, 200, 510, "Homusubi", "Play")
 		self.player_2 = Fighter(self, 2, 1000, 510, "Homusubi", "Play")
 		self.players = [self.player_2, self.player_1]  # reversed for client draw order
+		print()
 
 		COUNT_DOWN = pg.USEREVENT + 1
 		self.match_time = 99
 		self.time_accumulator = 0
 		self.countdown = 5.0
 		self.match_started = False
+		print("test2")
 
 		# pre-match
 		while self.countdown > 0.0:
+			print("frame")
 			#self.client.send_message(b'0', serialize=False)  # heartbeat
 			# environment
 			self.screen.fill('black')

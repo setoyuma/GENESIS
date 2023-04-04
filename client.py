@@ -138,12 +138,12 @@ class Client:
                 # finishes the hole-punch connection
                 self.send_message({"type": "ready"})  # at this point the server has been set to the Host
                 print("Direct connection established. Countdown started.")
-                self.game.play_online()
+                self.game.start_countdown = True
 
             # Guest has established a direct connection and is ready to start
             case 'ready':
                 print("host recieved ready message")
-                self.game.play_online()
+                self.game.start_countdown = True
 
             # event from guest
             case 'event':
