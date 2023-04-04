@@ -107,7 +107,8 @@ class Client:
         return IP
 
     # replaces the current server with a new one
-    def set_server(self, ip, port):
+    def set_server(self, client):
+        ip, port = client
         self.server_ip = ip
         self.server_port = port
 
@@ -130,15 +131,22 @@ class Client:
 
             # Host has initiated a handshake
             case 'handshake':
+                # set server to host client
+                self.client.set_server(self.game.session["clients"][0])
                 # finishes the hole-punch connection
-                self.send_message(b'0')  # at this point the server has been set to the Host
+                self.send_message({"type": "ready"})  # at this point the server has been set to the Host
+                self.game.start_countdown = True
 
-            # event from player 2 client
+            # Guest has established a direct connection and is ready to start
+            case 'ready':
+                self.game.start_countdown = True
+
+            # event from guest
             case 'event':
                 event = decoded_data["event"]
                 self.game.player_2.handle_event(event)
 
-            # gamestate update from player 1 client
+            # gamestate update from host
             case 'update':
                 self.game.player_1 = decoded_data["players"][0]
                 self.game.player_2 = decoded_data["players"][1]
@@ -154,12 +162,13 @@ class Client:
             button = Button(self.game, 1400,40*i+150,250,80,30,session["name"], self.game.join_session, session["id"])
             self.game.session_buttons.append(button)
 
-    def update(self, data):
-        data = {
-            'type': 'UPDATE',
-            'data': data
+    def send_gamestate(self):
+        gamestate = {
+            "type": "update",
+            "players": self.game.players,
+            "match_time": self.game.match_time
         }
-        self.sock.sendto(json.dumps(data).encode('utf-8'), (self.ip, self.port))
+        self.send_message(gamestate)
 
     def send_message(self, message):
         self.sock.sendto(json.dumps(message).encode('utf-8'), (self.server_ip, self.server_port))

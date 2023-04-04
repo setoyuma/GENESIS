@@ -585,14 +585,6 @@ class Game:
 			particle1.emit()
 			self.send_frame()
 
-	def send_gamestate(self):
-		gamestate = {
-			"type": "update",
-			"players": self.players,
-			"match_time": self.match_time
-		}
-		self.client.send_message(gamestate)
-
 	def handle_event(self, event):
 		if self.client.is_host:
 			self.player_1.handle_event(event)
@@ -604,7 +596,16 @@ class Game:
 			self.client.send_message(data)
 
 	def start_match(self):
-		pass
+		if not len(self.session["clients"]) == 2:
+			print("2 players required to start a match.")
+			return
+		# send a packet to Guest
+		guest_client = self.session["clients"][1]
+		self.client.sock.sendto(b'0', guest_client)
+		# tell Lobby you started a handshake
+		self.client.send_message({"type": "handshake", "id": self.session["id"]})
+		# host no longer needs to interact with lobby (assuming hole-punch goes well)
+		self.client.set_server(guest_client)
 
 	def play_online(self):
 		pg.display.set_caption("Kami No Ken: GENESIS")
@@ -618,6 +619,29 @@ class Game:
 		COUNT_DOWN = pg.USEREVENT + 1
 		self.match_time = 99
 		self.time_accumulator = 0
+		self.start_countdown = False
+		self.countdown = 5.0
+		self.match_started = False
+
+		while not self.match_started:
+			self.client.send_message(b'0')  # heartbeat
+			self.screen.fill("black")
+			# environment
+			self.screen.fill('black')
+			#self.camera.update(self.player_1, self.player_2)
+			self.screen.blit(self.background.update(self.dt), (-self.camera.rect.x, -self.camera.rect.y))
+			self.draw_HUD()
+
+			# srpites
+			for player in self.players:
+				player.draw()
+
+			# countdown
+			draw_text(self.screen, str(round(self.countdown, ndigits=2)), (self.HALF_SCREENW, self.HALF_SCREENH))
+
+			self.send_frame()
+			if self.start_countdown:
+				self.countdown -= self.dt
 
 		while True:
 			if self.stun_frames >= self.max_stun_frames:
