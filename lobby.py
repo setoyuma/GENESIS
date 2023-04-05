@@ -28,9 +28,9 @@ class Lobby(Server):
         decoded_data = json.loads(data.decode('utf-8'))
 
         # client keep-alive message
-        if message_type == "heartbeat":
+        if decoded_data["type"] == "heartbeat":
             with self.clients_lock:
-                self.last_heartbeat[client] = time.time()
+                self.clients[client] = time.time()
 
         # a client created a session
         elif decoded_data["type"] == "register_session":
