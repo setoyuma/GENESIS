@@ -216,6 +216,9 @@ class Game:
 		# host no longer needs to interact with lobby (assuming hole-punch goes well)
 		self.client.set_server(guest_client)
 
+	def end_match(self):
+		pass
+
 
 if __name__ == '__main__':
 	game = Game()

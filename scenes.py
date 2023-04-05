@@ -36,6 +36,30 @@ class Scene:
             sys.exit()
 
 
+class Match(Scene):
+	def __init__(self, game):
+		super().__init__(game)
+
+	def draw_stage(self):
+		self.game.screen.fill('black')
+		self.game.screen.blit(self.game.background.update(self.game.dt), (-self.game.camera.rect.x, -self.game.camera.rect.y))
+		self.game.draw_HUD()
+		self.game.show_fps()
+		#if self.player_1.attack_rect is not None:
+		#	pg.draw.rect(self.screen, "green", self.player_1.attack_rect)
+
+	def draw_players(self):
+		# srpites
+		for player in self.game.players:
+			player.draw()
+
+		# damage text
+		for player in self.game.players:
+			if player.animated_text is not None:
+				if player.animated_text.update():
+					player.animated_text = None
+
+
 class Main_Menu(Scene):
 	def __init__(self, game):
 		super().__init__(game)
@@ -85,8 +109,7 @@ class Home_Screen(Scene):
 			Button(game, "BACK",(70,200), Main_Menu,"assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png"),
 			Button(game, "OPTIONS",(70,280), Options,"assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png"),
 			Button(game, "TRAINING",(70,360), Training,"assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png"),
-			Button(game, "QUIT", (self.game.settings["screen_width"]-100,50), pg.quit, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png"),
-			#Button(self, 70, 120, 200, 100, 30, "TRAINING", self.training),
+			Button(game, "QUIT", (self.game.settings["screen_width"]-100,50), pg.quit, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png")
 		]
 
 		# mouse fx
@@ -117,7 +140,7 @@ class Home_Screen(Scene):
 		self.accumulator += self.game.dt
 
 
-class Local_Play(Scene):
+class Local_Play(Match):
 	def __init__(self, game):
 		super().__init__(game)
 		pg.display.set_caption("Kami No Ken: GENESIS")
@@ -138,9 +161,8 @@ class Local_Play(Scene):
 			self.game.stun_frames += 0.5
 
 		# process client events
-		pressed_keys = pg.key.get_pressed()
 		for event in pg.event.get():
-			self.check_universal_events(pressed_keys, event)
+			self.check_universal_events(self.game.pressed_keys, event)
 
 			if event.type == pg.KEYDOWN:
 				if not self.game.hit_stun:
@@ -163,29 +185,13 @@ class Local_Play(Scene):
 		self.game.camera.update(self.game.player_1, self.game.player_2)
 
 	def draw(self):
-		# environment
-		self.game.screen.fill('black')
-		self.game.screen.blit(self.game.background.update(self.game.dt), (-self.game.camera.rect.x, -self.game.camera.rect.y))
-		self.game.draw_HUD()
-		self.game.show_fps()
-		#if self.player_1.attack_rect is not None:
-		#	pg.draw.rect(self.screen, "green", self.player_1.attack_rect)
-
-		# srpites
-		for player in self.game.players:
-			player.draw()
-
-		# damage text
-		for player in self.game.players:
-			if player.animated_text is not None:
-				if player.animated_text.update():
-					player.animated_text = None
-
+		self.draw_stage()
+		self.draw_players()
 		self.game.send_frame()
 		self.game.time_accumulator += self.game.dt
 
 
-class Training(Scene):
+class Training(Match):
 	def __init__(self, game):
 		super().__init__(game)
 		pg.display.set_caption("Kami No Ken: TRAINING")
@@ -208,7 +214,7 @@ class Training(Scene):
 
 		# process client events
 		for event in pg.event.get():
-			check_for_quit(event)
+			self.check_universal_events(self.game.pressed_keys, event)
 
 			if event.type == pg.KEYDOWN:
 				if not self.game.hit_stun:
@@ -231,23 +237,9 @@ class Training(Scene):
 		self.game.camera.update(self.game.player_1, self.game.player_2)
 
 	def draw(self):
-		self.game.screen.fill('black')
-		self.game.screen.blit(self.game.background.update(self.game.dt), (-self.game.camera.rect.x, -self.game.camera.rect.y))
-		self.game.draw_HUD()
-		self.game.show_fps()
+		self.draw_stage()
 		self.user_buttons.draw()
-		#if self.player_1.attack_rect is not None:
-		#	pg.draw.rect(self.screen, "green", self.player_1.attack_rect)
-
-		for player in self.game.players:
-			player.draw()
-
-		# damage text
-		for player in self.game.players:
-			if player.animated_text is not None:
-				if player.animated_text.update():
-					player.animated_text = None
-
+		self.draw_players()
 		self.game.send_frame()
 		self.game.time_accumulator += self.game.dt
 
@@ -267,7 +259,7 @@ class LobbyView(Scene):
 
 	def update(self):
 		if self.game.start_countdown:
-			self.play_online()
+			self.game.sceneManager.scene = Online_play(self.game)
 
 		if self.accumulator >= 5 / 1000:
 			mouse_pos = pg.mouse.get_pos()
@@ -361,63 +353,63 @@ class LobbyView(Scene):
 		self.get_session_list()
 
 
-class PlayOnline(Scene):
+class Online_play(Match):
 	def __init__(self, game):
 		super().__init__(game)
 		pg.display.set_caption("Kami No Ken: GENESIS")
 		pg.mixer.music.load(f"./assets/music/{SONGS[2]}.wav")
 		pg.mixer.music.play(-1)
 
-		self.player_1 = Fighter(self, 1, 200, 510, "Homusubi", "Play")
-		self.player_2 = Fighter(self, 2, 1000, 510, "Homusubi", "Play")
-		self.players = [self.player_2, self.player_1]  # reversed for client draw order
-		self.pressed_keys = pygame.key.get_pressed()
-		self.match_time = 99
-		self.time_accumulator = 0
-		self.fixed_time_step = 1.0 / self.settings["FPS"]  # Fixed time step in seconds for updating and sending inputs
+		self.game.player_1 = Fighter(self.game, 1, 200, 510, "Homusubi", "Play")
+		self.game.player_2 = Fighter(self.game, 2, 1000, 510, "Homusubi", "Play")
+		self.game.players = [self.game.player_2, self.game.player_1]  # reversed for client draw order
+		self.game.fixed_time_step = 1.0 / self.game.settings["FPS"]  # Fixed time step in seconds for updating and sending inputs
+		self.game.pressed_keys = pygame.key.get_pressed()
+		self.game.match_started = False
+		self.game.time_accumulator = 0
+		self.game.match_time = 99
 		self.countdown = 5.0
-		self.match_started = False
 
 	# pre-match
 	def prematch(self):
 		while self.countdown > 0.0:
 			# environment
-			self.screen.fill('black')
-			self.screen.blit(self.background.update(self.dt), (-self.camera.rect.x, -self.camera.rect.y))
-			self.draw_HUD()
+			self.game.screen.fill('black')
+			self.game.screen.blit(self.game.background.update(self.game.dt), (-self.game.camera.rect.x, -self.game.camera.rect.y))
+			self.game.draw_HUD()
 
 			# srpites
-			for player in self.players:
+			for player in self.game.players:
 				player.draw()
 
 			# countdown
-			draw_text(self.screen, str(round(self.countdown, ndigits=2)), (self.HALF_SCREENW, self.HALF_SCREENH))
+			draw_text(self.game.screen, str(int(self.countdown)), (self.game.HALF_SCREENW, self.game.HALF_SCREENH))
 
-			self.send_frame()
-			self.countdown -= self.dt
+			self.game.send_frame()
+			self.countdown -= self.game.dt
 
 	# match
 	def update(self):
-		if self.stun_frames >= self.max_stun_frames:
-			self.hit_stun = False
+		if self.game.stun_frames >= self.game.max_stun_frames:
+			self.game.hit_stun = False
 		else:
-			self.stun_frames += 0.5
+			self.game.stun_frames += 0.5
 
 		for event in pg.event.get():
-			check_for_quit(event)
+			self.check_universal_events(self.game.pressed_keys, event)
 
 			if event.type == pg.KEYDOWN:
-				if not self.hit_stun:
-					self.handle_event(event)
+				if not self.game.hit_stun:
+					self.game.handle_event(event)
 
 					if event.key == pg.K_ESCAPE:
 						# create confirmation dialog for leaving the match
 						pass
 
-		if self.client.is_host:
-			self.player_1.update(self.dt, self.player_2)
-			self.player_2.update(self.dt, self.player_1)
-			self.client.send_gamestate()  # update player 2's gamestate
+		if self.game.client.is_host:
+			self.game.player_1.update(self.game.dt, self.game.player_2)
+			self.game.player_2.update(self.game.dt, self.game.player_1)
+			self.game.client.send_gamestate()  # update player 2's gamestate
 		else:
 			pressed_keys = pg.key.get_pressed()
 			pk_data = [False] * 119
@@ -425,31 +417,13 @@ class PlayOnline(Scene):
 			pk_data[Actions.DOWN] = pressed_keys[Actions.DOWN]
 			pk_data[Actions.BACK] = pressed_keys[Actions.BACK]
 			pk_data[Actions.FORWARD] = pressed_keys[Actions.FORWARD]
-			self.client.send_message({"type": "pressed_keys","pressed_keys": pk_data})
+			self.game.client.send_message({"type": "pressed_keys","pressed_keys": pk_data})
 
 	def draw(self):
-		# environment
-		self.screen.fill('black')
-		#self.camera.update(self.player_1, self.player_2)
-		self.screen.blit(self.background.update(self.dt), (-self.camera.rect.x, -self.camera.rect.y))
-		self.draw_HUD()
-		self.show_fps()
-
-		# srpites
-		for player in self.players:
-			player.draw()
-
-		# damage text
-		for player in self.players:
-			if player.animated_text is not None:
-				if player.animated_text.update():
-					player.animated_text = None
-
-		self.send_frame()
-		self.time_accumulator += self.dt
-
-	def end_match(self):
-		pass
+		self.draw_stage()
+		self.draw_players()
+		self.game.send_frame()
+		self.game.time_accumulator += self.game.dt
 
 
 class Options(Scene):

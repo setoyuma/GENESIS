@@ -153,21 +153,21 @@ class Client:
                 self.send_message({"type": "ready"})  # at this point the server has been set to the Host
                 self.game.start_countdown = True
 
-            # Guest has established a direct connection and is ready to start
+            # The clients have established a direct connection and are ready to start
             case 'ready':
                 self.game.start_countdown = True
 
-            # event from guest
+            # events
             case 'event':
                 key = decoded_data["event"]
                 event = Event(key)
                 self.game.player_2.handle_event(event)
 
-            # pressed_keys from guest
+            # pressed_keys
             case 'pressed_keys':
                 self.game.pressed_keys = decoded_data["pressed_keys"]
 
-            # gamestate update from host
+            # gamestate update
             case 'update':
                 p1_data = decoded_data["player_1"]
                 p2_data = decoded_data["player_2"]
