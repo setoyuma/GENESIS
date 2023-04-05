@@ -79,6 +79,19 @@ ICE (Interactive Connectivity Establishment) is a framework that combines the ab
 along with other fallback protocols. While these more complex protocols may not be necessary for this game, ICE 
 ensures that the best possible connection method is used for communication between clients.
 
+
+Gamestate synchronizaztion
+---------------------------
+Setting up the main loop:
+ - scenes need to be turned into classes (easy) so they can have a separate update and draw method because update may be called multiple times a frame
+ - both clients will store a buffer of gamestates and send their events in fixed timesteps (the amount of sec it SHOULD take for one frame to render, even if it doesnt, will be the update_timestep)
+ - update local simulations with local input immediately without waiting for ack from other player
+ - both should send the input data at the fixed time_steps
+ - input_data will come attached with a timestamp, which the client will use to determine the gamestate to rollback to in the buffer and resimulate with the added input
+ - if client sends input and doesnt recieve an ack, resend the input
+ -  only send full gamestates periodically to resync
+ - when a player receives a new game state from the other player, compare it to their own game state and apply necessary corrections using interpolation techniques
+    - this shifts the gamestates so that they resync over time
 """
 
 class Client:
@@ -158,6 +171,7 @@ class Client:
             case 'update':
                 p1_data = decoded_data["player_1"]
                 p2_data = decoded_data["player_2"]
+                print(p1_data)
                 self.game.player_1.from_dict(p1_data)
                 self.game.player_2.from_dict(p2_data)
                 self.game.match_time = decoded_data["match_time"]

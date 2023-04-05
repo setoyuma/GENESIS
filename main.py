@@ -10,6 +10,7 @@ from camera import Camera
 from button import Button
 from slider import Slider
 from pause import Pause
+from scene import Scene
 from constants import * 
 from support import *
 from show_inputs import *
@@ -196,40 +197,6 @@ class Game:
 	def send_frame(self):
 		self.dt = self.clock.tick(self.settings["FPS"]) / 1000.0
 		pg.display.flip()
-
-	def main_menu(self):
-		pg.display.set_caption("Kami No Ken: MAIN MENU")
-		bg = get_image("./assets/backgrounds/main-menu/KnK.png")
-		bg_pos = bg.get_rect().center # wouldnt line up in center for some reason
-		buttons = [
-			Button(self, "PLAY", (self.settings["screen_width"]/2, self.settings["screen_height"]/2), self.home_screen, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png", text_size=30),
-			Button(self, "QUIT", (self.settings["screen_width"] - 100, 0 - 10,), pg.quit, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png", text_size=30)
-		]
-
-		# mouse fx
-		particle1 = ParticlePrinciple()
-		PARTICLE_EVENT = pg.USEREVENT + 1
-		pg.time.set_timer(PARTICLE_EVENT,5)
-
-		while True:
-			self.screen.fill('black')
-			self.screen.blit(bg, (480,115))
-
-			for event in pg.event.get():
-				check_for_quit(event)
-				
-				if event.type == PARTICLE_EVENT:
-					mouse_pos = pg.mouse.get_pos()
-					particle1.addParticles(mouse_pos[0], mouse_pos[1])
-
-				for button in buttons:
-					button.update(event)
-
-			for button in buttons:
-				button.draw()
-
-			particle1.emit()
-			self.send_frame()
 
 	def home_screen(self):
 		pg.display.set_caption("Kami No Ken: MAIN MENU")
@@ -620,6 +587,7 @@ class Game:
 		COUNT_DOWN = pg.USEREVENT + 1
 		self.match_time = 99
 		self.time_accumulator = 0
+		self.fixed_time_step = 1.0 / self.settings["FPS"]  # Fixed time step in seconds
 		self.countdown = 5.0
 		self.match_started = False
 
@@ -703,7 +671,6 @@ class Game:
 			#prompt for key
 			print(data["controls"])
 			key_to_change = input("what key do you wanna change: ")
-			
 
 			if key_to_change.upper() in data["controls"].keys():
 				print('key found')
@@ -712,13 +679,53 @@ class Game:
 						data["controls"][key_to_change.upper()] = event.key
 			else:
 				print("key not found")
-
-
 			#update settings json with new key
 
+class MainMenu(Scene):
+	def __init__(self, game):
+		super().__init__(game)
+		pg.display.set_caption("Kami No Ken: MAIN MENU")
+		self.bg = get_image("./assets/backgrounds/main-menu/KnK.png")
+		self.buttons = [
+			Button(self.game, "PLAY", (self.game.settings["screen_width"]/2, self.game.settings["screen_height"]/2), self.game.home_screen, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png", text_size=30),
+			Button(self.game, "QUIT", (self.game.settings["screen_width"] - 100, 0 - 10,), pg.quit, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png", text_size=30)
+		]
+
+		# mouse fx
+		self.accumulator = 0
+		self.particle1 = ParticlePrinciple()
+
+	def update(self):
+		if self.accumulator >= 5 / 1000:
+			mouse_pos = pg.mouse.get_pos()
+			self.particle1.addParticles(mouse_pos[0], mouse_pos[1])
+			self.accumulator = 0
+
+		pressed_keys = pg.key.get_pressed()
+		for event in pg.event.get():
+			self.check_universal_events(pressed_keys, event)
+
+			for button in self.buttons:
+				button.update(event)
+
+	def draw(self):
+		self.game.screen.fill('black')
+		self.game.screen.blit(self.bg, (480,115))
+		for button in self.buttons:
+			button.draw()
+
+		self.particle1.emit()
+		self.game.send_frame()
+		self.accumulator += self.game.dt
+
+class SceneManager:
+	def __init__(self, start_scene):
+		while True:
+			start_scene.update()
+			start_scene.draw()
 
 
 if __name__ == '__main__':
 	game = Game()
-	game.main_menu()
+	SceneManager(MainMenu(game))
 	# game.change_controls()
