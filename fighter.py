@@ -123,7 +123,7 @@ class Fighter:
             target.current_hp = 0
             target.alive = False
 
-        if self.AI or not self.game.client.is_host:
+        if self.AI:# or not self.game.client.is_host:
             pressed_keys = self.game.pressed_keys
         else:
             pressed_keys = pg.key.get_pressed()
@@ -251,11 +251,9 @@ class Fighter:
     def draw(self):
         #pygame.draw.rect(self.game.screen, (0,0,255), self.rect)
         #pygame.draw.rect(self.game.screen, (0,255,0), self.hit_box)
-        if not self.game.client.is_host:
-            self.animation = self.animations[self.status]
-            self.image = self.animation.animation[self.frame_index]
-            if not self.facing_right:
-                self.image = pg.transform.flip(self.image, True, False)
+        self.image = self.animation.update(self.game.dt)
+        if not self.facing_right:
+            self.image = pg.transform.flip(self.image, True, False)
         self.game.screen.blit(self.image, (self.rect.x - 90, self.rect.y - 15))
         self.particle.emit()
         if self.projectile is not None:

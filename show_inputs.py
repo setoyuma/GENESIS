@@ -1,17 +1,19 @@
-import pygame as pg, sys
-# from settings import *
+import pygame as pg
+import sys
+
+from support import get_image
 
 class Arrow:
     def __init__(self, direction, x, y, size):
         self.display_surface = pg.display.get_surface()
         self.size = size
-        self.image = pg.image.load(f'./assets/input/arrows/{direction}.png')
+        self.image = get_image(f'./assets/input/arrows/{direction}.png')
         self.image = pg.transform.scale(self.image, (self.size, self.size))
         self.rect = pg.Rect(x, y, 80,80)
         self.x = x
         self.y = y
 
-    def update(self):
+    def draw(self):
         self.display_surface.blit(self.image, (self.x, self.y))
         # pg.draw.rect(self.display_surface, "green", self.rect)
 
@@ -25,30 +27,30 @@ class User_Inputs:
         self.x = x
         self.y = y
     
-    def update(self):
+    def draw(self):
         match self.player.status:
             case "LP":
-                self.image = pg.image.load(f'./assets/ui/buttons/inputs/{self.player.status}.png').convert_alpha()
+                self.image = get_image(f'./assets/ui/buttons/inputs/{self.player.status}.png')
                 self.display_surface.blit(self.image, (self.x, self.y))
                 # pg.draw.rect(self.display_surface, "green", self.rect)
             case "MP":
-                self.image = pg.image.load(f'./assets/ui/buttons/inputs/{self.player.status}.png').convert_alpha()
+                self.image = get_image(f'./assets/ui/buttons/inputs/{self.player.status}.png')
                 self.display_surface.blit(self.image, (self.x, self.y))
                 # pg.draw.rect(self.display_surface, "green", self.rect)
             case "HP":
-                self.image = pg.image.load(f'./assets/ui/buttons/inputs/{self.player.status}.png').convert_alpha()
+                self.image = get_image(f'./assets/ui/buttons/inputs/{self.player.status}.png')
                 self.display_surface.blit(self.image, (self.x, self.y))
                 # pg.draw.rect(self.display_surface, "green", self.rect)
             case "LK":
-                self.image = pg.image.load(f'./assets/ui/buttons/inputs/{self.player.status}.png').convert_alpha()
+                self.image = get_image(f'./assets/ui/buttons/inputs/{self.player.status}.png')
                 self.display_surface.blit(self.image, (self.x, self.y))
                 # pg.draw.rect(self.display_surface, "green", self.rect)
             case "MK":
-                self.image = pg.image.load(f'./assets/ui/buttons/inputs/{self.player.status}.png').convert_alpha()
+                self.image = get_image(f'./assets/ui/buttons/inputs/{self.player.status}.png')
                 self.display_surface.blit(self.image, (self.x, self.y))
                 # pg.draw.rect(self.display_surface, "green", self.rect)
             case "HK":
-                self.image = pg.image.load(f'./assets/ui/buttons/inputs/{self.player.status}.png').convert_alpha()
+                self.image = get_image(f'./assets/ui/buttons/inputs/{self.player.status}.png')
                 self.display_surface.blit(self.image, (self.x, self.y))
                 # pg.draw.rect(self.display_surface, "green", self.rect)
 

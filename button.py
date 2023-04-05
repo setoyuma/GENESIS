@@ -59,10 +59,8 @@ class Button:
                         if self.function == pg.quit:
                             self.function()
                             sys.exit()
-                        elif self.function == self.game.join_session:
-                            self.game.join_session(self.id)
-                        elif self.function == self.game.leave_session:
-                            self.game.leave_session()
+                        elif self.id is not None:
+                            self.function(self.id)
                         else:
                             self.function()                
                 
