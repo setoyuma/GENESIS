@@ -9,7 +9,6 @@ class Server:
         self.port = 8001
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.sock.bind((self.ip, self.port))
-        self.last_heartbeat = {}
         self.clients = {}
         self.clients_lock = threading.Lock()  # Add a lock for thread-safe access to self.clients
         self.timeout_thread = threading.Thread(target=self.check_timeouts, daemon=True)
@@ -43,13 +42,12 @@ class Server:
             with self.clients_lock:
                 clients_to_remove = []
 
-                for client, last_received in self.last_heartbeat.items():
+                for client, last_received in self.clients.items():
                     if current_time - last_received > heartbeat_timeout:
                         clients_to_remove.append(client)
 
                 for client in clients_to_remove:
                     del self.clients[client]
-                    del self.last_heartbeat[client]
                     # Remove the client from the session as well
 
     # overwrite this method
@@ -58,7 +56,7 @@ class Server:
 
     def broadcast(self, data):
         for client_addr in self.clients:
-            self.server_socket.sendto(json.dumps(data).encode('utf-8'), client_addr)
+            self.sock.sendto(json.dumps(data).encode('utf-8'), client_addr)
 
     def send_message(self, message, addr):
         self.sock.sendto(json.dumps(message).encode('utf-8'), addr)

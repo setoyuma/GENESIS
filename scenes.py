@@ -495,7 +495,6 @@ class Sound_Settings(Scene):
 		self.buttons = [
 			Button(self.game, "VOLUME", (self.game.settings["screen_width"]//2, 40), None, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png", text_size=30),
 			Button(self.game, "BACK", (self.game.settings["screen_width"]//2, 260), Options, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png", text_size=30),
-			
 		]
 		# mouse fx
 		self.accumulator = 0
