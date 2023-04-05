@@ -47,6 +47,14 @@ class Button:
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 #play_sound("Assets/sounds/click.mp3")
                 
+
+                if isinstance(self.function, type):
+                    self.game.sceneManager.scene = self.function(self.game)
+                    return
+                    
+
+
+
                 if self.function != None:
                         if self.function == pg.quit:
                             self.function()

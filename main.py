@@ -14,6 +14,7 @@ from scene import Scene
 from constants import * 
 from support import *
 from show_inputs import *
+from scenes import *
 
 # Networking
 from lobby import Lobby
@@ -197,125 +198,6 @@ class Game:
 	def send_frame(self):
 		self.dt = self.clock.tick(self.settings["FPS"]) / 1000.0
 		pg.display.flip()
-
-	def home_screen(self):
-		pg.display.set_caption("Kami No Ken: MAIN MENU")
-		mainMenuBG = get_image("./assets/backgrounds/main-menu/KnK.png")
-		particle1 = ParticlePrinciple()
-		PARTICLE_EVENT = pg.USEREVENT + 1
-		pg.time.set_timer(PARTICLE_EVENT,5)
-		buttons = [
-			Button(self, "LOCAL",(70,40), self.play_local,"assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png"),
-			Button(self, "ONLINE",(70,120), self.lobby_view,"assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png"),
-			Button(self, "BACK",(70,200), self.main_menu,"assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png"),
-			Button(self, "OPTIONS",(70,280), self.options,"assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png"),
-			Button(self, "TRAINING",(70,360), self.training,"assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png"),
-			Button(self, "QUIT",(self.settings["screen_width"] - 100 , -10), self.lobby_view,"assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png"),
-			#Button(self, 70, 120, 200, 100, 30, "TRAINING", self.training),
-		]
-		while True:
-			self.screen.fill('black')
-			self.screen.blit(mainMenuBG,(480,115))
-
-			for event in pg.event.get():
-				check_for_quit(event)
-
-				if event.type == PARTICLE_EVENT:
-					mouse_pos = pg.mouse.get_pos()
-					particle1.addParticles(mouse_pos[0], mouse_pos[1])
-
-				for button in buttons:
-					button.update(event)
-
-			for button in buttons:
-				button.draw()
-
-			particle1.emit()
-			self.send_frame()
-
-	def options(self):
-		pg.display.set_caption("Kami No Ken: OPTIONS")
-		mainMenuBG = get_image("./assets/backgrounds/main-menu/KnK.png")
-		particle1 = ParticlePrinciple()
-		PARTICLE_EVENT = pg.USEREVENT + 1
-		pg.time.set_timer(PARTICLE_EVENT,5)
-		buttons = [
-			Button(self, "SOUND", (self.settings["screen_width"]//2, 320), self.sound_settings, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png", text_size=30),
-			Button(self, "FULLSCREEN", (self.settings["screen_width"]//2, 400), pg.display.toggle_fullscreen, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png", text_size=30),
-			Button(self, "CONTROLS", (self.settings["screen_width"]//2, 480), self.change_controls, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png", text_size=30),
-			Button(self, "BACK", (self.settings["screen_width"]//2, 560), self.home_screen, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png", text_size=30),
-			Button(self, "QUIT", (self.settings["screen_width"] - 100, 50), pg.quit, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png", text_size=30),
-		]
-		while True:
-			self.screen.fill('black')
-			self.screen.blit(mainMenuBG,(480,115))
-			for event in pg.event.get():
-				check_for_quit(event)
-	
-				if event.type == PARTICLE_EVENT:
-					mouse_pos = pg.mouse.get_pos()
-					particle1.addParticles(mouse_pos[0], mouse_pos[1])
-				
-				elif event.type == pg.KEYDOWN:
-					if event.key == pg.K_SPACE:
-						self.Play()
-					
-				for button in buttons:
-					button.update(event)
-
-			for button in buttons:
-				button.draw()
-
-			particle1.emit()
-			self.send_frame()
-
-	def sound_settings(self):
-		pg.display.set_caption("Kami No Ken: SOUND SETTINGS")
-		mainMenuBG = get_image("./assets/backgrounds/main-menu/KnK.png")
-		particle1 = ParticlePrinciple()
-		PARTICLE_EVENT = pg.USEREVENT + 1
-		pg.time.set_timer(PARTICLE_EVENT,5)
-		slider = Slider(self.settings["screen_width"]/2 - 95, 145, 200, 10, self.volume)
-		buttons = [
-			Button(self, "VOLUME", (self.settings["screen_width"]//2, 40), None, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png", text_size=30),
-			Button(self, "BACK", (self.settings["screen_width"]//2, 260), self.options, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png", text_size=30),
-			
-		]
-		while True:
-			self.screen.fill('black')
-			self.screen.blit(mainMenuBG,(480,115))
-
-			slider.draw(self.screen)
-			mouse_pos = pg.mouse.get_pos()
-			if slider.active:
-				slider.handle_event(self.screen, mouse_pos[0])
-				self.volume = slider.get_volume()
-				pg.mixer.music.set_volume(self.volume / 100)
-
-			for event in pg.event.get():
-				check_for_quit(event)
-
-				if event.type == PARTICLE_EVENT:
-					mouse_pos = pg.mouse.get_pos()
-					particle1.addParticles(mouse_pos[0], mouse_pos[1])
-
-				elif event.type == pg.MOUSEBUTTONDOWN and event.button == 1 and slider.on_slider(mouse_pos[0], mouse_pos[1]):
-					#slider.on_slider_hold(mouse_pos[0], mouse_pos[1])
-					slider.active = True
-					slider.handle_event(self.screen, mouse_pos[0])
-					self.volume = slider.get_volume()
-					pg.mixer.music.set_volume(self.volume/100)
-
-				elif event.type == pg.MOUSEBUTTONUP:
-					slider.active = False
-
-				for button in buttons:
-					button.update(event)
-			for button in buttons:
-				button.draw()
-
-			particle1.emit()
-			self.send_frame()
 
 	def play_local(self):
 		pg.display.set_caption("Kami No Ken: GENESIS")
@@ -664,68 +546,10 @@ class Game:
 	def end_match(self):
 		pass
 
-	def change_controls(self):
-		with open('settings.json', "r") as f:
-			data = json.loads(f.read())
-			
-			#prompt for key
-			print(data["controls"])
-			key_to_change = input("what key do you wanna change: ")
-
-			if key_to_change.upper() in data["controls"].keys():
-				print('key found')
-				for event in pg.event.get():
-					if event.type == pg.KEYDOWN:
-						data["controls"][key_to_change.upper()] = event.key
-			else:
-				print("key not found")
-			#update settings json with new key
-
-class MainMenu(Scene):
-	def __init__(self, game):
-		super().__init__(game)
-		pg.display.set_caption("Kami No Ken: MAIN MENU")
-		self.bg = get_image("./assets/backgrounds/main-menu/KnK.png")
-		self.buttons = [
-			Button(self.game, "PLAY", (self.game.settings["screen_width"]/2, self.game.settings["screen_height"]/2), self.game.home_screen, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png", text_size=30),
-			Button(self.game, "QUIT", (self.game.settings["screen_width"] - 100, 0 - 10,), pg.quit, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png", text_size=30)
-		]
-
-		# mouse fx
-		self.accumulator = 0
-		self.particle1 = ParticlePrinciple()
-
-	def update(self):
-		if self.accumulator >= 5 / 1000:
-			mouse_pos = pg.mouse.get_pos()
-			self.particle1.addParticles(mouse_pos[0], mouse_pos[1])
-			self.accumulator = 0
-
-		pressed_keys = pg.key.get_pressed()
-		for event in pg.event.get():
-			self.check_universal_events(pressed_keys, event)
-
-			for button in self.buttons:
-				button.update(event)
-
-	def draw(self):
-		self.game.screen.fill('black')
-		self.game.screen.blit(self.bg, (480,115))
-		for button in self.buttons:
-			button.draw()
-
-		self.particle1.emit()
-		self.game.send_frame()
-		self.accumulator += self.game.dt
-
-class SceneManager:
-	def __init__(self, start_scene):
-		while True:
-			start_scene.update()
-			start_scene.draw()
-
 
 if __name__ == '__main__':
 	game = Game()
-	SceneManager(MainMenu(game))
+	game.sceneManager = SceneManager(Main_Menu(game))
+	game.sceneManager.start()
+
 	# game.change_controls()
