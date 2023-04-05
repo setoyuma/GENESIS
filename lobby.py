@@ -95,6 +95,8 @@ class Lobby(Server):
 
     def join_session(self, decoded_data, client):
         key, session_info = self.get_session(decoded_data["id"])
+        if client == key:
+            return  # host re-joining their own sesion before connection is timed out    
         self.sessions[key]["joinable"] = False  # a 2nd player has just joined, filling the session
         self.sessions[key]["clients"].append(client)  # guest client is added to the session clients
         data = {"type": "session_info", "session": self.sessions[key]}

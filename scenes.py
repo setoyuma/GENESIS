@@ -251,7 +251,10 @@ class LobbyView(Scene):
 		self.mainMenuBG = get_image("./assets/backgrounds/main-menu/KnK.png")
 		self.particle1 = ParticlePrinciple()
 		self.accumulator = 0
-		self.buttons = [Button(self.game, "CREATE", (self.game.settings["screen_width"]/2+605, 690), self.create_session, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png", text_size=30),]
+		self.buttons = [
+			Button(self.game, "CREATE", (self.game.settings["screen_width"]/3+960, 700), self.create_session, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png", text_size=30),
+			Button(self.game, "BACK", (self.game.settings["screen_width"]//3+760, 700), Home_Screen, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png", text_size=30)
+		]
 		self.game.client.session_list_callback = self.populate_session_list
 		self.game.session_buttons = []
 		self.game.session = None
@@ -281,10 +284,10 @@ class LobbyView(Scene):
 		self.game.screen.blit(self.mainMenuBG,(480,115))
 
 		# session view
-		pg.draw.rect(self.game.screen, (0,155,0), (1250, 150, 300, 500), width=2, border_radius=1)
+		pg.draw.rect(self.game.screen, (200,100,0), (1250, 150, 300, 500), width=2, border_radius=1)
 		if self.game.session is None:
 			# list sessions to join
-			draw_text(self.game.screen, "Online sessions", (1400, 100), 40)
+			draw_text(self.game.screen, "Online sessions", (1400, 115), 40)
 			for session_button in self.game.session_buttons:
 				session_button.draw()
 		else:
@@ -303,7 +306,7 @@ class LobbyView(Scene):
 	def populate_session_list(self, sessions):
 		self.game.session_buttons = []
 		for i, session in enumerate(sessions):
-			button = Button(self.game, session["name"], (1400, 40*i+150), self.join_session, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png", text_size=30, id=session["id"])
+			button = Button(self.game, session["name"], (1400, 45*i+175), self.join_session, (0,0,290,40), (0,0,290,40), (0,0,200,150), (0,0,250,200), text_size=26, id=session["id"])
 			self.game.session_buttons.append(button)
 
 	def get_session_list(self):
@@ -330,8 +333,8 @@ class LobbyView(Scene):
 
 		# reinitialize buttons list with leave option
 		self.buttons = [
-			Button(self.game, "Start", (self.game.settings["screen_width"]/3+950, 690), self.game.start_match, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png", text_size=30),
-			Button(self.game, "Leave", (self.game.settings["screen_width"]/3+750, 690), self.leave_session, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png", text_size=30),
+			Button(self.game, "Start", (self.game.settings["screen_width"]/3+960, 700), self.game.start_match, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png", text_size=30),
+			Button(self.game, "Leave", (self.game.settings["screen_width"]/3+760, 700), self.leave_session, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png", text_size=30),
 		]
 
 	def join_session(self, id):
@@ -342,7 +345,7 @@ class LobbyView(Scene):
 		}
 		self.game.client.send_message(data)
 		self.buttons = [
-			Button(self.game, "Leave", (self.game.screen.get_width()/2+605, 670), self.leave_session, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png", text_size=30, id=None),
+			Button(self.game, "Leave", (self.game.screen.get_width()/2+605, 700), self.leave_session, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png", text_size=30, id=None),
 			]
 
 	def leave_session(self):
@@ -357,7 +360,10 @@ class LobbyView(Scene):
 			data["type"] = "disconnect"
 		self.game.client.send_message(data)
 		self.game.session = None
-		self.buttons = [Button(self.game, "CREATE", (self.game.settings["screen_width"]/2+605, 690), self.create_session, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png", text_size=30),]
+		self.buttons = [
+			Button(self.game, "CREATE", (self.game.settings["screen_width"]/3+960, 700), self.create_session, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png", text_size=30),
+			Button(self.game, "BACK", (self.game.settings["screen_width"]//3+760, 700), Home_Screen, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png", text_size=30)
+		]
 		self.get_session_list()
 
 
