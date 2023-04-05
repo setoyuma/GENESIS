@@ -33,7 +33,7 @@ class Server:
             self.handle_message(data, addr)
 
     def check_timeouts(self):
-        heartbeat_timeout = 15  # Choose an appropriate timeout value in seconds
+        heartbeat_timeout = 15  # seconds
 
         while True:
             time.sleep(1)  # Check timeouts every second
@@ -47,8 +47,12 @@ class Server:
                         clients_to_remove.append(client)
 
                 for client in clients_to_remove:
+                    self.handle_timeout(client)
                     del self.clients[client]
-                    # Remove the client from the session as well
+
+    # overwrite this method
+    def handle_timeout(self, client):
+        pass
 
     # overwrite this method
     def handle_message(self, data, addr):

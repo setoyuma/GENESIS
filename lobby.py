@@ -24,6 +24,11 @@ class Lobby(Server):
             if session["id"] == id:
                 return host_client, session
 
+    def handle_timeout(self, client):
+        print(f"Client {client} has been timed out.")
+        if client in self.sessions:
+            self.unregister_session(client)
+
     def handle_message(self, data, client):
         decoded_data = json.loads(data.decode('utf-8'))
 

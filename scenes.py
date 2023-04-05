@@ -252,6 +252,7 @@ class LobbyView(Scene):
 		self.particle1 = ParticlePrinciple()
 		self.accumulator = 0
 		self.buttons = [Button(self.game, "CREATE", (self.game.settings["screen_width"]/2+605, 690), self.create_session, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png", text_size=30),]
+		self.game.client.session_list_callback = self.populate_session_list
 		self.game.session_buttons = []
 		self.game.session = None
 		self.get_session_list()
@@ -298,6 +299,12 @@ class LobbyView(Scene):
 		self.particle1.emit()
 		self.game.send_frame()
 		self.accumulator += self.game.dt
+
+	def populate_session_list(self, sessions):
+		self.game.session_buttons = []
+		for i, session in enumerate(sessions):
+			button = Button(self.game, session["name"], (1400, 40*i+150), self.join_session, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png", text_size=30, id=session["id"])
+			self.game.session_buttons.append(button)
 
 	def get_session_list(self):
 		# refresh the session list

@@ -106,6 +106,7 @@ class Client:
         self.sock.bind((self.local_ip, self.local_port))
         self.listen_thread = threading.Thread(target=self.listen, daemon=True)
         self.listen_thread.start()
+        self.session_list_callback = None  # set in lobby scene
         self.is_host = False 
         
     def get_ip(self):
@@ -140,7 +141,8 @@ class Client:
         match decoded_data["type"]:
             # session list from lobby server
             case 'session_list':
-                self.populate_session_list(decoded_data["sessions"])
+                if self.session_list_callback is not None:
+                    self.session_list_callback(decoded_data["sessions"])
 
             # a specific session's info from lobby server
             case 'session_info':
