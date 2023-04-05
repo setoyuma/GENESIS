@@ -6,6 +6,8 @@ from scene import Scene
 from button import Button
 from particle import ParticlePrinciple
 from slider import Slider
+from constants import *
+from fighter import Fighter
 
 class Main_Menu(Scene):
 	def __init__(self, game):
@@ -106,7 +108,7 @@ class Home_Screen(Scene):
 		pg.display.set_caption("Kami No Ken: HOME")
 		self.bg = get_image("./assets/backgrounds/main-menu/KnK.png")
 		self.buttons = [
-			# Button(game, "LOCAL",(70,40), self.game.play_local,"assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png"),
+			Button(game, "LOCAL",(70,40), Local_Play,"assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png"),
 			# Button(game, "ONLINE",(70,120), self.game.lobby_view,"assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png"),
 			Button(game, "BACK",(70,200), Main_Menu,"assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png"),
 			Button(game, "OPTIONS",(70,280), Options,"assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png"),
@@ -199,6 +201,77 @@ class Options(Scene):
 		self.game.send_frame()
 		self.accumulator += self.game.dt
 
+class Local_Play(Scene):
+
+	def __init__(self, game):
+		super().__init__(game)
+		pg.display.set_caption("Kami No Ken: GENESIS")
+		pg.mixer.music.load(f"./assets/music/{SONGS[2]}.wav")
+		pg.mixer.music.play(-1)
+
+		self.game.player_1 = Fighter(game, 1, 200, 510, "Homusubi", "Play")
+		self.game.player_2 = Fighter(game, 2, 1000, 570, "Homusubi", "Play")
+		self.game.players = [self.game.player_2, self.game.player_1]  # reversed for client draw order
+
+		COUNT_DOWN = pg.USEREVENT + 1
+		self.game.match_time = 99
+		self.game.time_accumulator = 0
+		self.game.pressed_keys = pg.key.get_pressed()
+
+	def update(self):
+		if self.game.stun_frames >= self.game.max_stun_frames:
+			self.game.hit_stun = False
+		else:
+			self.game.stun_frames += 0.5
+		
+		# process client events
+		for event in pg.event.get():
+			check_for_quit(event)
+
+			if event.type == pg.KEYDOWN:
+				if not self.game.hit_stun:
+					self.game.player_1.handle_event(event)
+
+					if event.key == pg.K_r:
+						self.__init__(self.game)
+						SceneManager(Main_Menu(self.game))
+
+					if event.key == pg.K_h:
+						pg.draw.rect(self.game.screen, "green", self.game.player_1.hit_box)
+
+				if event.key == pg.K_ESCAPE:
+					self.paused = True
+					pause = Pause(self)
+					pause.update()
+
+		self.game.player_1.update(self.game.dt, self.game.player_2)
+		self.game.player_2.update(self.game.dt, self.game.player_1)
+		self.game.camera.update(self.game.player_1, self.game.player_2)
+
+
+	def draw(self):
+		# environment
+		self.game.screen.fill('black')
+		self.game.screen.blit(self.game.background.update(self.game.dt), (-self.game.camera.rect.x, -self.game.camera.rect.y))
+		self.game.draw_HUD()
+		self.game.show_fps()
+		#if self.player_1.attack_rect is not None:
+		#	pg.draw.rect(self.screen, "green", self.player_1.attack_rect)
+
+		# srpites
+		for player in self.game.players:
+			player.draw()
+
+		# damage text
+		for player in self.game.players:
+			if player.animated_text is not None:
+				if player.animated_text.update():
+					player.animated_text = None
+
+		self.game.send_frame()
+		self.game.time_accumulator += self.game.dt
+
+
 class SceneManager:
 	def __init__(self, start_scene):
 		self.scene = start_scene
@@ -208,4 +281,3 @@ class SceneManager:
 		while True:
 			self.scene.update()
 			self.scene.draw()
-
