@@ -134,54 +134,57 @@ class Client:
             self.handle_message(data, addr)
 
     def handle_message(self, data, addr):
-        decoded_data = json.loads(data.decode('utf-8'))
-        if isinstance(decoded_data, int):
-            return
+        try:
+            decoded_data = json.loads(data.decode('utf-8'))
+            if isinstance(decoded_data, int):
+                return
 
-        match decoded_data["type"]:
-            # session list from lobby server
-            case 'session_list':
-                if self.session_list_callback is not None:
-                    self.session_list_callback(decoded_data["sessions"])
+            match decoded_data["type"]:
+                # session list from lobby server
+                case 'session_list':
+                    if self.session_list_callback is not None:
+                        self.session_list_callback(decoded_data["sessions"])
 
-            # a specific session's info from lobby server
-            case 'session_info':
-                self.game.session = decoded_data["session"]
+                # a specific session's info from lobby server
+                case 'session_info':
+                    self.game.session = decoded_data["session"]
 
-            # Host has initiated a handshake
-            case 'handshake':
-                # set server to host client
-                self.set_server(self.game.session["clients"][0])
-                # finishes the hole-punch connection
-                self.send_message({"type": "ready"})  # at this point the server has been set to the Host
-                self.game.start_countdown = True
+                # Host has initiated a handshake
+                case 'handshake':
+                    # set server to host client
+                    self.set_server(self.game.session["clients"][0])
+                    # finishes the hole-punch connection
+                    self.send_message({"type": "ready"})  # at this point the server has been set to the Host
+                    self.game.start_countdown = True
 
-            # The clients have established a direct connection and are ready to start
-            case 'ready':
-                self.game.start_countdown = True
+                # The clients have established a direct connection and are ready to start
+                case 'ready':
+                    self.game.start_countdown = True
 
-            # events
-            case 'event':
-                key = decoded_data["event"]
-                event = Event(key)
-                self.game.player_2.handle_event(event)
+                # events
+                case 'event':
+                    key = decoded_data["event"]
+                    event = Event(key)
+                    self.game.player_2.handle_event(event)
 
-            # pressed_keys
-            case 'pressed_keys':
-                self.game.pressed_keys = decoded_data["pressed_keys"]
+                # pressed_keys
+                case 'pressed_keys':
+                    self.game.pressed_keys = decoded_data["pressed_keys"]
 
-            # gamestate update
-            case 'update':
-                p1_data = decoded_data["player_1"]
-                p2_data = decoded_data["player_2"]
-                print(p1_data)
-                self.game.player_1.from_dict(p1_data)
-                self.game.player_2.from_dict(p2_data)
-                self.game.match_time = decoded_data["match_time"]
+                # gamestate update
+                case 'update':
+                    p1_data = decoded_data["player_1"]
+                    p2_data = decoded_data["player_2"]
+                    print(p1_data)
+                    self.game.player_1.from_dict(p1_data)
+                    self.game.player_2.from_dict(p2_data)
+                    self.game.match_time = decoded_data["match_time"]
 
-            # connection to host no longer active
-            case 'disconnect':
-                self.game.lobby_view()
+                # connection to host no longer active
+                case 'disconnect':
+                    self.game.lobby_view()
+        except Exception as e:
+            print(f"Error while handling message from {addr}: {e}\n Data: {data}")
 
     def send_gamestate(self):
         p1 = self.game.player_1
@@ -195,7 +198,9 @@ class Client:
         self.send_message(gamestate)
 
     def send_message(self, message, serialize=True):
-        if serialize:
-            self.sock.sendto(json.dumps(message).encode('utf-8'), (self.server_ip, self.server_port))
-        else:
+        try:
+            if serialize:
+                message = json.dumps(message).encode('utf-8')
             self.sock.sendto(message, (self.server_ip, self.server_port))
+        except Exception as e:
+            print(f"Error while sending message to ({self.server_ip}, {self.server_port}): {e}\n Message: {message}")

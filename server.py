@@ -60,10 +60,15 @@ class Server:
 
     def broadcast(self, data):
         for client_addr in self.clients:
-            self.sock.sendto(json.dumps(data).encode('utf-8'), client_addr)
+            self.send_message(data, client_addr)
 
-    def send_message(self, message, addr):
-        self.sock.sendto(json.dumps(message).encode('utf-8'), addr)
+    def send_message(self, message, addr, serialize=True):
+        try:
+            if serialize:
+                message = json.dumps(message).encode('utf-8')
+            self.sock.sendto(message, addr)
+        except Exception as e:
+            print(f"Error while sending message to {addr}: {e}\n Message: {message}")
 
 
 if __name__ == "__main__":

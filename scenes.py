@@ -59,6 +59,18 @@ class Match(Scene):
 				if player.animated_text.update():
 					player.animated_text = None
 
+	def update_hit_stun(self):
+		if self.game.stun_frames >= self.game.max_stun_frames:
+			self.game.hit_stun = False
+		else:
+			self.game.stun_frames += 0.5
+
+	def check_pause(self, event):
+		if event.key == pg.K_ESCAPE:
+			self.game.paused = True
+			pause = Pause(self.game)
+			pause.update()
+
 
 class Main_Menu(Scene):
 	def __init__(self, game):
@@ -155,16 +167,12 @@ class Local_Play(Match):
 		self.game.pressed_keys = pg.key.get_pressed()
 
 	def update(self):
-		if self.game.stun_frames >= self.game.max_stun_frames:
-			self.game.hit_stun = False
-		else:
-			self.game.stun_frames += 0.5
-
 		# process client events
 		for event in pg.event.get():
 			self.check_universal_events(self.game.pressed_keys, event)
 
 			if event.type == pg.KEYDOWN:
+				self.check_pause(event)
 				if not self.game.hit_stun:
 					self.game.player_1.handle_event(event)
 
@@ -175,11 +183,7 @@ class Local_Play(Match):
 					if event.key == pg.K_h:
 						pg.draw.rect(self.game.screen, "green", self.game.player_1.hit_box)
 
-				if event.key == pg.K_ESCAPE:
-					self.paused = True
-					pause = Pause(self)
-					pause.update()
-
+		self.update_hit_stun()
 		self.game.player_1.update(self.game.dt, self.game.player_2)
 		self.game.player_2.update(self.game.dt, self.game.player_1)
 		self.game.camera.update(self.game.player_1, self.game.player_2)
@@ -207,16 +211,12 @@ class Training(Match):
 		self.game.match_time = 99
 
 	def update(self):
-		if self.game.stun_frames >= self.game.max_stun_frames:
-			self.game.hit_stun = False
-		else:
-			self.game.stun_frames += 0.5
-
 		# process client events
 		for event in pg.event.get():
 			self.check_universal_events(self.game.pressed_keys, event)
 
 			if event.type == pg.KEYDOWN:
+				self.check_pause(event)
 				if not self.game.hit_stun:
 					self.game.player_1.handle_event(event)
 
@@ -227,11 +227,7 @@ class Training(Match):
 					if event.key == pg.K_h:
 						pg.draw.rect(self.game.screen, "green", self.game.player_1.hit_box)
 
-				if event.key == pg.K_ESCAPE:
-					self.game.paused = True
-					pause = Pause(self.game)
-					pause.update()
-
+		self.update_hit_stun()
 		self.game.player_1.update(self.game.dt, self.game.player_2)
 		self.game.player_2.update(self.game.dt, self.game.player_1)
 		self.game.camera.update(self.game.player_1, self.game.player_2)
@@ -344,9 +340,7 @@ class LobbyView(Scene):
 			"id": id
 		}
 		self.game.client.send_message(data)
-		self.buttons = [
-			Button(self.game, "Leave", (self.game.screen.get_width()/2+605, 700), self.leave_session, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png", text_size=30, id=None),
-			]
+		self.buttons = [Button(self.game, "Leave", (self.game.screen.get_width()/2+605, 700), self.leave_session, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png", text_size=30, id=None)]
 
 	def leave_session(self):
 		data = {
@@ -377,38 +371,26 @@ class Online_play(Match):
 		self.game.player_1 = Fighter(self.game, 1, 200, 510, "Homusubi", "Play")
 		self.game.player_2 = Fighter(self.game, 2, 1000, 510, "Homusubi", "Play")
 		self.game.players = [self.game.player_2, self.game.player_1]  # reversed for client draw order
-		self.game.fixed_time_step = 1.0 / self.game.settings["FPS"]  # Fixed time step in seconds for updating and sending inputs
 		self.game.pressed_keys = pygame.key.get_pressed()
+		self.game.gamestate_buffer = []
 		self.game.match_started = False
 		self.game.time_accumulator = 0
 		self.game.match_time = 99
+		self.fixed_time_step = 1.0 / self.game.settings["FPS"]  # Fixed time step in seconds for updating and sending inputs
+		self.timestep_accumulator = 0
 		self.countdown = 5.0
 
 	# pre-match
 	def prematch(self):
 		while self.countdown > 0.0:
-			# environment
-			self.game.screen.fill('black')
-			self.game.screen.blit(self.game.background.update(self.game.dt), (-self.game.camera.rect.x, -self.game.camera.rect.y))
-			self.game.draw_HUD()
-
-			# srpites
-			for player in self.game.players:
-				player.draw()
-
-			# countdown
+			self.draw_stage()
+			self.draw_players()
 			draw_text(self.game.screen, str(int(self.countdown)), (self.game.HALF_SCREENW, self.game.HALF_SCREENH))
-
 			self.game.send_frame()
 			self.countdown -= self.game.dt
 
 	# match
 	def update(self):
-		if self.game.stun_frames >= self.game.max_stun_frames:
-			self.game.hit_stun = False
-		else:
-			self.game.stun_frames += 0.5
-
 		for event in pg.event.get():
 			self.check_universal_events(self.game.pressed_keys, event)
 
@@ -417,27 +399,32 @@ class Online_play(Match):
 					self.game.handle_event(event)
 
 					if event.key == pg.K_ESCAPE:
-						# create confirmation dialog for leaving the match
-						pass
+						pass  # create confirmation dialog for leaving the match
 
-		if self.game.client.is_host:
+		self.send_pressed_keys()
+
+		# do as many gamestate updates as necessary to catch up
+		while self.timestep_accumulator >= self.fixed_time_step:
+			self.timestep_accumulator -= self.fixed_time_step
+			self.update_hit_stun()
 			self.game.player_1.update(self.game.dt, self.game.player_2)
 			self.game.player_2.update(self.game.dt, self.game.player_1)
-			self.game.client.send_gamestate()  # update player 2's gamestate
-		else:
-			pressed_keys = pg.key.get_pressed()
-			pk_data = [False] * 119
-			pk_data[Actions.UP] = pressed_keys[Actions.UP]
-			pk_data[Actions.DOWN] = pressed_keys[Actions.DOWN]
-			pk_data[Actions.BACK] = pressed_keys[Actions.BACK]
-			pk_data[Actions.FORWARD] = pressed_keys[Actions.FORWARD]
-			self.game.client.send_message({"type": "pressed_keys","pressed_keys": pk_data})
 
 	def draw(self):
 		self.draw_stage()
 		self.draw_players()
 		self.game.send_frame()
 		self.game.time_accumulator += self.game.dt
+		self.timestep_accumulator += self.game.dt
+
+	def send_pressed_keys(self):
+		pressed_keys = self.game.pressed_keys
+		pk_data = [False] * 119
+		pk_data[Actions.UP] = pressed_keys[Actions.UP]
+		pk_data[Actions.DOWN] = pressed_keys[Actions.DOWN]
+		pk_data[Actions.BACK] = pressed_keys[Actions.BACK]
+		pk_data[Actions.FORWARD] = pressed_keys[Actions.FORWARD]
+		self.game.client.send_message({"type": "pressed_keys","pressed_keys": pk_data})
 
 
 class Options(Scene):

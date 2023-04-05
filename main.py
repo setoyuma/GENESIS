@@ -209,12 +209,10 @@ class Game:
 	def handle_event(self, event):
 		if self.client.is_host:
 			self.player_1.handle_event(event)
-		else:  # send event to host
-			data = {
-				"type": "event",
-				"event": event.key
-			}
-			self.client.send_message(data)
+		else:
+			self.player_2.handle_event(event)
+		# send event to the other client
+		self.client.send_message({"type": "event", "event": event.key})
 
 	def start_match(self):
 		if not len(self.session["clients"]) == 2:
