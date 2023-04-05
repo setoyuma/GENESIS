@@ -1,5 +1,6 @@
 import socket
 import threading
+import time
 import json
 
 class Server:
@@ -8,9 +9,11 @@ class Server:
         self.port = 8001
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.sock.bind((self.ip, self.port))
+        self.last_heartbeat = {}
         self.clients = {}
-        self.listen_thread = threading.Thread(target=self.listen, daemon=True)
-        self.listen_thread.start()
+        self.clients_lock = threading.Lock()  # Add a lock for thread-safe access to self.clients
+        self.timeout_thread = threading.Thread(target=self.check_timeouts, daemon=True)
+        self.timeout_thread.start()
 
     def get_ip(self):
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -30,6 +33,25 @@ class Server:
             data, addr = self.sock.recvfrom(1024)
             self.handle_message(data, addr)
 
+    def check_timeouts(self):
+        heartbeat_timeout = 15  # Choose an appropriate timeout value in seconds
+
+        while True:
+            time.sleep(1)  # Check timeouts every second
+            current_time = time.time()
+
+            with self.clients_lock:
+                clients_to_remove = []
+
+                for client, last_received in self.last_heartbeat.items():
+                    if current_time - last_received > heartbeat_timeout:
+                        clients_to_remove.append(client)
+
+                for client in clients_to_remove:
+                    del self.clients[client]
+                    del self.last_heartbeat[client]
+                    # Remove the client from the session as well
+
     # overwrite this method
     def handle_message(self, data, addr):
         pass
@@ -43,5 +65,5 @@ class Server:
 
 
 if __name__ == "__main__":
-    server = Host("0.0.0.0", 8001)
+    server = Server()
     server.listen()

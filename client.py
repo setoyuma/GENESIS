@@ -1,6 +1,7 @@
 import socket
 import threading
 import json
+
 from button import Button
 from fighter import Event
 
@@ -80,7 +81,7 @@ along with other fallback protocols. While these more complex protocols may not 
 ensures that the best possible connection method is used for communication between clients.
 
 
-Gamestate synchronizaztion
+Gamestate synchronization
 ---------------------------
 Setting up the main loop:
  - scenes need to be turned into classes (easy) so they can have a separate update and draw method because update may be called multiple times a frame

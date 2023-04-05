@@ -1,5 +1,6 @@
 import socket
 import threading
+import time
 import json
 
 from server import Server
@@ -26,7 +27,13 @@ class Lobby(Server):
     def handle_message(self, data, client):
         decoded_data = json.loads(data.decode('utf-8'))
 
-        if decoded_data["type"] == "register_session":
+        # client keep-alive message
+        if message_type == "heartbeat":
+            with self.clients_lock:
+                self.last_heartbeat[client] = time.time()
+
+        # a client created a session
+        elif decoded_data["type"] == "register_session":
             session_info = decoded_data.get("session_info")
             self.register_session(client, session_info)
 
@@ -48,7 +55,21 @@ class Lobby(Server):
 
         # guest has left the session
         elif decoded_data["type"] == "disconnect":
-            self.disconnect(client)
+            self.disconnect(client, decoded_data)
+
+    # send the session list to a single client
+    def send_sessions(self, client):
+        sessions_list = list(self.sessions.values())
+        data = {"type": "session_list", "sessions": sessions_list}
+        self.send_message(data, client)
+        print(f"Session list sent to {client}.")
+
+    # send the session list to all clients
+    def broadcast_session_list(self):
+        sessions_list = list(self.sessions.values())
+        data = {"type": "session_list", "sessions": sessions_list,}
+        self.broadcast(data)
+        print(f"Session list broadcasted to {len(self.clients)} clients.")
 
     def register_session(self, client, session_info):
         # give the session an id
@@ -56,31 +77,16 @@ class Lobby(Server):
         self.id_counter += 1
         # add host to the client list
         session_info["clients"] = [client]
-        # add joinable flag
-        session_info["joinable"] = True
         # add it to the sessions dict
         self.sessions[client] = session_info
+        self.broadcast_session_list()
         print(f"Registered session: {session_info}")
-        sessions_list = list(self.sessions.values())
-        data = {
-            "type": "session_list",
-            "sessions": sessions_list,
-        }
-        self.broadcast(data)
-
-    def send_sessions(self, client):
-        print(f"Session list sent to {client}")
-        sessions_list = list(self.sessions.values())
-        response = {
-            "type": "session_list",
-            "sessions": sessions_list,
-        }
-        self.send_message(response, client)
 
     def unregister_session(self, client):
         if client in self.sessions:
             print(f"Unregistered session: {self.sessions[client]}")
             del self.sessions[client]
+            self.broadcast_session_list()
 
     def join_session(self, decoded_data, client):
         key, session_info = self.get_session(decoded_data["id"])
@@ -99,5 +105,4 @@ class Lobby(Server):
 
 if __name__ == "__main__":
     lobby = Lobby()
-    lobby_thread = threading.Thread(target=lobby.listen)
-    lobby_thread.start()
+    lobby.listen()

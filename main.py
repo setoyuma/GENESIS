@@ -1,5 +1,7 @@
 import pygame as pg
+import threading
 import json
+import time
 import sys
 
 from color_animation import ColorGradient
@@ -23,6 +25,7 @@ blast_polygon_colors = ColorGradient((255,255,255), (255,255,0)).generate_gradie
 blast_points = [(179, 127), (195, 99), (225, 98), (225, 95), (30, 85), (6, 113), (28, 137), (53, 123), (92, 112), (173, 127)]
 right_blast_points = [(1421, 127), (1405, 99), (1375, 98), (1375, 95), (1570, 85), (1594, 113), (1572, 137), (1547, 123), (1508, 112), (1427, 127)]
 
+
 class Game:
 	def __init__(self):
 		self.load_settings()
@@ -31,6 +34,9 @@ class Game:
 
 		self.hit_stun = None
 		self.client = Client(self, "45.56.77.161", 8001)  # client sends data to lobby server by default
+		# Start the heartbeat loop in a separate thread
+		self.heartbeat_thread = threading.Thread(target=self.send_heartbeat, args=(self.client,), daemon=True)
+		self.heartbeat_thread.start()
 
 		# Game BG + BG Animation
 		self.bg = BACKGROUNDS["carnival"]
@@ -41,6 +47,12 @@ class Game:
 		self.animation_speed = 0.25
 		self.stun_frames = 0
 		self.max_stun_frames = 0
+
+	def send_heartbeat(self, client):
+		while True:
+			time.sleep(5)  # Send a heartbeat every 5 seconds
+			data = {"type": "heartbeat"}
+			self.client.send_message(data)
 
 	def load_settings(self):
 		with open('settings.json', 'r') as f:

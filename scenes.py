@@ -309,7 +309,8 @@ class LobbyView(Scene):
 		self.game.client.is_host = True
 		self.game.session = {
 			"name": "Test session",
-			"clients": [self.game.client.local_ip],
+			"clients": [self.game.client.local_ip],  # will be overwritten but needed
+			"joinable": True,
 			"id": None
 		}
 
