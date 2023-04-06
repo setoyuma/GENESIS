@@ -172,6 +172,7 @@ class Client:
 
                 # pressed_keys
                 case 'pressed_keys':
+                    pressed_keys = {int(key): value for key, value in decoded_data["pressed_keys"].items()}
                     if self.is_host:  # recieved keys from guest
                         self.game.player_2.pressed_keys = decoded_data["pressed_keys"]
                     else:  # recieved keys from host
@@ -181,7 +182,6 @@ class Client:
                 case 'update':
                     p1_data = decoded_data["player_1"]
                     p2_data = decoded_data["player_2"]
-                    print(p1_data)
                     self.game.player_1.from_dict(p1_data)
                     self.game.player_2.from_dict(p2_data)
                     self.game.match_time = decoded_data["match_time"]
