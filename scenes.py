@@ -61,10 +61,9 @@ class Match(Scene):
 					player.animated_text = None
 
 	def update_hit_stun(self):
-		if self.game.stun_frames >= self.game.max_stun_frames:
+		self.game.stun_time += self.game.dt
+		if self.game.stun_time >= self.game.max_stun_time:
 			self.game.hit_stun = False
-		else:
-			self.game.stun_frames += 0.5
 
 	def check_pause(self, event):
 		if event.key == pg.K_ESCAPE:
@@ -419,7 +418,7 @@ class Online_play(Match):
 		# do as many gamestate updates as necessary to catch up
 		while self.timestep_accumulator >= self.fixed_time_step:
 			self.timestep_accumulator -= self.fixed_time_step
-			self.update_hit_stun()
+			#self.update_hit_stun()
 			self.game.player_1.update(self.fixed_time_step, self.game.player_2)
 			self.game.player_2.update(self.fixed_time_step, self.game.player_1)
 

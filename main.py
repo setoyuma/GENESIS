@@ -45,8 +45,8 @@ class Game:
 		self.animation = Animator(self, self.bg, 0.25)
 		self.frame_index = 0
 		self.animation_speed = 0.25
-		self.stun_frames = 0
-		self.max_stun_frames = 0
+		self.stun_time = 0
+		self.max_stun_time = 0
 
 	def send_heartbeat(self, client):
 		while True:

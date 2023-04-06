@@ -309,8 +309,8 @@ class Fighter:
             # hit stun
             if not fireball:
                 self.game.hit_stun = True
-                self.game.stun_frames = 0
-                self.game.max_stun_frames = 3
+                self.game.stun_time = 0
+                self.game.max_stun_time = 0.1
             # knockback
             if self.attacking:
                 if self.facing_right:
