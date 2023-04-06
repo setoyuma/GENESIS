@@ -138,14 +138,19 @@ class Game:
 
 		# determines color in the gradient list
 		color_index = len(health_bar_colors) - int(ratio * len(health_bar_colors))
+			
 		if color_index >= len(health_bar_colors):
 			color_index = len(health_bar_colors) - 1
+		
+		color = health_bar_colors[color_index]
+		if player.hit:
+			color = (255,255,255)
 
 		match player:
 			case self.player_1:
-				pg.draw.polygon(self.screen, health_bar_colors[color_index], [(30+(600*ratio), 85+(ratio*27)), (30+(600*ratio), 67-(ratio*27)), (30, 65), (30, 85)])
+				pg.draw.polygon(self.screen, color, [(30+(600*ratio), 85+(ratio*27)), (30+(600*ratio), 67-(ratio*27)), (30, 65), (30, 85)])
 			case self.player_2:
-				pg.draw.polygon(self.screen, health_bar_colors[color_index], [(right_x-(600*ratio), 85+(ratio*27)), (right_x-(600*ratio), 67-(ratio*27)), (right_x, 65), (right_x, 85)])
+				pg.draw.polygon(self.screen, color, [(right_x-(600*ratio), 85+(ratio*27)), (right_x-(600*ratio), 67-(ratio*27)), (right_x, 65), (right_x, 85)])
 
 	def draw_super_meter(self, player):
 		screen_width = self.settings["screen_width"]
