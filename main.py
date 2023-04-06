@@ -67,8 +67,6 @@ class Game:
 		self.QUARTER_SCREENH = self.settings["screen_width"] // 4
 
 	def setup_pygame(self):
-		pg.init()
-
 		# music and sound
 		pg.mixer.init()
 		pg.mixer.music.load(f"./assets/music/{SONGS[0]}.wav")

@@ -253,7 +253,6 @@ class Fighter:
         if self.game.hit_stun:
             self.image = self.hit_frame
         else:
-            print(self.status, self.animation.frame_index)
             self.image = self.animation.update(self.game.dt)
         #print(self.status, self.animation.frame_index)
 
