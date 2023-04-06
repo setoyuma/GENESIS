@@ -48,7 +48,6 @@ class Fighter:
         self.blast_cooldown = 0
         self.attack_cooldown = 0
         self.time_without_combo = 0
-        self.hit_stun = None
         self.projectile = None
         self.throwing_proj = False
         self.animated_text = None
@@ -126,11 +125,11 @@ class Fighter:
 
         walking = False
 
-        if not self.attacking:
+        if not self.attacking and not self.game.hit_stun:
             # basic movements
             if self.pressed_keys[Actions.UP] and not self.jump_cooldown:
                 self.dir = "UP"
-                self.jump_cooldown = 0.9
+                self.jump_cooldown = 0.7
                 self.dY += self.jump_force
                 self.jumping = True
                 self.on_ground = False
@@ -221,7 +220,7 @@ class Fighter:
         if not self.attacking:
             if self.status in ACTIONS :
                 self.attacking = True
-                self.attack_cooldown = 50 / 1000  # ms
+                self.attack_cooldown = 0.05  # seconds
             else:
                 self.status = status
         elif self.status in ACTIONS and self.char_data["hitboxes"][self.status][0] == self.animation.frame_index:
@@ -247,7 +246,11 @@ class Fighter:
     def draw(self):
         #pygame.draw.rect(self.game.screen, (0,0,255), self.rect)
         #pygame.draw.rect(self.game.screen, (0,255,0), self.hit_box)
-        self.image = self.animation.update(self.game.dt)
+        if self.game.hit_stun:
+            self.image = self.hit_frame
+        else:
+            self.image = self.animation.update(self.game.dt)
+
         if not self.facing_right:
             self.image = pg.transform.flip(self.image, True, False)
         self.game.screen.blit(self.image, (self.rect.x - 90, self.rect.y - 15))
@@ -310,7 +313,13 @@ class Fighter:
             if not fireball:
                 self.game.hit_stun = True
                 self.game.stun_time = 0
-                self.game.max_stun_time = 0.1
+                self.game.max_stun_time = 0.05
+                self.hit_frame = self.animation.animation[self.animation.frame_index]
+                if self.AI:
+                    player = self.game.player_1
+                else:
+                    player = self.game.player_2
+                player.hit_frame = player.animation.animation[player.animation.frame_index]
             # knockback
             if self.attacking:
                 if self.facing_right:

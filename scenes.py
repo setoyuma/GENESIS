@@ -60,8 +60,8 @@ class Match(Scene):
 				if player.animated_text.update():
 					player.animated_text = None
 
-	def update_hit_stun(self):
-		self.game.stun_time += self.game.dt
+	def update_hit_stun(self, dt):
+		self.game.stun_time += dt
 		if self.game.stun_time >= self.game.max_stun_time:
 			self.game.hit_stun = False
 
@@ -183,7 +183,7 @@ class Local_Play(Match):
 					if event.key == pg.K_h:
 						pg.draw.rect(self.game.screen, "green", self.game.player_1.hit_box)
 
-		self.update_hit_stun()
+		self.update_hit_stun(self.game.dt)
 		self.game.player_1.update(self.game.dt, self.game.player_2)
 		self.game.player_2.update(self.game.dt, self.game.player_1)
 		self.game.camera.update(self.game.player_1, self.game.player_2)
@@ -228,7 +228,7 @@ class Training(Match):
 					if event.key == pg.K_h:
 						pg.draw.rect(self.game.screen, "green", self.game.player_1.hit_box)
 
-		self.update_hit_stun()
+		self.update_hit_stun(self.game.dt)
 		self.game.player_1.update(self.game.dt, self.game.player_2)
 		self.game.player_2.update(self.game.dt, self.game.player_1)
 		self.game.camera.update(self.game.player_1, self.game.player_2)
@@ -418,7 +418,7 @@ class Online_play(Match):
 		# do as many gamestate updates as necessary to catch up
 		while self.timestep_accumulator >= self.fixed_time_step:
 			self.timestep_accumulator -= self.fixed_time_step
-			#self.update_hit_stun()
+			self.update_hit_stun(self.fixed_time_step)
 			self.game.player_1.update(self.fixed_time_step, self.game.player_2)
 			self.game.player_2.update(self.fixed_time_step, self.game.player_1)
 

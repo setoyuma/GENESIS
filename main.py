@@ -32,7 +32,6 @@ class Game:
 		self.import_assets()
 		self.setup_pygame()
 
-		self.hit_stun = None
 		self.client = Client(self, "45.56.77.161", 8001)  # client sends data to lobby server by default
 		# Start the heartbeat loop in a separate thread
 		self.heartbeat_thread = threading.Thread(target=self.send_heartbeat, args=(self.client,), daemon=True)
@@ -45,6 +44,7 @@ class Game:
 		self.animation = Animator(self, self.bg, 0.25)
 		self.frame_index = 0
 		self.animation_speed = 0.25
+		self.hit_stun = False
 		self.stun_time = 0
 		self.max_stun_time = 0
 
