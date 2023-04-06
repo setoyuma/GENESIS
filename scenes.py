@@ -379,6 +379,7 @@ class Online_play(Match):
 		self.fixed_time_step = 1.0 / self.game.settings["FPS"]  # Fixed time step in seconds for updating and sending inputs
 		self.timestep_accumulator = 0
 		self.countdown = 5.0
+		self.prematch()
 
 	# pre-match
 	def prematch(self):
@@ -391,6 +392,10 @@ class Online_play(Match):
 
 	# match
 	def update(self):
+		self.game.time_accumulator += self.game.dt
+		self.timestep_accumulator += self.game.dt
+		self.send_pressed_keys()
+
 		for event in pg.event.get():
 			self.check_universal_events(self.game.pressed_keys, event)
 
@@ -400,8 +405,6 @@ class Online_play(Match):
 
 					if event.key == pg.K_ESCAPE:
 						pass  # create confirmation dialog for leaving the match
-
-		self.send_pressed_keys()
 
 		# do as many gamestate updates as necessary to catch up
 		while self.timestep_accumulator >= self.fixed_time_step:
@@ -414,12 +417,10 @@ class Online_play(Match):
 		self.draw_stage()
 		self.draw_players()
 		self.game.send_frame()
-		self.game.time_accumulator += self.game.dt
-		self.timestep_accumulator += self.game.dt
 
 	def send_pressed_keys(self):
 		pressed_keys = self.game.pressed_keys
-		pk_data = [False] * 119
+		pk_data = [False] * 120
 		pk_data[Actions.UP] = pressed_keys[Actions.UP]
 		pk_data[Actions.DOWN] = pressed_keys[Actions.DOWN]
 		pk_data[Actions.BACK] = pressed_keys[Actions.BACK]
