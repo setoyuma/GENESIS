@@ -174,9 +174,9 @@ class Client:
                 case 'pressed_keys':
                     pressed_keys = {int(key): value for key, value in decoded_data["pressed_keys"].items()}
                     if self.is_host:  # recieved keys from guest
-                        self.game.player_2.pressed_keys = decoded_data["pressed_keys"]
+                        self.game.player_2.pressed_keys = pressed_keys
                     else:  # recieved keys from host
-                        self.game.player_1.pressed_keys = decoded_data["pressed_keys"]
+                        self.game.player_1.pressed_keys = pressed_keys
 
                 # gamestate update
                 case 'update':
