@@ -114,6 +114,9 @@ class Fighter:
         which is updated after all key presses are handled.
     '''
     def update(self, dt, target):
+        if self.attacking and self.hit:
+            self.attacking = False
+
         if self.super_meter >= 250:
             self.super_meter = 250
 
@@ -250,8 +253,9 @@ class Fighter:
         if self.game.hit_stun:
             self.image = self.hit_frame
         else:
+            print(self.status, self.animation.frame_index)
             self.image = self.animation.update(self.game.dt)
-        print(self.status, self.animation.frame_index)
+        #print(self.status, self.animation.frame_index)
 
         if not self.facing_right:
             self.image = pg.transform.flip(self.image, True, False)

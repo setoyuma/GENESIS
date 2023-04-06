@@ -75,7 +75,7 @@ def get_image(path):
     image = _image_library.get(path)
     if image == None:
         canonicalized_path = path.replace('/', sep).replace('\\', sep)
-        image = pygame.image.load(canonicalized_path)
+        image = pygame.image.load(canonicalized_path).convert_alpha()
         _image_library[path] = image
     return image
 
