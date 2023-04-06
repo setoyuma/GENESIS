@@ -61,9 +61,10 @@ class Match(Scene):
 					player.animated_text = None
 
 	def update_hit_stun(self, dt):
-		self.game.stun_time += dt
-		if self.game.stun_time >= self.game.max_stun_time:
-			self.game.hit_stun = False
+		if self.game.hit_stun:
+			self.game.stun_time += dt
+			if self.game.stun_time >= self.game.max_stun_time:
+				self.game.hit_stun = False
 
 	def check_pause(self, event):
 		if event.key == pg.K_ESCAPE:
@@ -322,10 +323,7 @@ class LobbyView(Scene):
 		}
 
 		# send a registration request to the lobby server
-		data = {
-			"type": "register_session",
-			"session_info": self.game.session
-		}
+		data = {"type": "register_session", "session_info": self.game.session}
 		self.game.client.send_message(data)
 
 		# reinitialize buttons list with leave option
@@ -336,24 +334,17 @@ class LobbyView(Scene):
 
 	def join_session(self, id):
 		# request a session's info from lobby server
-		data = {
-			"type": "join_session",
-			"id": id
-		}
+		data = {"type": "join_session", "id": id}
 		self.game.client.send_message(data)
 		self.buttons = [Button(self.game, "Leave", (self.game.screen.get_width()/2+605, 700), self.leave_session, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png", text_size=30, id=None)]
 
 	def leave_session(self):
-		data = {
-			"id": self.game.session["id"]
-		}
 		if self.game.client.is_host:
 			# delete the session
-			data["type"] = "unregister_session"
+			self.game.client.send_message({"id": self.game.session["id"], "type": "unregister_session"})
 		else:
 			# leave the session
-			data["type"] = "disconnect"
-		self.game.client.send_message(data)
+			self.game.client.send_message({"id": self.game.session["id"], "type": "disconnect"})
 		self.game.session = None
 		self.buttons = [
 			Button(self.game, "CREATE", (self.game.settings["screen_width"]/3+960, 700), self.create_session, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png", text_size=30),
@@ -511,7 +502,7 @@ class Sound_Settings(Scene):
 
 	def update(self):
 		mouse_pos = pg.mouse.get_pos()
-		
+
 		if self.slider.active:
 			self.slider.handle_event(self.game.screen, mouse_pos[0])
 			self.volume = self.slider.get_volume()

@@ -104,6 +104,7 @@ class Fighter:
 
             if attack_key is not None:
                 self.status = attack_key
+                self.attack_status = attack_key
             
         self.move_combo.append(event.key)
         self.check_combos()
@@ -250,6 +251,7 @@ class Fighter:
             self.image = self.hit_frame
         else:
             self.image = self.animation.update(self.game.dt)
+        print(self.status, self.animation.frame_index)
 
         if not self.facing_right:
             self.image = pg.transform.flip(self.image, True, False)
@@ -262,7 +264,7 @@ class Fighter:
     def attack(self, target, damage=None):
         # get hitbox attributes for the active frame
         hitbox_attrs = self.char_data["hitboxes"]
-        status = self.status
+        status = self.attack_status
         if damage is not None:
             status = "0"  # fireball doesnt need offset
         offset_x, offset_y, w, h = hitbox_attrs[status][1]
