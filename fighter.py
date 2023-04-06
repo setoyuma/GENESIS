@@ -33,7 +33,8 @@ class Fighter:
         # animations
         self.import_character_assets()
         self.status = 'idle'
-        self.image = self.animations[self.status].animation[0]
+        self.animation = self.animations[self.status]
+        self.image = self.animation.animation[0]
         self.rect = pg.Rect(x, y, 150, 320)
         self.hit_box = pg.Rect(self.rect.x, self.rect.y - 100, 120, 280)
         self.AI = num - 1

@@ -172,7 +172,6 @@ class Client:
 
                 # pressed_keys
                 case 'pressed_keys':
-                    
                     if self.is_host:  # recieved keys from guest
                         self.game.player_2.pressed_keys = decoded_data["pressed_keys"]
                     else:  # recieved keys from host
