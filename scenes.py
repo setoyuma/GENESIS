@@ -5,6 +5,7 @@ from particle import ParticlePrinciple
 from fighter import Fighter
 from button import Button
 from slider import Slider
+from pause import Pause
 from show_inputs import *
 from constants import *
 from support import *
@@ -69,7 +70,6 @@ class Match(Scene):
 		if event.key == pg.K_ESCAPE:
 			self.game.paused = True
 			pause = Pause(self.game)
-			pause.update()
 
 
 class Main_Menu(Scene):
@@ -161,15 +161,16 @@ class Local_Play(Match):
 
 		self.game.player_1 = Fighter(game, 1, 200, 510, "Homusubi", "Play")
 		self.game.player_2 = Fighter(game, 2, 1000, 510, "Homusubi", "Play")
+		self.game.player_2.pressed_keys = {119: False, 115: False, 97: False, 100: False, 1073742050: False, 1073742054: False, 1073741885: False}
 		self.game.players = [self.game.player_2, self.game.player_1]  # reversed for client draw order
 		self.game.match_time = 99
 		self.game.time_accumulator = 0
-		self.game.pressed_keys = pg.key.get_pressed()
 
 	def update(self):
+		self.game.player_1.pressed_keys = pg.key.get_pressed()
 		# process client events
 		for event in pg.event.get():
-			self.check_universal_events(self.game.pressed_keys, event)
+			self.check_universal_events(self.game.player_1.pressed_keys, event)
 
 			if event.type == pg.KEYDOWN:
 				self.check_pause(event)
@@ -204,16 +205,17 @@ class Training(Match):
 
 		self.game.player_1 = Fighter(self.game, 1, 200, 510, "Homusubi", "Play")
 		self.game.player_2 = Fighter(self.game, 2, 1000, 570, "Homusubi", "Play")
+		self.game.player_2.pressed_keys = {119: False, 115: False, 97: False, 100: False, 1073742050: False, 1073742054: False, 1073741885: False}
 		self.game.players = [self.game.player_2, self.game.player_1]  # reversed for client draw order
 		self.user_buttons = User_Inputs(self.game.settings["screen_width"]//2, 200, 30, self.game.player_1)
-		self.game.pressed_keys = pg.key.get_pressed()
 		self.game.time_accumulator = 0
 		self.game.match_time = 99
 
 	def update(self):
+		self.game.player_1.pressed_keys = pg.key.get_pressed()
 		# process client events
 		for event in pg.event.get():
-			self.check_universal_events(self.game.pressed_keys, event)
+			self.check_universal_events(self.game.player_1.pressed_keys, event)
 
 			if event.type == pg.KEYDOWN:
 				self.check_pause(event)
@@ -371,7 +373,8 @@ class Online_play(Match):
 		self.game.player_1 = Fighter(self.game, 1, 200, 510, "Homusubi", "Play")
 		self.game.player_2 = Fighter(self.game, 2, 1000, 510, "Homusubi", "Play")
 		self.game.players = [self.game.player_2, self.game.player_1]  # reversed for client draw order
-		self.game.pressed_keys = pygame.key.get_pressed()
+		self.game.player_1.pressed_keys = {119: False, 115: False, 97: False, 100: False, 1073742050: False, 1073742054: False, 1073741885: False}
+		self.game.player_2.pressed_keys = {119: False, 115: False, 97: False, 100: False, 1073742050: False, 1073742054: False, 1073741885: False}
 		self.game.gamestate_buffer = []
 		self.game.match_started = False
 		self.game.time_accumulator = 0
@@ -394,33 +397,39 @@ class Online_play(Match):
 	def update(self):
 		self.game.time_accumulator += self.game.dt
 		self.timestep_accumulator += self.game.dt
-		self.send_pressed_keys()
+
+		pressed_keys = pg.key.get_pressed()
+		self.send_pressed_keys(pressed_keys)
+
+		if self.game.client.is_host:
+			self.game.player_1.pressed_keys = pressed_keys
+		else:
+			self.game.player_2.pressed_keys = pressed_keys
 
 		for event in pg.event.get():
-			self.check_universal_events(self.game.pressed_keys, event)
+			self.check_universal_events(pressed_keys, event)
 
 			if event.type == pg.KEYDOWN:
 				if not self.game.hit_stun:
 					self.game.handle_event(event)
 
-					if event.key == pg.K_ESCAPE:
-						pass  # create confirmation dialog for leaving the match
+				if event.key == pg.K_ESCAPE:
+					pass  # create confirmation dialog for leaving the match
 
 		# do as many gamestate updates as necessary to catch up
 		while self.timestep_accumulator >= self.fixed_time_step:
 			self.timestep_accumulator -= self.fixed_time_step
 			self.update_hit_stun()
-			self.game.player_1.update(self.game.dt, self.game.player_2)
-			self.game.player_2.update(self.game.dt, self.game.player_1)
+			self.game.player_1.update(self.fixed_time_step, self.game.player_2)
+			self.game.player_2.update(self.fixed_time_step, self.game.player_1)
 
 	def draw(self):
 		self.draw_stage()
 		self.draw_players()
 		self.game.send_frame()
 
-	def send_pressed_keys(self):
-		pressed_keys = self.game.pressed_keys
-		pk_data = [False] * 120
+	def send_pressed_keys(self, pressed_keys):
+		pk_data = {119: False, 115: False, 97: False, 100: False}
 		pk_data[Actions.UP] = pressed_keys[Actions.UP]
 		pk_data[Actions.DOWN] = pressed_keys[Actions.DOWN]
 		pk_data[Actions.BACK] = pressed_keys[Actions.BACK]

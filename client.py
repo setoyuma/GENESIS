@@ -165,11 +165,18 @@ class Client:
                 case 'event':
                     key = decoded_data["event"]
                     event = Event(key)
-                    self.game.player_2.handle_event(event)
+                    if self.is_host:  # recieved event from guest
+                        self.game.player_2.handle_event(event)
+                    else:  # recieved event from guest
+                        self.game.player_1.handle_event(event)
 
                 # pressed_keys
                 case 'pressed_keys':
-                    self.game.pressed_keys = decoded_data["pressed_keys"]
+                    
+                    if self.is_host:  # recieved keys from guest
+                        self.game.player_2.pressed_keys = decoded_data["pressed_keys"]
+                    else:  # recieved keys from host
+                        self.game.player_1.pressed_keys = decoded_data["pressed_keys"]
 
                 # gamestate update
                 case 'update':

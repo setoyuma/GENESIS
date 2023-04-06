@@ -123,16 +123,11 @@ class Fighter:
             target.current_hp = 0
             target.alive = False
 
-        if self.AI:# or not self.game.client.is_host:
-            pressed_keys = self.game.pressed_keys
-        else:
-            pressed_keys = pg.key.get_pressed()
-
         walking = False
 
         if not self.attacking:
             # basic movements
-            if pressed_keys[Actions.UP] and not self.jump_cooldown:
+            if self.pressed_keys[Actions.UP] and not self.jump_cooldown:
                 self.dir = "UP"
                 self.jump_cooldown = 0.9
                 self.dY += self.jump_force
@@ -140,7 +135,7 @@ class Fighter:
                 self.on_ground = False
                 self.move_combo = []
 
-            elif pressed_keys[Actions.DOWN] and self.on_ground:
+            elif self.pressed_keys[Actions.DOWN] and self.on_ground:
                 self.dir = "DOWN"
                 self.crouching = True
                 self.dX = 0
@@ -150,13 +145,13 @@ class Fighter:
                 self.animations["crouch"].reset()
 
             if not self.crouching:
-                if pressed_keys[Actions.BACK]:
+                if self.pressed_keys[Actions.BACK]:
                     self.dir = "BACK"
                     self.rect.x -= self.move_speed * dt
                     if self.on_ground:
                         walking = True
 
-                elif pressed_keys[Actions.FORWARD]:
+                elif self.pressed_keys[Actions.FORWARD]:
                     self.dir = "FORWARD"
                     self.rect.x += self.move_speed * dt
                     if self.on_ground:
