@@ -429,7 +429,7 @@ class Online_play(Match):
 		self.game.send_frame()
 
 	def send_pressed_keys(self, pressed_keys):
-		pk_data = [323] * False
+		pk_data = [False] * 323
 		pk_data[Actions.UP] = pressed_keys[Actions.UP]
 		pk_data[Actions.DOWN] = pressed_keys[Actions.DOWN]
 		pk_data[Actions.BACK] = pressed_keys[Actions.BACK]
