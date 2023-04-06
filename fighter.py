@@ -128,6 +128,7 @@ class Fighter:
 
         if not self.attacking:
             # basic movements
+            print(self.pressed_keys)
             if self.pressed_keys[Actions.UP] and not self.jump_cooldown:
                 self.dir = "UP"
                 self.jump_cooldown = 0.9

@@ -161,7 +161,7 @@ class Local_Play(Match):
 
 		self.game.player_1 = Fighter(game, 1, 200, 510, "Homusubi", "Play")
 		self.game.player_2 = Fighter(game, 2, 1000, 510, "Homusubi", "Play")
-		self.game.player_2.pressed_keys = {119: False, 115: False, 97: False, 100: False, 1073742050: False, 1073742054: False, 1073741885: False}
+		self.game.player_2.pressed_keys = [False] * 323
 		self.game.players = [self.game.player_2, self.game.player_1]  # reversed for client draw order
 		self.game.match_time = 99
 		self.game.time_accumulator = 0
@@ -205,7 +205,7 @@ class Training(Match):
 
 		self.game.player_1 = Fighter(self.game, 1, 200, 510, "Homusubi", "Play")
 		self.game.player_2 = Fighter(self.game, 2, 1000, 570, "Homusubi", "Play")
-		self.game.player_2.pressed_keys = {119: False, 115: False, 97: False, 100: False, 1073742050: False, 1073742054: False, 1073741885: False}
+		self.game.player_2.pressed_keys = [False] * 323
 		self.game.players = [self.game.player_2, self.game.player_1]  # reversed for client draw order
 		self.user_buttons = User_Inputs(self.game.settings["screen_width"]//2, 200, 30, self.game.player_1)
 		self.game.time_accumulator = 0
@@ -373,8 +373,8 @@ class Online_play(Match):
 		self.game.player_1 = Fighter(self.game, 1, 200, 510, "Homusubi", "Play")
 		self.game.player_2 = Fighter(self.game, 2, 1000, 510, "Homusubi", "Play")
 		self.game.players = [self.game.player_2, self.game.player_1]  # reversed for client draw order
-		self.game.player_1.pressed_keys = {119: False, 115: False, 97: False, 100: False, 1073742050: False, 1073742054: False, 1073741885: False}
-		self.game.player_2.pressed_keys = {119: False, 115: False, 97: False, 100: False, 1073742050: False, 1073742054: False, 1073741885: False}
+		self.game.player_1.pressed_keys = [False] * 323
+		self.game.player_2.pressed_keys = [False] * 323
 		self.game.gamestate_buffer = []
 		self.game.match_started = False
 		self.game.time_accumulator = 0
