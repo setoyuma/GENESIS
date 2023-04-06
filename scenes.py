@@ -46,8 +46,8 @@ class Match(Scene):
 		self.game.screen.blit(self.game.background.update(self.game.dt), (-self.game.camera.rect.x, -self.game.camera.rect.y))
 		self.game.draw_HUD()
 		self.game.show_fps()
-		#if self.player_1.attack_rect is not None:
-		#	pg.draw.rect(self.screen, "green", self.player_1.attack_rect)
+		if self.game.player_1.attack_rect is not None:
+			pg.draw.rect(self.game.screen, "green", self.game.player_1.attack_rect)
 
 	def draw_players(self):
 		# srpites

@@ -36,7 +36,7 @@ class Fighter:
         self.animation = self.animations[self.status]
         self.image = self.animation.animation[0]
         self.rect = pg.Rect(x, y, 150, 320)
-        self.hit_box = pg.Rect(self.rect.x, self.rect.y - 100, 120, 280)
+        # self.hit_box = pg.Rect(self.rect.x, self.rect.y - 100, 120, 280)
         self.AI = num - 1
         if self.AI:
             img = pg.transform.flip(self.image, True, False)
@@ -76,7 +76,7 @@ class Fighter:
 
     def import_character_assets(self):
         self.animations = {}
-        self.animation_keys = {'idle':[],'run':[],'jump':[],'crouch':[],'hit':[],'LP':[],'MP':[],'HP':[],'LK':[],'MK':[],'HK':[],'2LP':[],'2MP':[],'2HP':[],'2LK':[],'2MK':[],'2HK':[]} 
+        self.animation_keys = {'idle':[],'run':[],'jump':[],'crouch':[],'hit':[],'LP':[],'MP':[],'HP':[],'LK':[],'MK':[],'HK':[],'2LP':[],'2MP':[],'2HP':[],'2LK':[],'2MK':[],'2HK':[],'JLP':[],'JMP':[]} 
         for key in self.animation_keys:
             full_path = f'./assets/characters/{self.character}/{key}/'
             original_images = import_folder(full_path)
@@ -101,6 +101,9 @@ class Fighter:
             elif self.on_ground:
                 if str(event.key) in self.game.settings["attacks"]:
                     attack_key = self.game.settings["attacks"][str(event.key)]
+            elif self.jumping:
+                if str(event.key) in self.game.settings["attacks"]:
+                    attack_key = "J" + self.game.settings["attacks"][str(event.key)]
 
             if attack_key is not None:
                 self.status = attack_key
@@ -114,6 +117,11 @@ class Fighter:
         which is updated after all key presses are handled.
     '''
     def update(self, dt, target):
+        if self.crouching:
+            self.hit_box = pg.Rect(self.rect.x, self.rect.y -200, 120, 120)
+        else:
+            self.hit_box = pg.Rect(self.rect.x, self.rect.y - 100, 120, 280)
+
         if self.attacking and self.hit:
             self.attacking = False
 
@@ -248,8 +256,8 @@ class Fighter:
                 self.hit = False
 
     def draw(self):
-        #pygame.draw.rect(self.game.screen, (0,0,255), self.rect)
-        #pygame.draw.rect(self.game.screen, (0,255,0), self.hit_box)
+        pygame.draw.rect(self.game.screen, (0,0,255), self.rect)
+        pygame.draw.rect(self.game.screen, (0,255,0), self.hit_box)
         if self.game.hit_stun:
             self.image = self.hit_frame
         else:
@@ -283,6 +291,7 @@ class Fighter:
         self.attack_rect = attack_rect
         # detect collision on the active frame
         if (attack_rect.colliderect(target.hit_box) and not self.throwing_proj) or damage is not None:
+            
             if damage is None:
                 fireball = False
                 damage = self.char_data["damage"][status]
@@ -298,6 +307,23 @@ class Fighter:
                         play_sound('./assets/sfx/hit_2.wav')
                     target.current_hp -= damage
                     # target.max_hp -= self.char_data["damage"][status]
+            
+            elif damage is None and not self.on_ground:
+                fireball = False
+                damage = self.char_data["damage"][status]
+                self.super_meter += damage * 2
+                if target.alive:
+                    target.hit = True
+                    self.attacked = True
+                    if "L" in status:
+                        play_sound('./assets/sfx/hit_1.wav')
+                    if "M" in status:
+                        play_sound('./assets/sfx/hit_1.wav')
+                    if "H" in status:
+                        play_sound('./assets/sfx/hit_2.wav')
+                    target.current_hp -= damage
+                    # target.max_hp -= self.char_data["damage"][status]
+            
             elif damage:
                 fireball = True
                 self.super_meter += damage * 2
@@ -318,7 +344,7 @@ class Fighter:
             if not fireball:
                 self.game.hit_stun = True
                 self.game.stun_time = 0
-                self.game.max_stun_time = 0.05
+                self.game.max_stun_time = 0.1
                 self.hit_frame = self.animation.animation[self.animation.frame_index]
                 if self.AI:
                     player = self.game.player_1
@@ -326,7 +352,7 @@ class Fighter:
                     player = self.game.player_2
                 player.hit_frame = player.animation.animation[player.animation.frame_index]
             # knockback
-            if self.attacking:
+            if self.attacking and self.on_ground:
                 if self.facing_right:
                     self.rect.x -= 20
                 else:
