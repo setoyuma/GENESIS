@@ -53,7 +53,7 @@ class Game:
 		while True:  # Send a heartbeat every 3 seconds
 			time.sleep(3)
 			data = {"type": "heartbeat"}
-			self.client.send_message(data)
+			self.client.send_message(data, server=("45.56.77.161", 8001))
 
 	def load_settings(self):
 		with open('settings.json', 'r') as f:

@@ -100,7 +100,7 @@ class Client:
 
                 # host has left the session
                 case 'disconnect':
-                    self.game.SceneManager.scene = LobbyView(self.game)
+                    self.game.sceneManager.scene = LobbyView(self.game)
 
         except Exception as e:
             print(f"Error while handling message from {addr}: {e}\n Data: {data}")
@@ -116,10 +116,12 @@ class Client:
         }
         self.send_message(gamestate)
 
-    def send_message(self, message, serialize=True):
+    def send_message(self, message, serialize=True, server=None):
+        if server is None:
+            server = (self.server_ip, self.server_port)
         try:
             if serialize:
                 message = json.dumps(message).encode('utf-8')
-            self.sock.sendto(message, (self.server_ip, self.server_port))
+            self.sock.sendto(message, server)
         except Exception as e:
-            print(f"Error while sending message to ({self.server_ip}, {self.server_port}): {e}\n Message: {message}")
+            print(f"Error while sending message to ({server[0]}, {server[1]}): {e}\n Message: {message}")
