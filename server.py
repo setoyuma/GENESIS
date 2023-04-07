@@ -1,7 +1,8 @@
 import socket
 import threading
-import time
 import json
+import time
+
 
 class Server:
     def __init__(self):
@@ -33,7 +34,7 @@ class Server:
             self.handle_message(data, addr)
 
     def check_timeouts(self):
-        heartbeat_timeout = 15  # seconds
+        heartbeat_timeout = 10  # seconds
 
         while True:
             time.sleep(1)  # Check timeouts every second

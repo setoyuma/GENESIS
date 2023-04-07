@@ -13,7 +13,6 @@ class Projectile:
         self.speed = 10
         self.frame_index = 0
         self.frames_passed = 0
-        self.off_screen = False
         self.import_assets()
         self.rect = pg.Rect(spawn_pos[0], spawn_pos[1], self.size, self.size)
         if not facing_right:
@@ -29,16 +28,40 @@ class Projectile:
         scaled_images = scale_images(original_images, (100, 40))
         self.animation = Animator(self.game, scaled_images, 0.05, loop=True)
 
-    def move(self):
-        if self.type == "LFB":
+    def update(self, dt, target):
+        self.move(dt)
+
+        # check if 50 ms has passed since projectile spawning
+        self.frames_passed += 1
+        if self.frames_passed >= 10:
+            self.player.throwing_proj = False
+
+        # check projectile collision with opponent
+        if self.rect.collidepoint(target.rect.centerx, target.rect.centery+10):
+            if self.type == "LFireball":
+                damage = 5
+            elif self.type == "MFireball":
+                damage = 7
+            elif self.type == "HFireball":
+                damage = 14
+
+            self.player.projectile = None
+            self.player.throwing_proj = False
+            self.player.attack(target, damage)
+
+    def move(self, dt):
+        if self.type == "LFireball":
             self.rect.x += self.speed
-        elif self.type == "MFB":
+        elif self.type == "MFireball":
             self.rect.x += int(self.speed * 1.5)
-        elif self.type == "HFB":
+        elif self.type == "HFireball":
             self.rect.x += int(self.speed * 2.2)
 
         if self.rect.x < 0 or self.rect.x > self.game.settings["screen_width"]:
-            self.off_screen = True
+            self.projectile = None
+            self.throwing_proj = False
+
+        self.animation.update(dt)
 
     def draw(self, surf):
         surf.blit(self.image, (self.rect.x, self.rect.y))

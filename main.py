@@ -8,10 +8,10 @@ from color_animation import ColorGradient
 from particle import ParticlePrinciple
 from fighter import Fighter, Event
 from animation import Animator
+from client import Client
 from camera import Camera
 from button import Button
 from slider import Slider
-from client import Client
 from pause import Pause
 from show_inputs import *
 from constants import * 
@@ -35,8 +35,7 @@ class Game:
 		self.setup_pygame()
 
 		self.client = Client(self, "45.56.77.161", 8001)  # client sends data to lobby server by default
-		# Start the heartbeat loop in a separate thread
-		self.heartbeat_thread = threading.Thread(target=self.send_heartbeat, args=(self.client,), daemon=True)
+		self.heartbeat_thread = threading.Thread(target=self.send_heartbeat, args=(self.client,), daemon=True)  # Use a separate thread to send a heartbeat
 		self.heartbeat_thread.start()
 
 		# Game BG + BG Animation
@@ -51,8 +50,8 @@ class Game:
 		self.max_stun_time = 0
 
 	def send_heartbeat(self, client):
-		while True:
-			time.sleep(5)  # Send a heartbeat every 5 seconds
+		while True:  # Send a heartbeat every 3 seconds
+			time.sleep(3)
 			data = {"type": "heartbeat"}
 			self.client.send_message(data)
 
@@ -238,4 +237,3 @@ if __name__ == '__main__':
 	game = Game()
 	game.sceneManager = SceneManager(Main_Menu(game))
 	game.sceneManager.start()
-	# game.change_controls()

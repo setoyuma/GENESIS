@@ -1,0 +1,127 @@
+"""                                                                                                                                                
+.                                                                                                                        ddddddd                     
+NNNNNNNN        NNNNNNNN                                                                                                 d:::::d                     
+N:::::::N       N::::::N                            ttttttt                                                              d:::::d                     
+N::::::::N      N::::::N                            t:::::t                                                              d:::::d                     
+N:::::::::N     N::::::N                            t:::::t                                                              d:::::d                      
+N::::::::::N    N::::::N     eeeeeeeeeeee     ttttttt:::::ttttttt         cccccccccccccccc    ooooooooooo        ddddddddd:::::d      eeeeeeeeeeee    
+N:::::::::::N   N::::::N   ee::::::::::::ee   t:::::::::::::::::t       cc:::::::::::::::c  oo:::::::::::oo    dd::::::::::::::d    ee::::::::::::ee  
+N:::::::N::::N  N::::::N  e::::::eeeee:::::ee t:::::::::::::::::t      c:::::::::::::::::c o:::::::::::::::o  d::::::::::::::::d   e::::::eeeee:::::ee
+N::::::N N::::N N::::::N e::::::e     e:::::e tttttt:::::::tttttt     c:::::::cccccc:::::c o:::::ooooo:::::o d:::::::ddddd:::::d  e::::::e     e:::::e
+N::::::N  N::::N:::::::N e:::::::eeeee::::::e       t:::::t           c::::::c     ccccccc o::::o     o::::o d::::::d    d:::::d  e:::::::eeeee::::::e
+N::::::N   N:::::::::::N e:::::::::::::::::e        t:::::t           c:::::c              o::::o     o::::o d:::::d     d:::::d  e:::::::::::::::::e 
+N::::::N    N::::::::::N e::::::eeeeeeeeeee         t:::::t           c:::::c              o::::o     o::::o d:::::d     d:::::d  e::::::eeeeeeeeeee  
+N::::::N     N:::::::::N e:::::::e                  t:::::t    tttttt c::::::c     ccccccc o::::o     o::::o d:::::d     d:::::d  e:::::::e           
+N::::::N      N::::::::N e::::::::e                 t::::::tttt:::::t c:::::::cccccc:::::c o:::::ooooo:::::o d::::::ddddd::::::dd e::::::::e          
+N::::::N       N:::::::N  e::::::::eeeeeeee         tt::::::::::::::t  c:::::::::::::::::c o:::::::::::::::o  d:::::::::::::::::d  e::::::::eeeeeeee  
+N::::::N        N::::::N   ee:::::::::::::e           tt:::::::::::tt   cc:::::::::::::::c  oo:::::::::::oo    d:::::::::ddd::::d   ee:::::::::::::e  
+NNNNNNNN         NNNNNNN     eeeeeeeeeeeeee             ttttttttttt       cccccccccccccccc    ooooooooooo       ddddddddd   ddddd     eeeeeeeeeeeeee    (docs)
+
+
+# TODO
+# kick guest back to lobby if host leaves the session
+# tell the player if they are currently connected to lobby
+# implement the gamestate synchronization techniques
+# add customizable user and session names
+# create a leaderboard (account must be registered with lobby server to appear on it)
+
+Overview
+---------
+Game start-up
+ - The game creates an instance of Client and sets the server to the lobby address.
+
+ - A thread is created to send a heartbeat message to the lobby every 3 seconds, telling lobby that this client is still connected and active.
+   If the lobby does not recieve a heartbeat message within 10 seconds, the client will be removed from the lobby's client dict.
+
+
+Online menu
+ - The client requests the session list from the lobby and uses that information to initialize buttons for each online session
+ 
+ - If the client creates a session, they will mark themselves as a host and register a session on the lobby
+   The lobby sends the host the info for the newly registered session
+
+ - If the client joins a session, the session is marked as full, the client is added to the session info, and both clients are sent the updated session info
+ 
+ - Only the host can start the match, and only once 2 people are in the session
+
+ - If the host leaves, the session is unregistered on the lobby
+
+ - If the guest leaves, the lobby refreshes the host's session info
+ 
+ - When sessions are created or destroyed, the lobby refreshes everyone's session list
+
+
+Online Match
+ - When a match is started, the clients initiate a direct connection with each other via NAT hole-punching.
+ 
+ - The Play_Online scene is created and the pre-match countdown begins.
+ 
+ - Host is player 1, and guest is player 2
+
+ - Gamestate sunchronization techniques are applied
+
+
+NAT Hole-punching
+------------------
+Normally, for two clients to communicate between each other, one of the clients would need to forward a port on their router, which directs 
+incoming packets to the correct computer on the network. The other client would then initiate the connection by using the open port.
+However, in p2p architectures, hole-punching is a technique that establishes a direct connection between two clients without the need 
+for port forwarding.
+
+Step by step:
+    1. Clients exchange their public IPs and ports via the lobby server.
+
+    2. Client_1 sends an initial packet to Client_2's public IP. Although this packet doesn't reach Client_2 due to the lack of port forwarding, 
+    Client_1's router now associates Client_1's private IP with Client_2's public IP (CLIENT 2 IS NOW ABLE TO SEND PACKETS TO CLIENT 1).
+
+    3. Client_1 informs the lobby server that they have sent the initial packet.
+
+    4. The lobby informs Client_2 that Client_1 is ready for a response.
+
+    5. Client_2 sends a response packet to Client_1. Thanks to the previous association, this packet reaches Client_1, 
+       and a similar association is created on Client_2's router. (CLIENT 1 IS NOW ABLE TO SEND PACKETS TO CLIENT 2)
+
+    6. As long as messages are sent periodically to maintain the associations on both clients' routers, the connection is maintained.
+
+
+This is our implementation of hole-punching:
+    0. When a second player joins, Lobby sends both clients the new session info which contains both addresses.
+
+    1. Host clicks the start match button
+
+    2. Host sends the initial packet to Guest (doesn't reach Guest but creates a mapping between Host and Guest on Host's router)
+
+    3. Host sends a 'handshake' message to Lobby (indicating the first part of the handshake is complete).
+
+    4. Lobby forwards the 'handshake' message to Guest (informing Guest that Host initiated a handshake and requires a response).
+
+    5. Guest sends a response packet to Host, completing the hole-punch (creates a mapping between Guest and Host on Guest's router).
+
+    6. A direct connection is established, and they both begin the match start countdown.
+
+
+STUN, TURN, and ICE
+--------------------
+ - A STUN server helps clients exchange their public IPs and ports, enabling them to establish a hole-punch connection. 
+   In this game, the lobby server will function as the STUN server.
+
+ - A TURN server is a relay that clients can use for communication when hole-punching fails.
+   If necessary, the lobby server can also act as a TURN server.
+
+ - ICE is a framework that combines the above techniques (STUN and TURN) along with other fallback protocols.
+
+
+Gamestate synchronization
+---------------------------
+ - Both clients will update the gamestate in fixed time steps and store them in a buffer.
+ 
+ - They will send and process local input immediately
+   If an ack is not recieved for the input, resend the input
+
+ - When a client recieves input data, it will send an ack, rollback to the gamestate update where the event would have happened, and resimulate 
+   that gamestate as well as the rest of the gamestates up to the current point in time, with the added input from the other player.
+
+ - About every second, both clients will send a full gamestate to each other to resync
+ 
+ - When a client recieves a full gamestate, they compare it to their own and interpolate the data
+"""

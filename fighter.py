@@ -36,7 +36,7 @@ class Fighter:
         self.animation = self.animations[self.status]
         self.image = self.animation.animation[0]
         self.rect = pg.Rect(x, y, 150, 320)
-        # self.hit_box = pg.Rect(self.rect.x, self.rect.y - 100, 120, 280)
+        self.hit_box = pg.Rect(self.rect.x, self.rect.y - 100, 120, 280)
         self.AI = num - 1
         if self.AI:
             img = pg.transform.flip(self.image, True, False)
@@ -44,6 +44,7 @@ class Fighter:
         self.frame_index = 0  # for guest client
 
         # attacks
+        self.time_since_last_input = 0
         self.move_combo = []
         self.blast_cooldown = 0
         self.attack_cooldown = 0
@@ -62,7 +63,7 @@ class Fighter:
         self.attacking = False
         self.crouching = False
         self.walking = False
-        self.facing_right = True
+        self.facing_right = not self.AI
         self.jumping = False
         self.hit = False
 
@@ -90,7 +91,7 @@ class Fighter:
 
     ''' Processes a single event. Updates single-press 
         inputs like basic attacks, updates the player's 
-        input combo, then checks for valid combos.
+        input combo, and checks for valid combos.
     '''
     def handle_event(self, event):
         if not self.attacking and self.attack_cooldown == 0:
@@ -108,37 +109,28 @@ class Fighter:
             if attack_key is not None:
                 self.status = attack_key
                 self.attack_status = attack_key
-            
+
+        self.time_since_last_input = 0
         self.move_combo.append(event.key)
         self.check_combos()
 
-    ''' Updates things not related to frame-dependant
+    ''' Updates things that are not frame-dependant.
         Animation is controlled by the player's status,
         which is updated after all key presses are handled.
     '''
     def update(self, dt, target):
-        if self.crouching:
-            self.hit_box = pg.Rect(self.rect.x, self.rect.y -200, 120, 120)
-        else:
-            self.hit_box = pg.Rect(self.rect.x, self.rect.y - 100, 120, 280)
+        status = self.process_movement(dt)  # checks for movement input and adds to deltas
+        self.update_cooldowns(dt)  # lowers jump and attack cooldowns
+        self.update_combo_reset(dt)  # clear the combo list if time since last input is 0.45 seconds or there are 9 inputs
+        self.update_position(dt, target)  # applies deltas and checks floor and walls
+        self.update_animation(status, target)  # sets the animation according to a variety of conditions
+        if self.projectile is not None:
+            self.projectile.update(dt, target)  # mainly moves the projectile and checks for collisions
 
-        if self.attacking and self.hit:
-            self.attacking = False
-
-        if self.super_meter >= 250:
-            self.super_meter = 250
-
-        if self.current_hp <= 0:
-            self.current_hp = 0
-            self.alive = False
-        if target.current_hp <= 0:
-            target.current_hp = 0
-            target.alive = False
-
+    def process_movement(self, dt):
         walking = False
-
         if not self.attacking and not self.game.hit_stun:
-            # basic movements
+            # jump
             if self.pressed_keys[Actions.UP] and not self.jump_cooldown:
                 self.dir = "UP"
                 self.jump_cooldown = 0.7
@@ -147,15 +139,18 @@ class Fighter:
                 self.on_ground = False
                 self.move_combo = []
 
+            # crouch
             elif self.pressed_keys[Actions.DOWN] and self.on_ground:
                 self.dir = "DOWN"
                 self.crouching = True
+                self.hit_box = pg.Rect(self.rect.x, self.rect.y -200, 120, 120)
                 self.dX = 0
-
             else:
                 self.crouching = False
+                self.hit_box = pg.Rect(self.rect.x, self.rect.y - 100, 120, 280)
                 self.animations["crouch"].reset()
 
+            # strafe
             if not self.crouching:
                 if self.pressed_keys[Actions.BACK]:
                     self.dir = "BACK"
@@ -177,27 +172,20 @@ class Fighter:
             status = "run"
         else:
             status = "idle"
+        return status
 
-        if self.projectile is not None:
-            self.update_projectile(dt, target)
+    def update_cooldowns(self, dt):
+        for attr_name in ['attack_cooldown', 'jump_cooldown']:
+            cooldown = getattr(self, attr_name) - dt
+            setattr(self, attr_name, max(cooldown, 0))
 
-        self.frames_without_combo += 1
-        if self.frames_without_combo > 26 or len(self.move_combo) > 9:
-            self.frames_without_combo = 0
+    def update_combo_reset(self, dt):
+        self.time_since_last_input += dt
+        if self.time_since_last_input > 0.45 or len(self.move_combo) > 9:
+            self.time_since_last_input = 0
             self.move_combo = []
 
-        # apply attack cooldown
-        if self.attack_cooldown > 0:
-            self.attack_cooldown -= dt
-            if self.attack_cooldown < 0:
-                self.attack_cooldown = 0
-
-        # apply jump cooldown
-        if self.jump_cooldown > 0:
-            self.jump_cooldown -= dt
-            if self.jump_cooldown < 0:
-                self.jump_cooldown = 0
-
+    def update_position(self, dt, target):
         # update dY based on gravity
         self.dY += self.gravity * dt
 
@@ -206,13 +194,19 @@ class Fighter:
         self.rect.y += self.dY * dt
         self.hit_box.center = self.rect.center
 
-        # check x // walls
+        # keep players facing each other
+        if target.rect.centerx > self.rect.centerx:
+            self.facing_right = True
+        else:
+            self.facing_right = False
+
+        # check walls
         if self.rect.left < 0:
             self.rect.left = 0
         elif self.rect.right > self.game.settings["screen_width"]:
             self.rect.right = self.game.settings["screen_width"]
 
-        # check y // if the character is on the ground
+        # check if the character is on the ground
         if self.rect.bottom >= 780:  # floor height
             self.rect.bottom = 780
             self.on_ground = True
@@ -222,15 +216,14 @@ class Fighter:
         else:
             self.on_ground = False
 
-        # keep players facing each other
-        if target.rect.centerx > self.rect.centerx:
-            self.facing_right = True
-        else:
-            self.facing_right = False
+    def update_animation(self, status, target):
+        # cancel an attack if you are hit
+        if self.attacking and self.hit:
+            self.attacking = False
 
         # update animation status and image
         if not self.attacking:
-            if self.status in ACTIONS :
+            if self.status in ACTIONS:
                 self.attacking = True
                 self.attack_cooldown = 0.05  # seconds
             else:
@@ -239,11 +232,10 @@ class Fighter:
             if not self.attacked:
                 self.attack(target)
 
-        if self.hit == True:
-           self.status = 'hit'
+        if self.hit:
+           self.status = "hit"
 
         self.animation = self.animations[self.status]
-
         if self.animation.done and not self.animation.loop:
             if self.status in ACTIONS:
                 self.animation.reset()
@@ -256,204 +248,128 @@ class Fighter:
                 self.hit = False
 
     def draw(self):
-        pygame.draw.rect(self.game.screen, (0,0,255), self.rect)
-        pygame.draw.rect(self.game.screen, (0,255,0), self.hit_box)
+        #pygame.draw.rect(self.game.screen, (0,0,255), self.rect)
+        #pygame.draw.rect(self.game.screen, (0,255,0), self.hit_box)
         if self.game.hit_stun:
             self.image = self.hit_frame
         else:
             self.image = self.animation.update(self.game.dt)
-        #print(self.status, self.animation.frame_index)
 
         if not self.facing_right:
             self.image = pg.transform.flip(self.image, True, False)
+
         self.game.screen.blit(self.image, (self.rect.x - 90, self.rect.y - 15))
-        self.particle.emit()
+
         if self.projectile is not None:
             self.projectile.draw(self.game.screen)
             #pygame.draw.rect(self.game.screen, (0,255,0), self.projectile.rect)
+        
+        self.particle.emit()
 
     def attack(self, target, damage=None):
-        # get hitbox attributes for the active frame
+        # Get hitbox attributes for the active frame
         hitbox_attrs = self.char_data["hitboxes"]
         status = self.attack_status
         if damage is not None:
             status = "0"  # fireball doesnt need offset
         offset_x, offset_y, w, h = hitbox_attrs[status][1]
-        # calculate hitbox position using hitbox attributes and player rect
+
+        # Calculate hitbox position using hitbox attributes and player rect
         flip_hit_box = self.rect.w
         if not self.facing_right:
             flip_hit_box *= -1
             offset_x = (offset_x * -1) - w
         x = self.hit_box.centerx + offset_x + flip_hit_box
         y = self.hit_box.centery + offset_y
-        # create the hitbox from all the attributes together
+
+        # Create the hitbox from all the attributes together
         attack_rect = pg.Rect(x, y, w, h)
         self.attack_rect = attack_rect
-        # detect collision on the active frame
-        if (attack_rect.colliderect(target.hit_box) and not self.throwing_proj) or damage is not None:
-            
-            if damage is None:
-                fireball = False
-                damage = self.char_data["damage"][status]
-                self.super_meter += damage * 2
-                if target.alive:
-                    target.hit = True
-                    self.attacked = True
-                    if "L" in status:
-                        play_sound('./assets/sfx/hit_1.wav')
-                    if "M" in status:
-                        play_sound('./assets/sfx/hit_1.wav')
-                    if "H" in status:
-                        play_sound('./assets/sfx/hit_2.wav')
-                    target.current_hp -= damage
-                    # target.max_hp -= self.char_data["damage"][status]
-            
-            elif damage is None and not self.on_ground:
-                fireball = False
-                damage = self.char_data["damage"][status]
-                self.super_meter += damage * 2
-                if target.alive:
-                    target.hit = True
-                    self.attacked = True
-                    if "L" in status:
-                        play_sound('./assets/sfx/hit_1.wav')
-                    if "M" in status:
-                        play_sound('./assets/sfx/hit_1.wav')
-                    if "H" in status:
-                        play_sound('./assets/sfx/hit_2.wav')
-                    target.current_hp -= damage
-                    # target.max_hp -= self.char_data["damage"][status]
-            
-            elif damage:
-                fireball = True
-                self.super_meter += damage * 2
-                if target.alive:
-                    target.hit = True
-                    target.current_hp -= damage
-                    play_sound('./assets/sfx/hit_1.wav')
 
-            '''LAUNCH MOVES'''
-            match self.character:
-                case "Homusubi":
-                    if status == "2HP" and target.hit:
-                        target.dY -= 1800
-            self.hitspark(attack_rect, flip_hit_box, fireball, target)
-            self.animated_text = TextAnimation("", 60, 0, target. hit_box.topright, "white", 30, self.game.screen)
-            self.animated_text.damage = damage
-            # hit stun
-            if not fireball:
-                self.game.hit_stun = True
-                self.game.stun_time = 0
-                self.game.max_stun_time = 0.1
-                self.hit_frame = self.animation.animation[self.animation.frame_index]
-                if self.AI:
-                    player = self.game.player_1
+        # Detect collision on the active frame
+        if (attack_rect.colliderect(target.hit_box) and not self.throwing_proj) or damage is not None:
+            if target.alive:
+                if damage is not None:  # passed in from projectile
+                    fireball = True
+                    play_sound('./assets/sfx/hit_1.wav')
                 else:
-                    player = self.game.player_2
-                player.hit_frame = player.animation.animation[player.animation.frame_index]
-            # knockback
-            if self.attacking and self.on_ground:
-                if self.facing_right:
-                    self.rect.x -= 20
-                else:
-                    self.rect.x += 20
+                    fireball = False
+                    damage = self.char_data["damage"][status]
+                    self.handle_non_fireball_attack(target, status, damage, flip_hit_box, attack_rect)
+
+                self.super_meter += damage * 2
+                target.current_hp -= damage
+                target.hit = True
+
+                # Hitsparks and damage text
+                self.hitspark(attack_rect, flip_hit_box, fireball, target)
+                self.animated_text = TextAnimation("", 60, 0, target.hit_box.topright, "white", 30, self.game.screen)
+                self.animated_text.damage = damage
+
+                # Launch moves
+                if self.character == "Homusubi" and status == "2HP" and target.hit:
+                    target.dY -= 1800
+
+                # Limit the super meter to 250
+                if self.super_meter >= 250:
+                    self.super_meter = 250
+
+                # player death
+                for player in self.game.players:
+                    if player.current_hp <= 0:
+                        player.current_hp = 0
+                        player.alive = False
 
         elif not self.whiffed:
             self.whiffed = True
             play_sound('./assets/sfx/whiff_1.wav')
 
-    def hitspark(self, attack_rect, flip_hit_box, fireball=False, target=None):
-        # calculate hitspark position based on attack_rect
+    def handle_non_fireball_attack(self, target, status, damage, flip_hit_box, attack_rect):
+        self.attacked = True
+        play_sound('./assets/sfx/hit_1.wav' if "L" in status or "M" in status else './assets/sfx/hit_2.wav')
+
+        # Hit stun
+        self.game.hit_stun = True
+        self.game.stun_time = 0
+        self.game.max_stun_time = 0.1
+        self.hit_frame = self.animation.animation[self.animation.frame_index]
+        player = self.game.player_1 if self.AI else self.game.player_2
+        player.hit_frame = player.animation.animation[player.animation.frame_index]
+
+        # Knockback
+        if self.attacking and self.on_ground:
+            self.rect.x -= 20 if self.facing_right else 20
+
+    def hitspark(self, attack_rect, flip_hit_box, fireball, target):
         if not fireball:
-            offset_x = 40
-            target_x = attack_rect.x
-            if self.facing_right:
-                offset_x *= -1
-                target_x += flip_hit_box
-            target_x += offset_x
-            target_y = attack_rect.centery
-            if self.crouching:
-                target_y += 70
+            target_x, target_y = attack_rect.center
         else:
             target_x, target_y = target.hit_box.center
         for x in range(15):
             self.particle.addParticles(target_x, target_y, color="white")
 
-    def update_projectile(self, dt, target):
-        self.projectile.animation.update(dt)
-        self.projectile.move()
-
-        # check if 50 ms has passed since projectile spawning
-        self.projectile.frames_passed += 1
-        if self.projectile.frames_passed >= 10:
-            self.throwing_proj = False
-
-        # check projectile collision with opponent
-        if self.projectile.rect.collidepoint(target.rect.centerx, target.rect.centery+10):
-
-            if self.projectile.type == "LFB":
-                damage = 5
-            elif self.projectile.type == "MFB":
-                damage = 7
-            elif self.projectile.type == "HFB":
-                damage = 14
-
-            target.hit = True
-            self.projectile = None
-            self.throwing_proj = False
-            self.attack(target, damage)
-
-        elif self.projectile.off_screen:
-            self.projectile = None
-            self.throwing_proj = False
-
     def check_combos(self):
-        move_combo = self.move_combo
-        if not self.facing_right:
-            move_combo = [pg.K_a if key == pg.K_d else pg.K_d if key == pg.K_a else key for key in move_combo]
+        move_combo = self.move_combo if self.facing_right else [pg.K_a if key == pg.K_d else pg.K_d if key == pg.K_a else key for key in self.move_combo]
+        self.perform_dp(move_combo)
+        self.fire_projectile(move_combo)
 
-        for i in range(len(self.input_values)):
-            if self.projectile is None:
-                
-                '''FIREBALLS'''
-                if move_combo == list(self.inputs["LFireball"]) and self.super_meter >= 50:
-                    self.projectile = Projectile("FSTECH", "LFB", 40, self.rect.center, self, self.facing_right, self.game)
+    def fire_projectile(self, move_combo):
+        if self.projectile is None:
+            fireball_data = [("LFireball", 40), ("MFireball", 98), ("HFireball", 98)]
+            for proj_type, size in fireball_data:
+                if move_combo == list(self.inputs[proj_type]) and self.super_meter >= 50:
+                    self.projectile = Projectile("FSTECH", proj_type, size, self.rect.center, self, self.facing_right, self.game)
                     self.super_meter -= 50
-
-                elif move_combo == list(self.inputs["MFireball"]) and self.super_meter >= 50:
-                    self.projectile = Projectile("FSTECH", "MFB", 98, self.rect.center, self, self.facing_right, self.game)
-                    self.super_meter -= 50
-
-                elif move_combo == list(self.inputs["HFireball"]) and self.super_meter >= 50:
-                    self.projectile = Projectile("FSTECH", "HFB", 98, self.rect.center, self, self.facing_right, self.game)
-                    self.super_meter -= 50
-
-                '''DP'S'''
-                if "LDP" in list(self.inputs):
-                    if move_combo == list(self.inputs["LDP"]):
-                        self.dY -= 20
-                        self.move_combo = []
-                        print("LDP")
-                    elif move_combo == list(self.inputs["MDP"]):
-                        self.dY -= 20
-                        self.move_combo = []
-                        print("MDP")
-                    elif move_combo == list(self.inputs["HDP"]):
-                        self.dY -= 20
-                        self.move_combo = []
-                        print("HDP")
-                    elif move_combo == list(self.inputs["EXDP"]):
-                        self.dY -= 20
-                        self.move_combo = []
-                        print("EXDP")
-                else:
-                    print("character has no dp")
-
-                # check if a fireball has been created just now
-                if self.projectile is not None:
-                    self.projectile.frames_passed = 0
                     self.throwing_proj = True
                     self.move_combo = []
+
+    def perform_dp(self, move_combo):
+        dp_data = ["LDP", "MDP", "HDP", "EXDP"]
+        for name in dp_data:
+            if move_combo == list(self.inputs[name]):
+                self.dY -= 20
+                self.move_combo = []
+                print(name)
 
     def to_dict(self):
         return {

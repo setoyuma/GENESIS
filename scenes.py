@@ -46,8 +46,8 @@ class Match(Scene):
 		self.game.screen.blit(self.game.background.update(self.game.dt), (-self.game.camera.rect.x, -self.game.camera.rect.y))
 		self.game.draw_HUD()
 		self.game.show_fps()
-		if self.game.player_1.attack_rect is not None:
-			pg.draw.rect(self.game.screen, "green", self.game.player_1.attack_rect)
+		#if self.game.player_1.attack_rect is not None:
+		#	pg.draw.rect(self.game.screen, "green", self.game.player_1.attack_rect)
 
 	def draw_players(self):
 		# srpites
@@ -77,14 +77,12 @@ class Main_Menu(Scene):
 		super().__init__(game)
 		pg.display.set_caption("Kami No Ken: MAIN MENU")
 		self.bg = get_image("./assets/backgrounds/main-menu/KnK.png")
+		self.particle1 = ParticlePrinciple()
+		self.accumulator = 0
 		self.buttons = [
 			Button(self.game, "PLAY", (self.game.settings["screen_width"]/2, self.game.settings["screen_height"]/2), Home_Screen, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png", text_size=30),
 			Button(self.game, "QUIT", (self.game.settings["screen_width"] - 100, 50,), pg.quit, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png", text_size=30)
 		]
-
-		# mouse fx
-		self.accumulator = 0
-		self.particle1 = ParticlePrinciple()
 
 	def update(self):
 		if self.accumulator >= 5 / 1000:
@@ -115,18 +113,17 @@ class Home_Screen(Scene):
 		super().__init__(game)
 		pg.display.set_caption("Kami No Ken: HOME")
 		self.bg = get_image("./assets/backgrounds/main-menu/KnK.png")
-		self.buttons = [
-			Button(game, "LOCAL",(70,40), Local_Play,"assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png"),
-			Button(game, "ONLINE",(70,120), LobbyView,"assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png"),
-			Button(game, "BACK",(70,200), Main_Menu,"assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png"),
-			Button(game, "OPTIONS",(70,280), Options,"assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png"),
-			Button(game, "TRAINING",(70,360), Training,"assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png"),
-			Button(game, "QUIT", (self.game.settings["screen_width"]-100,50), pg.quit, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png")
-		]
-
-		# mouse fx
-		self.accumulator = 0
+		buttom_img = "assets/ui/buttons/button_plate1.png"
 		self.particle1 = ParticlePrinciple()
+		self.accumulator = 0
+		self.buttons = [
+			Button(game, "LOCAL", (70,40), Local_Play, buttom_img, buttom_img),
+			Button(game, "ONLINE", (70,120), LobbyView, buttom_img, buttom_img),
+			Button(game, "BACK", (70,200), Main_Menu, buttom_img, buttom_img),
+			Button(game, "OPTIONS", (70,280), Options, buttom_img, buttom_img),
+			Button(game, "TRAINING", (70,360), Training, buttom_img, buttom_img),
+			Button(game, "QUIT", (self.game.settings["screen_width"]-100,50), pg.quit, buttom_img, buttom_img)
+		]
 
 	def update(self):
 		if self.accumulator >= 5 / 1000:
@@ -160,7 +157,7 @@ class Local_Play(Match):
 		pg.mixer.music.play(-1)
 
 		self.game.player_1 = Fighter(game, 1, 200, 510, "Homusubi", "Play")
-		self.game.player_2 = Fighter(game, 2, 1000, 510, "Homusubi", "Play")
+		self.game.player_2 = Fighter(game, 2, 900, 510, "Homusubi", "Play")
 		self.game.player_2.pressed_keys = {119: False, 115: False, 97: False, 100: False, 1073742050: False, 1073742054: False, 1073741885: False}
 		self.game.players = [self.game.player_2, self.game.player_1]  # reversed for client draw order
 		self.game.match_time = 99
@@ -168,7 +165,7 @@ class Local_Play(Match):
 
 	def update(self):
 		self.game.player_1.pressed_keys = pg.key.get_pressed()
-		# process client events
+
 		for event in pg.event.get():
 			self.check_universal_events(self.game.player_1.pressed_keys, event)
 
@@ -178,8 +175,7 @@ class Local_Play(Match):
 					self.game.player_1.handle_event(event)
 
 					if event.key == pg.K_r:
-						self.__init__(self.game)
-						SceneManager(Main_Menu(self.game))
+						self.game.sceneManager.scene = Main_Menu(self.game)
 
 					if event.key == pg.K_h:
 						pg.draw.rect(self.game.screen, "green", self.game.player_1.hit_box)
@@ -204,7 +200,7 @@ class Training(Match):
 		pg.mixer.music.play(-1)
 
 		self.game.player_1 = Fighter(self.game, 1, 200, 510, "Homusubi", "Play")
-		self.game.player_2 = Fighter(self.game, 2, 1000, 570, "Homusubi", "Play")
+		self.game.player_2 = Fighter(self.game, 2, 900, 510, "Homusubi", "Play")
 		self.game.player_2.pressed_keys = {119: False, 115: False, 97: False, 100: False, 1073742050: False, 1073742054: False, 1073741885: False}
 		self.game.players = [self.game.player_2, self.game.player_1]  # reversed for client draw order
 		self.user_buttons = User_Inputs(self.game.settings["screen_width"]//2, 200, 30, self.game.player_1)
@@ -223,8 +219,7 @@ class Training(Match):
 					self.game.player_1.handle_event(event)
 
 					if event.key == pg.K_r:
-						self.game.__init__()
-						SceneManager(Main_Menu(self.game))
+						self.game.sceneManager.scene = Main_Menu(self.game)
 
 					if event.key == pg.K_h:
 						pg.draw.rect(self.game.screen, "green", self.game.player_1.hit_box)
@@ -328,15 +323,15 @@ class LobbyView(Scene):
 
 		# reinitialize buttons list with leave option
 		self.buttons = [
-			Button(self.game, "Start", (self.game.settings["screen_width"]/3+960, 700), self.game.start_match, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png", text_size=30),
-			Button(self.game, "Leave", (self.game.settings["screen_width"]/3+760, 700), self.leave_session, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png", text_size=30),
+			Button(self.game, "Start", (self.game.settings["screen_width"]/3+960, 700), self.game.start_match, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png"),
+			Button(self.game, "Leave", (self.game.settings["screen_width"]/3+760, 700), self.leave_session, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png")
 		]
 
 	def join_session(self, id):
 		# request a session's info from lobby server
 		data = {"type": "join_session", "id": id}
 		self.game.client.send_message(data)
-		self.buttons = [Button(self.game, "Leave", (self.game.screen.get_width()/2+605, 700), self.leave_session, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png", text_size=30, id=None)]
+		self.buttons = [Button(self.game, "Leave", (self.game.HALF_SCREENW+605, 700), self.leave_session, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png", id=None)]
 
 	def leave_session(self):
 		if self.game.client.is_host:
@@ -347,8 +342,8 @@ class LobbyView(Scene):
 			self.game.client.send_message({"id": self.game.session["id"], "type": "disconnect"})
 		self.game.session = None
 		self.buttons = [
-			Button(self.game, "CREATE", (self.game.settings["screen_width"]/3+960, 700), self.create_session, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png", text_size=30),
-			Button(self.game, "BACK", (self.game.settings["screen_width"]//3+760, 700), Home_Screen, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png", text_size=30)
+			Button(self.game, "CREATE", (self.game.settings["screen_width"]/3+960, 700), self.create_session, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png"),
+			Button(self.game, "BACK", (self.game.settings["screen_width"]//3+760, 700), Home_Screen, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png")
 		]
 		self.get_session_list()
 
@@ -361,7 +356,7 @@ class Online_play(Match):
 		pg.mixer.music.play(-1)
 
 		self.game.player_1 = Fighter(self.game, 1, 200, 510, "Homusubi", "Play")
-		self.game.player_2 = Fighter(self.game, 2, 1000, 510, "Homusubi", "Play")
+		self.game.player_2 = Fighter(self.game, 2, 900, 510, "Homusubi", "Play")
 		self.game.players = [self.game.player_2, self.game.player_1]  # reversed for client draw order
 		self.game.player_1.pressed_keys = {119: False, 115: False, 97: False, 100: False, 1073742050: False, 1073742054: False, 1073741885: False}
 		self.game.player_2.pressed_keys = {119: False, 115: False, 97: False, 100: False, 1073742050: False, 1073742054: False, 1073741885: False}
@@ -432,12 +427,13 @@ class Options(Scene):
 		super().__init__(game)
 		pg.display.set_caption("Kami No Ken: HOME")
 		self.bg = get_image("./assets/backgrounds/main-menu/KnK.png")
+		buttom_img = "assets/ui/buttons/button_plate1.png"
 		self.buttons = [
-			Button(self.game, "SOUND", (self.game.settings["screen_width"]//2, 320), Sound_Settings, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png", text_size=30),
-			Button(self.game, "FULLSCREEN", (self.game.settings["screen_width"]//2, 400), pg.display.toggle_fullscreen, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png", text_size=30),
-			Button(self.game, "CONTROLS", (self.game.settings["screen_width"]//2, 480), self.change_controls, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png", text_size=30),
-			Button(self.game, "BACK", (self.game.settings["screen_width"]//2, 560), Home_Screen, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png", text_size=30),
-			Button(self.game, "QUIT", (self.game.settings["screen_width"] - 100, 50), pg.quit, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png", text_size=30),
+			Button(self.game, "SOUND", (self.game.HALF_SCREENW, 320), Sound_Settings, buttom_img, buttom_img),
+			Button(self.game, "FULLSCREEN", (self.game.HALF_SCREENW, 400), pg.display.toggle_fullscreen, buttom_img, buttom_img),
+			Button(self.game, "CONTROLS", (self.game.HALF_SCREENW, 480), self.change_controls, buttom_img, buttom_img),
+			Button(self.game, "BACK", (self.game.HALF_SCREENW, 560), Home_Screen, buttom_img, buttom_img),
+			Button(self.game, "QUIT", (self.game.settings["screen_width"] - 100, 50), pg.quit, buttom_img, buttom_img),
 		]
 
 		# mouse fx
