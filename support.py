@@ -13,7 +13,7 @@ def import_folder(path):
         sorted_files = sorted(image_files, key=natural_key)
         for image in sorted_files:
             full_path = path + '/' + image
-            image_surf = pygame.image.load(full_path)# .convert_alpha()  needs pygame init
+            image_surf = get_image(full_path)
             surface_list.append(image_surf)
 
     return surface_list

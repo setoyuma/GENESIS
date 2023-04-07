@@ -25,7 +25,6 @@ class Fighter:
         self.size = FIGHTER_DATA[char]["size"]
         self.scale = FIGHTER_DATA[char]["scale"]
         self.inputs = FIGHTER_DATA[char]["combos"]  # combo names
-        self.input_values = self.inputs.values() # combo moves
         self.super_meter = 0
         self.blast_meter = 0
         self.speed = 10
@@ -112,7 +111,6 @@ class Fighter:
 
         self.time_since_last_input = 0
         self.move_combo.append(event.key)
-        self.check_combos()
 
     ''' Updates things that are not frame-dependant.
         Animation is controlled by the player's status,
@@ -129,7 +127,7 @@ class Fighter:
 
     def process_movement(self, dt):
         walking = False
-        if not self.attacking or not self.on_ground and not self.game.hit_stun:
+        if (not self.attacking or not self.on_ground) and not self.game.hit_stun:
             # jump
             if self.pressed_keys[Actions.UP] and not self.jump_cooldown:
                 self.dir = "UP"
@@ -181,8 +179,9 @@ class Fighter:
 
     def update_combo_reset(self, dt):
         self.time_since_last_input += dt
-        if self.time_since_last_input > 0.45 or len(self.move_combo) > 9:
+        if self.time_since_last_input > 0.083 or len(self.move_combo) > 9:
             self.time_since_last_input = 0
+            self.check_combos()
             self.move_combo = []
 
     def update_position(self, dt, target):
@@ -355,9 +354,10 @@ class Fighter:
 
     def fire_projectile(self, move_combo):
         if self.projectile is None:
-            fireball_data = [("LFireball", 40), ("MFireball", 98), ("HFireball", 98)]
+            fireball_data = [("EXFireball", 98), ("LFireball", 40), ("MFireball", 98), ("HFireball", 98)]
             for proj_type, size in fireball_data:
                 if move_combo == list(self.inputs[proj_type]) and self.super_meter >= 50:
+                    print(proj_type)
                     self.projectile = Projectile("FSTECH", proj_type, size, self.rect.center, self, self.facing_right, self.game)
                     self.super_meter -= 50
                     self.throwing_proj = True

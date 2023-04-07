@@ -1,5 +1,7 @@
-import pygame as pg, sys
+import pygame as pg
 import random
+import math
+import sys
 
 from support import import_folder, scale_images
 
@@ -12,7 +14,7 @@ class ParticlePrinciple:
         self.import_assets()
         self.image = self.animation[self.frame_index]
         self.color = "red"
-    
+
     def emit(self):
         # move/draw particles
         if self.particles:
@@ -24,7 +26,7 @@ class ParticlePrinciple:
                 #shrink particle
                 particle[1] -= 0.2
                 #draw circle around particle
-                pg.draw.circle(pg.display.get_surface(),pg.Color(self.color),particle[0], int(particle[1]))
+                pg.draw.circle(pg.display.get_surface(), pg.Color(particle[3]), particle[0], int(particle[1]))
                 # pg.draw.circle(pg.display.get_surface(),pg.Color(random.choice(self.colors)),particle[0], int(particle[1]))
                 # pg.draw.circle(pg.display.get_surface(),pg.Color(random.choice(self.colors)),particle[0], int(particle[1]))
 
@@ -44,17 +46,23 @@ class ParticlePrinciple:
         self.image = self.animation[int(self.frame_index)]
         self.frame_index += 1
 
-    def addParticles(self, posX, posY, color="red"):
-        self.color = color
-        # adds particles
-        # posX = pg.mouse.get_pos()[0]
-        # posY = pg.mouse.get_pos()[1]
+    def random_direction(self, start_angle_degrees, end_angle_degrees):
+        angle_degrees = random.uniform(start_angle_degrees, end_angle_degrees)
+        angle_radians = math.radians(angle_degrees)
+        dx = math.cos(angle_radians) * random.randint(0,3)
+        dy = math.sin(angle_radians) * random.randint(0,3)
+        return dx, dy
+
+    def addParticles(self, posX, posY, color="red", start_angle=None, end_angle=None):
         self.posX = posX
         self.posY = posY
         radius = 6
-        directionX = random.randint(-3,3)
-        directionY = random.randint(-3,3)
-        particleCircle = [[posX,posY], radius, [directionX, directionY]]
+        if start_angle is None:
+            directionX = random.randint(-3,3)
+            directionY = random.randint(-3,3)
+        else:
+            directionX, directionY = self.random_direction(start_angle, end_angle)
+        particleCircle = [[posX,posY], radius, [directionX, directionY], color]
         self.particles.append(particleCircle)
 
     def draw(self):

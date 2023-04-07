@@ -1,5 +1,7 @@
 import pygame as pg
+import random
 
+from particle import ParticlePrinciple
 from animation import Animator
 from support import *
 
@@ -14,11 +16,13 @@ class Projectile:
         self.frame_index = 0
         self.frames_passed = 0
         self.import_assets()
-        self.rect = pg.Rect(spawn_pos[0], spawn_pos[1], self.size, self.size)
+        self.rect = self.animation.animation[0].get_rect()
+        self.rect.center = spawn_pos[0], spawn_pos[1]
         if not facing_right:
             self.speed *= -1
             self.animation.animation = [pg.transform.flip(image, True, False) for image in self.animation.animation]
         self.image = self.animation.update(0)
+        self.particles = ParticlePrinciple()
     
     def import_assets(self):
         path = f'./assets/fireballs/{self.name}/'
@@ -36,6 +40,21 @@ class Projectile:
         if self.frames_passed >= 10:
             self.player.throwing_proj = False
 
+        if self.speed > 0:
+            x = self.rect.left
+            start_angle, end_angle = (120, 220)
+        else:
+            x = self.rect.right
+            start_angle, end_angle = (60, -60)
+        y = self.rect.centery
+        x += random.randint(-3, 3)
+        y += random.randint(-3, 3)
+        for i in range(5):
+            if self.type == "EXFireball":
+                self.particles.addParticles(x, y, "yellow", start_angle, end_angle)
+            else:
+                self.particles.addParticles(x, y, "white", start_angle, end_angle)
+
         # check projectile collision with opponent
         if self.rect.collidepoint(target.rect.centerx, target.rect.centery+10):
             if self.type == "LFireball":
@@ -44,6 +63,8 @@ class Projectile:
                 damage = 7
             elif self.type == "HFireball":
                 damage = 14
+            elif self.type == "EXFireball":
+                damage = 7 * 1.5
 
             self.player.projectile = None
             self.player.throwing_proj = False
@@ -54,7 +75,7 @@ class Projectile:
             self.rect.x += self.speed
         elif self.type == "MFireball":
             self.rect.x += int(self.speed * 1.5)
-        elif self.type == "HFireball":
+        elif self.type == "HFireball" or self.type == "EXFireball":
             self.rect.x += int(self.speed * 2.2)
 
         if self.rect.x < 0 or self.rect.x > self.game.settings["screen_width"]:
@@ -64,4 +85,10 @@ class Projectile:
         self.animation.update(dt)
 
     def draw(self, surf):
-        surf.blit(self.image, (self.rect.x, self.rect.y))
+        if self.speed > 0:
+            x = self.rect.left
+        else:
+            x = self.rect.right
+        #pg.draw.rect(surf, (0,0,0), self.rect)
+        surf.blit(self.image, self.rect.topleft)
+        self.particles.emit()

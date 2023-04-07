@@ -200,7 +200,7 @@ class Training(Match):
 		pg.mixer.music.play(-1)
 
 		self.game.player_1 = Fighter(self.game, 1, 200, 510, "Homusubi", "Play")
-		self.game.player_2 = Fighter(self.game, 2, 900, 510, "Homusubi", "Play")
+		self.game.player_2 = Fighter(self.game, 2, 1300, 510, "Homusubi", "Play")
 		self.game.player_2.pressed_keys = {119: False, 115: False, 97: False, 100: False, 1073742050: False, 1073742054: False, 1073741885: False}
 		self.game.players = [self.game.player_2, self.game.player_1]  # reversed for client draw order
 		self.user_buttons = User_Inputs(self.game.settings["screen_width"]//2, 200, 30, self.game.player_1)

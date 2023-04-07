@@ -112,7 +112,7 @@ class Game:
 			self.screen.blit(self.hud, (0,-55))
 			self.draw_portrait(player)
 			self.show_match_time()
-	
+
 	def draw_hud_bg(self):
 		bg_color = (40,40,40,200)
 		self.hud_bg_surf.fill((0,0,0,0))
@@ -127,7 +127,7 @@ class Game:
 		pg.draw.polygon(self.hud_bg_surf, bg_color, [(right_x-(600*1), 85+(1*27)), (right_x-(600*1), 67-(1*27)), (right_x, 65), (right_x, 85)])
 		# p2 super
 		pg.draw.polygon(self.hud_bg_surf, bg_color, [(screen_width - (190 + (1 * 635)), 113 + (1 * 54)), (screen_width - (200 + (1 * 615)), 93 + (1 * 26)), (screen_width - 200 , 93), (screen_width - 190, 113)])
-		
+
 		self.screen.blit(self.hud_bg_surf, (0,0))
 
 	def drawHealthBar(self, player):
