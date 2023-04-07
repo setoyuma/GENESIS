@@ -65,6 +65,7 @@ FIGHTER_DATA = {
             "LFireball":(Actions.DOWN, Actions.FORWARD, Actions.LP),
             "MFireball":(Actions.DOWN, Actions.FORWARD, Actions.MP),
             "HFireball":(Actions.DOWN, Actions.FORWARD, Actions.HP),
+            "EXFireball":(Actions.DOWN, Actions.FORWARD, Actions.LP, Actions.MP),
 
             "LDP":(Actions.FORWARD, Actions.DOWN, Actions.FORWARD, Actions.LP),
             "MDP":(Actions.FORWARD, Actions.DOWN, Actions.FORWARD, Actions.MP),

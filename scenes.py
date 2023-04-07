@@ -117,7 +117,7 @@ class Home_Screen(Scene):
 		self.particle1 = ParticlePrinciple()
 		self.accumulator = 0
 		self.buttons = [
-			Button(game, "LOCAL", (70,40), Local_Play, buttom_img, buttom_img),
+			Button(game, "LOCAL", (70,40), Character_Select, buttom_img, buttom_img),
 			Button(game, "ONLINE", (70,120), LobbyView, buttom_img, buttom_img),
 			Button(game, "BACK", (70,200), Main_Menu, buttom_img, buttom_img),
 			Button(game, "OPTIONS", (70,280), Options, buttom_img, buttom_img),
@@ -531,6 +531,57 @@ class Sound_Settings(Scene):
 		for button in self.buttons:
 			button.draw()
 		self.slider.draw(self.game.screen)
+		self.particle1.emit()
+		self.game.send_frame()
+		self.accumulator += self.game.dt
+
+class Character_Select(Scene):
+	def __init__(self, game):
+		super().__init__(game)
+		pg.display.set_caption("Kami No Ken: CHARACTER SELECT")
+		self.bg = get_image("./assets/ui/character_select/character_select.png")
+		self.bg = pg.transform.scale(self.bg, (self.game.settings["screen_width"], self.game.settings["screen_height"]))
+
+		self.buttons = [
+			Button(self.game, "BACK", (self.game.settings["screen_width"]//3+960, 750), Home_Screen, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png", text_size=30),
+		]
+		self.character_buttons = [
+			Button(self.game, "Homusubi", (420, 250), self.choose_character, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png", text_size=30),
+			Button(self.game, "Senju", (420, 380), self.choose_character, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png", text_size=30)
+		]
+		# mouse fx
+		self.accumulator = 0
+		self.particle1 = ParticlePrinciple()
+
+	def choose_character(self):
+		print(self.character_buttons.text)
+		
+
+
+	def update(self):
+		mouse_pos = pg.mouse.get_pos()
+
+		if self.accumulator >= 5 / 1000:
+			self.particle1.addParticles(mouse_pos[0], mouse_pos[1])
+			self.accumulator = 0
+
+		pressed_keys = pg.key.get_pressed()
+		for event in pg.event.get():
+			self.check_universal_events(pressed_keys, event)
+
+			for button in self.buttons:
+				button.update(event)
+
+			for button in self.character_buttons:
+				button.update(event)
+	
+	def draw(self):
+		self.game.screen.fill('black')
+		self.game.screen.blit(self.bg, (0,0))
+		for button in self.character_buttons:
+			button.draw()
+		for button in self.buttons:
+			button.draw()
 		self.particle1.emit()
 		self.game.send_frame()
 		self.accumulator += self.game.dt

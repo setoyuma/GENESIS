@@ -129,7 +129,7 @@ class Fighter:
 
     def process_movement(self, dt):
         walking = False
-        if not self.attacking and not self.game.hit_stun:
+        if not self.attacking or not self.on_ground and not self.game.hit_stun:
             # jump
             if self.pressed_keys[Actions.UP] and not self.jump_cooldown:
                 self.dir = "UP"
