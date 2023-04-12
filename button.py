@@ -9,10 +9,10 @@ class Button:
         self.pos = pos
         self.id = id
         self.function = function
+        self.base = get_image(base)
+        self.rect = self.base.get_rect()
 
         if isinstance(base, str):
-            self.base = get_image(base)
-            self.rect = self.base.get_rect()
             self.surf = pygame.Surface((self.rect[2], self.rect[3]), pygame.SRCALPHA)
             self.base_func = self.draw_image
         else:

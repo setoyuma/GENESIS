@@ -200,7 +200,7 @@ class Training(Match):
 		pg.mixer.music.play(-1)
 
 		self.game.player_1 = Fighter(self.game, 1, 200, 510, "Homusubi", "Play")
-		self.game.player_2 = Fighter(self.game, 2, 1300, 510, "Homusubi", "Play")
+		self.game.player_2 = Fighter(self.game, 2, 900, 510, "Homusubi", "Play")
 		self.game.player_2.pressed_keys = {119: False, 115: False, 97: False, 100: False, 1073742050: False, 1073742054: False, 1073741885: False}
 		self.game.players = [self.game.player_2, self.game.player_1]  # reversed for client draw order
 		self.user_buttons = User_Inputs(self.game.settings["screen_width"]//2, 200, 30, self.game.player_1)
@@ -535,6 +535,7 @@ class Sound_Settings(Scene):
 		self.game.send_frame()
 		self.accumulator += self.game.dt
 
+
 class Character_Select(Scene):
 	def __init__(self, game):
 		super().__init__(game)
@@ -554,7 +555,8 @@ class Character_Select(Scene):
 		self.particle1 = ParticlePrinciple()
 
 	def choose_character(self):
-		print(self.character_buttons.text)
+		for button in self.character_buttons:
+			print(button.text)
 		
 
 
@@ -578,8 +580,8 @@ class Character_Select(Scene):
 	def draw(self):
 		self.game.screen.fill('black')
 		self.game.screen.blit(self.bg, (0,0))
-		for button in self.character_buttons:
-			button.draw()
+		# for button in self.character_buttons:
+		# 	button.draw()
 		for button in self.buttons:
 			button.draw()
 		self.particle1.emit()

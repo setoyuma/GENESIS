@@ -76,7 +76,7 @@ class Fighter:
 
     def import_character_assets(self):
         self.animations = {}
-        self.animation_keys = {'idle':[],'run':[],'jump':[],'crouch':[],'hit':[],'LP':[],'MP':[],'HP':[],'LK':[],'MK':[],'HK':[],'2LP':[],'2MP':[],'2HP':[],'2LK':[],'2MK':[],'2HK':[],'JLP':[],'JMP':[]} 
+        self.animation_keys = {'idle':[],'run':[],'jump':[],'crouch':[],'hit':[],'LP':[],'MP':[],'HP':[],'LK':[],'MK':[],'HK':[],'2LP':[],'2MP':[],'2HP':[],'2LK':[],'2MK':[],'2HK':[],'JLP':[],'JMP':[],'JHP':[],'JLK':[]} 
         for key in self.animation_keys:
             full_path = f'./assets/characters/{self.character}/{key}/'
             original_images = import_folder(full_path)
@@ -330,7 +330,7 @@ class Fighter:
         # Hit stun
         self.game.hit_stun = True
         self.game.stun_time = 0
-        self.game.max_stun_time = 0.1
+        self.game.max_stun_time = 0.08
         self.hit_frame = self.animation.animation[self.animation.frame_index]
         player = self.game.player_1 if self.AI else self.game.player_2
         player.hit_frame = player.animation.animation[player.animation.frame_index]
