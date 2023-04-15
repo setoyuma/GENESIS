@@ -70,7 +70,7 @@ class Fighter:
         self.dX = 0
         self.dY = 0
         self.gravity = 5000  # pps
-        self.jump_force = -1500  # pps
+        self.jump_force = -1800  # pps
         self.jump_cooldown = 0
         self.move_speed = 500  # pps
 
@@ -198,6 +198,14 @@ class Fighter:
             self.facing_right = True
         else:
             self.facing_right = False
+        
+        # make players push eachother/stop eachother on collision
+        if self.rect.colliderect(target.rect) and self.facing_right and self.on_ground:
+            # self.rect.right = target.rect.left
+            target.rect.x += 3
+        elif self.rect.colliderect(target.rect) and not self.facing_right and self.on_ground:
+            # self.rect.left = target.rect.right
+            target.rect.x -= 3
 
         # check walls
         if self.rect.left < 0:

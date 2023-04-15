@@ -39,10 +39,8 @@ class Game:
 		self.heartbeat_thread.start()
 
 		# Game BG + BG Animation
-		self.bg = BACKGROUNDS["carnival"]
 		# Instantiate the camera with the size of the window
 		self.camera = Camera(self.settings["screen_width"], self.settings["screen_height"])
-		self.animation = Animator(self, self.bg, 0.25)
 		self.frame_index = 0
 		self.animation_speed = 0.25
 		self.hit_stun = False
@@ -72,12 +70,14 @@ class Game:
 		pg.mixer.music.play(-1)
 		self.volume = self.settings["game_volume"]
 		pg.mixer.music.set_volume(self.volume)
+		self.bg = BACKGROUNDS["carnival"]
+		self.animation = Animator(self, self.bg, 0.25)
 
 		# display
 		self.clock = pg.time.Clock()
 		pg.display.set_icon(pg.image.load('./assets/icons/main/gameicon.ico'))
 		pg.display.set_caption("Kami No Ken: GENESIS")
-		self.background = Animator(self, self.bg_animations["ogre-gate"], FRAME_DURATIONS["bg"], loop=True)
+		self.background = Animator(self, self.bg_animations[self.bg], FRAME_DURATIONS["bg"], loop=True)
 
 	def import_assets(self):
 		''' Load, scale, and store all primary assets in the game object '''
