@@ -18,6 +18,12 @@ class Lobby(Server):
         super().__init__()
         self.sessions = {}
         self.id_counter = 1
+        self.ip_blacklist = self.load_blacklist()
+
+    def load_blacklist(self):
+        with open("blacklist.json", "r") as f:
+            blacklist = json.load(f)
+        return blacklist["blacklisted_ips"]
 
     def get_session(self, id):
         for host_client, session in self.sessions.items():
@@ -31,6 +37,9 @@ class Lobby(Server):
 
     def handle_message(self, data, client):
         try:
+            if client[0] in self.ip_blacklist:
+                return
+
             decoded_data = json.loads(data.decode('utf-8'))
 
             # client keep-alive message

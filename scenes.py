@@ -150,13 +150,13 @@ class Home_Screen(Scene):
 
 
 class Local_Play(Match):
-	def __init__(self, game):
+	def __init__(self, game, character):
 		super().__init__(game)
 		pg.display.set_caption("Kami No Ken: GENESIS")
 		pg.mixer.music.load(f"./assets/music/{SONGS[2]}.wav")
 		pg.mixer.music.play(-1)
 
-		self.game.player_1 = Fighter(game, 1, 200, 510, "Homusubi", "Play")
+		self.game.player_1 = Fighter(game, 1, 200, 510, character, "Play")
 		self.game.player_2 = Fighter(game, 2, 900, 510, "Homusubi", "Play")
 		self.game.player_2.pressed_keys = {119: False, 115: False, 97: False, 100: False, 1073742050: False, 1073742054: False, 1073741885: False}
 		self.game.players = [self.game.player_2, self.game.player_1]  # reversed for client draw order
@@ -547,18 +547,16 @@ class Character_Select(Scene):
 			Button(self.game, "BACK", (self.game.settings["screen_width"]//3+960, 750), Home_Screen, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png", text_size=30),
 		]
 		self.character_buttons = [
-			Button(self.game, "Homusubi", (420, 250), self.choose_character, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png", text_size=30),
-			Button(self.game, "Senju", (420, 380), self.choose_character, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png", text_size=30)
+			Button(self.game, "Homusubi", (420, 250), self.choose_character, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png", text_size=30, id=0),
+			Button(self.game, "Senju", (420, 380), self.choose_character, "assets/ui/buttons/button_plate1.png", "assets/ui/buttons/button_plate1.png", text_size=30, id=1)
 		]
 		# mouse fx
 		self.accumulator = 0
 		self.particle1 = ParticlePrinciple()
 
-	def choose_character(self):
-		for button in self.character_buttons:
-			print(button.text)
-		
-
+	def choose_character(self, id):
+		character = ["Homusubi", "Senju"][id]
+		self.game.sceneManager.scene = Local_Play(self.game, character)
 
 	def update(self):
 		mouse_pos = pg.mouse.get_pos()
