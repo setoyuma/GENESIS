@@ -53,10 +53,9 @@ class ParticlePrinciple:
         dy = math.sin(angle_radians) * random.randint(0,3)
         return dx, dy
 
-    def addParticles(self, posX, posY, color="red", start_angle=None, end_angle=None):
+    def addParticles(self, posX, posY, color="red", start_angle=None, end_angle=None, radius=6):
         self.posX = posX
         self.posY = posY
-        radius = 6
         if start_angle is None:
             directionX = random.randint(-3,3)
             directionY = random.randint(-3,3)

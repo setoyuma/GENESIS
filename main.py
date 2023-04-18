@@ -86,6 +86,7 @@ class Game:
 		hud = get_image("./assets/ui/HUD/HUD4.png")
 		self.hud = pg.transform.scale(hud, (self.settings["screen_width"],  self.settings["screen_height"]/3))
 		self.hud_bg_surf = pg.Surface((self.settings["screen_width"], self.settings["screen_height"]/2), pygame.SRCALPHA)
+		self.particle1 = ParticlePrinciple()
 
 		# portaits
 		size = 80
@@ -112,6 +113,20 @@ class Game:
 			self.screen.blit(self.hud, (0,-55))
 			self.draw_portrait(player)
 			self.show_match_time()
+			self.super_meter_sparks(player)
+		
+	def super_meter_sparks(self, player):
+		if player.super_meter >= 250:
+			start_angle, end_angle = 280, 430
+			x = 610
+			color = "red"
+			if player.AI:
+				start_angle += 180
+				end_angle += 180
+				x += 390
+				color = "blue"
+			self.particle1.addParticles(x, 138, color, start_angle, end_angle, 8)
+			self.particle1.emit()
 
 	def draw_hud_bg(self):
 		bg_color = (40,40,40,200)
