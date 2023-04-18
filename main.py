@@ -28,22 +28,8 @@ blast_polygon_colors = ColorGradient((255,255,255), (255,255,0)).generate_gradie
 blast_points = [(179, 127), (195, 99), (225, 98), (225, 95), (30, 85), (6, 113), (28, 137), (53, 123), (92, 112), (173, 127)]
 right_blast_points = [(1421, 127), (1405, 99), (1375, 98), (1375, 95), (1570, 85), (1594, 113), (1572, 137), (1547, 123), (1508, 112), (1427, 127)]
 
+ai_actions = [pg.K_w, pg.K_s, pg.K_a, pg.K_d, pg.K_i, pg.K_o, pg.K_p, pg.K_j, pg.K_k, pg.K_SEMICOLON]
 
-ai_actions = [pg.K_w, pg.K_s, pg.K_a, pg.K_d, LP, MP, HP, LK, MK, HK]
-
-class Event:
-    def __init__(self, key):
-        self.type = None
-        self.key = key
-        self.button = None
-
-ai_actions = [pg.K_w, pg.K_s, pg.K_a, pg.K_d, LP, MP, HP, LK, MK, HK]
-
-class Event:
-    def __init__(self, key):
-        self.type = None
-        self.key = key
-        self.button = None
 
 class Game:
 	def __init__(self):
@@ -52,7 +38,7 @@ class Game:
 		self.screen = pg.display.set_mode((self.settings["screen_width"], self.settings["screen_height"]), pg.SCALED)
 		self.import_assets()
 		self.setup_pygame()
-
+ 
 		self.client = Client(self, "45.56.77.161", 8001)  # client sends data to lobby server by default
 		self.heartbeat_thread = threading.Thread(target=self.send_heartbeat, args=(self.client,), daemon=True)  # Use a separate thread to send a heartbeat
 		self.heartbeat_thread.start()
@@ -288,10 +274,3 @@ if __name__ == '__main__':
 	game = Game()
 	game.sceneManager = SceneManager(Main_Menu(game))
 	game.sceneManager.start()
-	train = False
-	if train:
-		game.reset()  # init player vars
-		game.init_training_vars()
-		AI.train()
-	else:
-		game.MainMenu()
