@@ -9,6 +9,7 @@ class Actions:
     LK = 107  # k
     MK = 108  # l
     HK = 59  # ;
+    THRW = 1073742049
 
 SONGS = [
     "main",
@@ -29,6 +30,7 @@ FIGHTER_DATA = {
         "size": 350,
         "scale": 1,
         "damage": {
+            "THRW": 5,
             "LP": 3,
             "MP": 6,
             "HP": 10,
@@ -48,6 +50,7 @@ FIGHTER_DATA = {
         },
         "hitboxes": {
             "0": [0, (0,0,0,0)],
+            "THRW": [2, (-100, -80, 100, 50)],
             "LP": [2, (-100, -80, 100, 50)],
             "MP": [2, (-70, -40, 100, 50)],
             "HP": [2, (-70, -40, 100, 50)],
@@ -120,6 +123,7 @@ FIGHTER_DATA = {
 }
 
 FRAME_DURATIONS = {
+    'THRW': 0.02,
     'LP': 0.02,
     'MP': 0.02,
     'HP': 0.02,
@@ -163,6 +167,7 @@ UNUSED_INPUTS = {
 
 '''NON-COMBO ACTIONS'''
 ATTACKS =  {
+       "1073742049" : "THRW",
        "105" : "LP",
         "111" : "MP",
        "112" : "HP",
@@ -172,6 +177,7 @@ ATTACKS =  {
     }
 
 ACTIONS = [
+    'THRW',
     'LP',
     'MP',
     'HP',

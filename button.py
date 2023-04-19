@@ -23,7 +23,7 @@ class Button:
         self.center = self.surf.get_rect().center
 
         if isinstance(hovered, str):
-            self.hovered = get_image(hovered)
+            self.hovered = get_image('./assets/ui/buttons/button_plate2.png')
             self.hover_func = self.draw_image
         else:
             self.hovered = pygame.Rect(hovered)

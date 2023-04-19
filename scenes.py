@@ -70,6 +70,7 @@ class Match(Scene):
 		if event.key == pg.K_ESCAPE:
 			self.game.paused = True
 			pause = Pause(self.game)
+			pause.update()
 
 
 class Main_Menu(Scene):
@@ -598,3 +599,6 @@ class SceneManager:
 			if scene != self.scene:  # scene has changed
 				continue
 			self.scene.draw()
+
+
+ALL_SCENES = [Main_Menu, Home_Screen, Local_Play, Training, LobbyView, Online_play, Options, Sound_Settings, Character_Select]

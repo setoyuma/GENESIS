@@ -65,7 +65,7 @@ class Fighter:
         self.facing_right = not self.AI
         self.jumping = False
         self.hit = False
-
+        self.try_throw = False
         # world
         self.dX = 0
         self.dY = 0
@@ -76,7 +76,7 @@ class Fighter:
 
     def import_character_assets(self):
         self.animations = {}
-        self.animation_keys = {'idle':[],'run':[],'jump':[],'crouch':[],'hit':[],'LP':[],'MP':[],'HP':[],'LK':[],'MK':[],'HK':[],'2LP':[],'2MP':[],'2HP':[],'2LK':[],'2MK':[],'2HK':[],'JLP':[],'JMP':[],'JHP':[],'JLK':[]} 
+        self.animation_keys = {'idle':[],'run':[],'jump':[],'crouch':[],'hit':[],'THRW':[],'LP':[],'MP':[],'HP':[],'LK':[],'MK':[],'HK':[],'2LP':[],'2MP':[],'2HP':[],'2LK':[],'2MK':[],'2HK':[],'JLP':[],'JMP':[],'JHP':[],'JLK':[]} 
         for key in self.animation_keys:
             full_path = f'./assets/characters/{self.character}/{key}/'
             original_images = import_folder(full_path)
@@ -101,6 +101,11 @@ class Fighter:
             elif self.on_ground:
                 if str(event.key) in self.game.settings["attacks"]:
                     attack_key = self.game.settings["attacks"][str(event.key)]
+                '''THROWS'''
+                if int(event.key) == pg.K_LSHIFT:
+                    attack_key = self.game.settings["attacks"][str(event.key)]
+                    self.try_throw = True
+
             elif self.jumping:
                 if str(event.key) in self.game.settings["attacks"]:
                     attack_key = "J" + self.game.settings["attacks"][str(event.key)]
@@ -179,7 +184,8 @@ class Fighter:
 
     def update_combo_reset(self, dt):
         self.time_since_last_input += dt
-        if self.time_since_last_input > 0.083 or len(self.move_combo) > 9:
+        # if self.time_since_last_input > 0.083 or len(self.move_combo) > 9:
+        if self.time_since_last_input > 0.100 or len(self.move_combo) > 9:
             self.time_since_last_input = 0
             self.check_combos()
             self.move_combo = []
@@ -256,7 +262,7 @@ class Fighter:
 
     def draw(self):
         #pygame.draw.rect(self.game.screen, (0,0,255), self.rect)
-        #pygame.draw.rect(self.game.screen, (0,255,0), self.hit_box)
+        # pygame.draw.rect(self.game.screen, (0,255,0), self.hit_box)
         if self.game.hit_stun:
             self.image = self.hit_frame
         else:
@@ -272,6 +278,9 @@ class Fighter:
             #pygame.draw.rect(self.game.screen, (0,255,0), self.projectile.rect)
         
         self.particle.emit()
+
+
+        
 
     def attack(self, target, damage=None):
         # Get hitbox attributes for the active frame
@@ -292,6 +301,21 @@ class Fighter:
         # Create the hitbox from all the attributes together
         attack_rect = pg.Rect(x, y, w, h)
         self.attack_rect = attack_rect
+
+        # throws
+        def throw():
+            if pg.Rect.colliderect(attack_rect, target.hit_box):
+                target.rect.x = attack_rect.x # make sure target follows hitbox of throw until complete
+                target.rect.y = attack_rect.y # make sure target follows hitbox of throw until complete
+                
+                pg.draw.rect(self.game.screen, "red", attack_rect)
+                print("Try Throw")
+            # target's rect should follow the gripbox of the player thats throwing
+            pass
+
+        if self.try_throw:
+            throw()
+            self.try_throw = False
 
         # Detect collision on the active frame
         if (attack_rect.colliderect(target.hit_box) and not self.throwing_proj) or damage is not None:
@@ -375,9 +399,9 @@ class Fighter:
         dp_data = ["LDP", "MDP", "HDP", "EXDP"]
         for name in dp_data:
             if move_combo == list(self.inputs[name]):
-                self.dY -= 20
+                self.dY += self.jump_force
                 self.move_combo = []
-                print(name)
+                print(name) 
 
     def to_dict(self):
         return {
