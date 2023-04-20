@@ -29,6 +29,7 @@ right_blast_points = [(1421, 127), (1405, 99), (1375, 98), (1375, 95), (1570, 85
 class Game:
 	def __init__(self):
 		pg.init()
+		pg.key.set_repeat(0)
 		self.load_settings()
 		self.screen = pg.display.set_mode((self.settings["screen_width"], self.settings["screen_height"]), pg.SCALED)
 		self.import_assets()
